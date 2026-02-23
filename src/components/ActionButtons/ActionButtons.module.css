@@ -1,0 +1,12 @@
+.actionButtonsContainer{
+    background-color: aqua;
+    display: flex;
+    justify-content: space-around;
+    font-size: 2.2rem;
+    height: 10vh;
+    align-items: center;
+}
+
+.actionButton:active{
+    transform: scale(1.1);
+}

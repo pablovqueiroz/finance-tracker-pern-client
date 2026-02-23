@@ -1,0 +1,23 @@
+:root {
+  --font-main: "Inter", sans-serif;
+  --font-title: "Sora", sans-serif;
+  /* Light Mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-main: #1a1a1b;
+  --text-muted: #6c757d;
+  --accent-red: #e11d48;
+  --accent-hover: #be123c;
+  --border: #e2e8f0;
+}
+
+[data-theme="dark"] {
+  /* Dark Mode */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-red: #ff4d4d;
+  --accent-hover: #ff1a1a;
+  --border: #334155;
+}

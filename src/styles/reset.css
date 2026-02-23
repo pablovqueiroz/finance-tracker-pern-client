@@ -1,0 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap");
+
+/* 1. RESET GLOBAL & ACESSIBILIDADE */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Remove o brilho de toque no iOS */
+}
+
+/* 2. ESTRUTURA HTML & iOS FIX */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%; /* Mantém o texto consistente na rotação do iPhone */
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  /* Garante que o fundo petróleo preencha áreas seguras do iPhone (Notch) */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* 3. INPUTS & BOTÕES (A parte crítica para Finanças) */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  /* iOS: Remove sombras internas e estilos nativos chatos */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Garante que botões não fiquem selecionados "azulados" ao clicar rápido */
+button {
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 4. MÍDIA E LISTAS */
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 5. DARK MODE FIX (Chrome Autofill) */
+input:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-main);
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-secondary) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+
+h1, h2, h3, h4 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.02em; 
+}

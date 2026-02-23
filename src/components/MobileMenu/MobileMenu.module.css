@@ -1,0 +1,24 @@
+.mobileMenu {
+  height: 10vh;
+  display: flex;
+  background-color: var(--accent-red);
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 2.2rem;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.createNew {
+  font-size: 4rem;
+  transform: translateY(-10px);
+}
+
+.createNew:active {
+  transform: translateY(-20px) scale(0.9);
+}
+
