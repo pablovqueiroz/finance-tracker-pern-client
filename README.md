@@ -1,10 +1,11 @@
 # Finance Tracker (Frontend)
 
-Frontend client for the Finance Tracker app, built with React, TypeScript, and Vite.
+Frontend for Finance Tracker, built with React, TypeScript, and Vite.
 
 ## Overview
 
-This project contains the UI layer for a PERN-based finance tracker. It currently includes a mobile-first home dashboard with reusable components and context providers for theme and authentication state.
+This repository contains the web interface for the `finance-tracker-pern` project.
+The app currently includes authentication (login/register), a main dashboard, and a profile page with account editing features.
 
 ## Tech Stack
 
@@ -15,20 +16,35 @@ This project contains the UI layer for a PERN-based finance tracker. It currentl
 - Axios
 - CSS Modules
 
-## Current Routes
+## Current Features
 
-- `/home` - main dashboard page
+- Token-based authentication stored in `localStorage` (`authToken`)
+- Authenticated user check via `GET /users/me`
+- Dashboard with balance, quick actions, and transactions components
+- Profile page with:
+  - name/gender update
+  - password change
+  - avatar upload
+  - account deletion
+- Mobile menu shown only for logged-in users
 
-Note: menu links for wallet, create, savings, and profile are present in the UI, but their pages are not wired in `App.tsx` yet.
+## Routes
+
+- `/` - Home
+- `/login` - Login
+- `/register` - Register
+- `/dashboard` - Dashboard
+- `/profile` - User profile
+- `*` - Not Found
 
 ## Project Structure
 
-- `src/pages` - page-level views
-- `src/components` - reusable UI components
-- `src/context` - app-level providers (auth/theme)
-- `src/hooks` - custom React hooks
-- `src/config` - runtime config values
-- `src/styles` - global and shared styles
+- `src/pages` - application pages
+- `src/components` - reusable components
+- `src/context` - global providers (`Auth`, `Theme`)
+- `src/hooks` - custom hooks
+- `src/config` - configuration (e.g., API base URL)
+- `src/styles` - global styles and variables
 
 ## Prerequisites
 
@@ -46,52 +62,46 @@ npm install
 Create a `.env` file in the project root:
 
 ```env
-# Backend host (without /api)
-VITE_API_URL=http://localhost:5005
+VITE_API_URL=http://localhost:5005/api
 ```
 
-Recommended value:
+Important note:
 
-- `VITE_API_URL=http://localhost:5005`
-
-Reason: the frontend currently calls endpoints like `${API_URL}/api/auth/verify` (`src/context/AuthContext.tsx`), and the backend already exposes routes under `/api/*`.
-
-If `VITE_API_URL` is not defined, the frontend falls back to `http://localhost:5005/api` (`src/config/config.ts`).
+- The frontend builds URLs in the format `${API_URL}/users/me`.
+- So for a backend exposing routes under `/api/*`, `VITE_API_URL` must include `/api`.
+- If not set, the fallback is already `http://localhost:5005/api`.
 
 ## Available Scripts
 
 ```bash
 npm run dev      # start development server
-npm run build    # type-check and create production build
-npm run preview  # preview production build locally
+npm run build    # type-check + production build
+npm run preview  # preview production build
 npm run lint     # run ESLint
 ```
 
-## Running the App
+## Running Locally
 
 ```bash
 npm run dev
 ```
 
-Then open the local URL shown by Vite (usually `http://localhost:5173`).
+Open the URL shown by Vite (usually `http://localhost:5173`).
 
 ## Backend Integration
 
 Expected local setup:
 
-- Backend server running on `http://localhost:5005`
-- Backend CORS origin (`ORIGIN`) set to `http://localhost:5173`
-- Backend routes mounted with `/api/*` (for example: `/api/auth/login`, `/api/users/me`)
+- Backend running at `http://localhost:5005`
+- API routes exposed under `/api/*`
+- Backend CORS allowing `http://localhost:5173`
 
-Current client auth check:
+Examples of endpoints used by the frontend:
 
-- `GET ${API_URL}/api/auth/verify` with `Authorization: Bearer <token>`
-
-## Status
-
-The project is in active development and still has placeholder components and in-progress routes.
+- `GET /api/users/me`
+- `PUT /api/users/me`
+- `DELETE /api/users/me`
 
 ## Related Repository
 
-- Backend (server): https://github.com/pablovqueiroz/finance-tracker-pern-server
-
+- Backend: <https://github.com/pablovqueiroz/finance-tracker-pern-server>
