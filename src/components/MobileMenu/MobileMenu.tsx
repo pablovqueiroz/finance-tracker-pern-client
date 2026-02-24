@@ -8,7 +8,7 @@ import styles from "./MobileMenu.module.css";
 export default function MobileMenu() {
   return (
     <nav className={styles.mobileMenu}>
-      <NavLink to="/home">
+      <NavLink to="/dashboard">
         {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
       </NavLink>
 

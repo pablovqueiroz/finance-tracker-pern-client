@@ -1,20 +1,30 @@
 import BounceLoader from "react-spinners/BounceLoader";
-import "./Spinner.module.css";
+import styles from "./Spinner.module.css";
+
+type SpinnerProps = {
+  fullscreen?: boolean;
+  size?: number;
+  text?: string;
+};
 
 function Spinner({
   fullscreen = false,
   size = 40,
-  text = "Loading..."
-}) {
+  text = "Loading...",
+}: SpinnerProps) {
   return (
-    <div className={fullscreen ? "spinner-overlay" : "spinner-container"}>
-      <div className="spinner-content">
+    <div
+      className={
+        fullscreen ? styles.spinnerOverlay : styles.spinnerContainer
+      }
+    >
+      <div className={styles.spinnerContent}>
         <BounceLoader
           size={size}
           color="var(--text-main)"
           aria-label="Loading Spinner"
         />
-        <p className="spinner-text">{text}</p>
+        <p className={styles.spinnerText}>{text}</p>
       </div>
     </div>
   );

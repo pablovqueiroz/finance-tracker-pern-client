@@ -89,9 +89,88 @@ input:-webkit-autofill {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-title);
   font-weight: 700;
-  letter-spacing: -0.02em; 
+  letter-spacing: -0.02em;
+}
+
+/* forms base styles */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Label */
+
+label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Input base */
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+/* Focus state */
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+}
+
+/* Placeholder */
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Disabled */
+
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error state (opcional) */
+input.error {
+  border-color: var(--accent-red);
+}
+
+/* system messages */
+.message {
+  font-size: 0.85rem;
+  margin-top: 0.6rem;
+  line-height: 0;
+}
+
+.message.success {
+  color: rgb(23, 212, 23);
+}
+
+.message.error {
+  color: var( --accent-red);
 }

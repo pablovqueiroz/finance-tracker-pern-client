@@ -1,0 +1,336 @@
+.profilePageContainer {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px 12px 56px;
+  display: grid;
+  gap: 18px;
+}
+
+.profileCard,
+.securitySection {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 90% -10%,
+      color-mix(in srgb, var(--accent-red) 14%, transparent),
+      transparent 42%
+    ),
+    var(--bg-secondary);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--text-main) 8%, transparent);
+}
+
+.profileCard {
+  padding: 18px 14px;
+}
+
+.profileHeader {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profileHeader h1 {
+  font-size: 1.6rem;
+  color: var(--text-main);
+}
+
+.profileHeader p {
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.logoutButton {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-primary) 86%, transparent);
+  color: var(--text-main);
+  font-weight: 700;
+  padding: 10px 14px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.logoutButton:hover {
+  background: color-mix(in srgb, var(--accent-red) 12%, var(--bg-primary));
+  border-color: color-mix(in srgb, var(--accent-red) 42%, var(--border));
+  transform: translateY(-1px);
+}
+
+.firstBlock {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.avatarUploader {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 12px;
+  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarImage {
+  width: 112px;
+  height: 112px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 3px solid color-mix(in srgb, var(--accent-red) 42%, var(--border));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-red) 12%, transparent);
+}
+
+.changeButton {
+  color: var(--accent-red);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s ease;
+}
+
+.changeButton:hover {
+  opacity: 0.8;
+}
+
+.fileInfo {
+  max-width: 100%;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.uploadActions {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.uploadButton,
+.saveButton button,
+.profileSecurityForm button,
+.dangerButton {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.uploadButton,
+.saveButton button,
+.profileSecurityForm button {
+  padding: 11px 16px;
+  background: linear-gradient(
+    120deg,
+    var(--accent-red),
+    color-mix(in srgb, var(--accent-red) 70%, #ffffff)
+  );
+  color: #ffffff;
+}
+
+.uploadButton:hover:not(:disabled),
+.saveButton button:hover:not(:disabled),
+.profileSecurityForm button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-red) 34%, transparent);
+}
+
+.uploadButton:disabled,
+.saveButton button:disabled,
+.profileSecurityForm button:disabled,
+.dangerButton:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.profileForm {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 14px;
+  display: grid;
+  gap: 18px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+}
+
+.profileForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.saveButton {
+  display: flex;
+  justify-content: stretch;
+  margin-top: 4px;
+}
+
+.securitySection {
+  padding: 18px 14px;
+}
+
+.securitySection h2 {
+  margin-bottom: 14px;
+  font-size: 1.2rem;
+}
+
+.profileSecurityForm {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 14px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.profileSecurityForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.profileSecurityForm button {
+  margin-top: 6px;
+  justify-self: stretch;
+  min-width: 0;
+}
+
+.dangerContainer {
+  margin-top: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent-red) 40%, var(--border));
+  border-radius: 16px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--accent-red) 8%, var(--bg-secondary));
+}
+
+.dangerZone {
+  display: grid;
+  gap: 12px;
+}
+
+.dangerZone h2 {
+  color: var(--accent-red);
+  font-size: 1.12rem;
+}
+
+.dangerZone p {
+  color: var(--text-muted);
+  max-width: 70ch;
+}
+
+.deleteAccountButton {
+  margin-top: 4px;
+}
+
+.dangerButton {
+  padding: 10px 16px;
+  background: var(--accent-red);
+  color: #ffffff;
+}
+
+.dangerButton:hover {
+  transform: translateY(-1px);
+  background: var(--accent-hover);
+}
+
+/* mobile first: enhancement for tablet */
+@media (min-width: 640px) {
+  .profilePageContainer {
+    padding: 22px 16px 64px;
+    gap: 22px;
+  }
+
+  .profileCard,
+  .securitySection {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .profileHeader h1 {
+    font-size: 1.8rem;
+  }
+
+  .logoutButton {
+    min-width: 132px;
+  }
+
+  .firstBlock {
+    gap: 18px;
+  }
+
+  .avatarUploader {
+    padding: 16px;
+  }
+
+  .saveButton {
+    justify-content: flex-end;
+  }
+
+  .saveButton button,
+  .profileSecurityForm button {
+    width: auto;
+    min-width: 180px;
+  }
+}
+
+/* desktop */
+@media (min-width: 900px) {
+  .profilePageContainer {
+    padding: 28px 18px 72px;
+    gap: 24px;
+  }
+
+  .profileCard {
+    padding: 28px;
+  }
+
+  .profileHeader {
+    margin-bottom: 22px;
+    gap: 10px;
+  }
+
+  .profileHeader h1 {
+    font-size: 2.2rem;
+  }
+
+  .firstBlock {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .avatarUploader {
+    padding: 18px 14px;
+  }
+
+  .avatarImage {
+    width: 132px;
+    height: 132px;
+  }
+
+  .profileForm,
+  .profileSecurityForm {
+    padding: 20px;
+  }
+
+  .securitySection {
+    padding: 24px 28px 28px;
+  }
+
+  .securitySection h2 {
+    font-size: 1.55rem;
+  }
+}

@@ -23,14 +23,14 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
         }
 
         try {
-            const { data } = await axios.get(`${API_URL}/api/auth/verify`, {
+            const { data } = await axios.get(`${API_URL}/users/me`, {
                 headers: {
                     Authorization: `Bearer ${tokenInStorage}`,
                 },
             });
 
-            const user = data.decodedToken as User;
-            setCurrentUser(data.decodedToken);
+            const user = data as User;
+            setCurrentUser(user);
             setIsLoggedIn(true);
 
             return user;
@@ -47,7 +47,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
         localStorage.removeItem("authToken");
         setCurrentUser(null);
         setIsLoggedIn(false)
-        nav("login")
+        nav("/login")
     }
     useEffect(() => {
         authenticateUser();
