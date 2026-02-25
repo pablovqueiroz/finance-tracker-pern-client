@@ -247,6 +247,36 @@
   background: var(--accent-hover);
 }
 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, #000000 55%, transparent);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.modalCard {
+  width: min(100%, 420px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  background: var(--bg-secondary);
+  box-shadow: 0 20px 40px color-mix(in srgb, #000000 22%, transparent);
+  display: grid;
+  gap: 12px;
+}
+
+.modalCard h3 {
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.modalCard p {
+  color: var(--text-muted);
+}
+
 /* mobile first: enhancement for tablet */
 @media (min-width: 640px) {
   .profilePageContainer {

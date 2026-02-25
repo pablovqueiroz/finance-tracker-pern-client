@@ -3,6 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import styles from "./ProfilePage.module.css";
 import axios from "axios";
 import api from "../../services/api";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import AvatarUploader from "../../components/Profile/AvatarUploader";
@@ -35,6 +36,8 @@ function ProfilePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showGoogleDeleteReauth, setShowGoogleDeleteReauth] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState<PasswordForm>({
     currentPassword: "",
@@ -71,6 +74,19 @@ function ProfilePage() {
 
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (!showGoogleDeleteReauth) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isDeletingAccount) {
+        setShowGoogleDeleteReauth(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showGoogleDeleteReauth, isDeletingAccount]);
 
   // Update profile
   const handleUpdateProfile: React.FormEventHandler<HTMLFormElement> = async (
@@ -119,20 +135,71 @@ function ProfilePage() {
     );
     if (!confirmed) return;
 
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    if (profile.provider === "GOOGLE") {
+      setShowGoogleDeleteReauth(true);
+      return;
+    }
+
+    const password = window.prompt(
+      "Type your password to confirm account deletion:",
+    );
+    if (!password) return;
+
+    setIsDeletingAccount(true);
+
     try {
-      if (profile.provider === "LOCAL") {
-        const password = window.prompt(
-          "Type your password to confirm account deletion:",
+      await api.delete("/users/me", {
+        data: { password },
+      });
+
+      handleLogout();
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const apiMessage =
+          error.response?.data?.errorMessage ??
+          error.response?.data?.message ??
+          "";
+
+        if (
+          apiMessage === "Google reauthentication is required to delete account."
+        ) {
+          setShowGoogleDeleteReauth(true);
+          setErrorMessage("Confirm deletion with Google to continue.");
+          return;
+        }
+
+        setErrorMessage(
+          apiMessage || "Failed deleting profile.",
         );
-        if (!password) return;
-
-        await api.delete("/users/me", {
-          data: { password },
-        });
       } else {
-        await api.delete("/users/me");
+        setErrorMessage("Unexpected error occurred.");
       }
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
 
+  const handleGoogleDeleteReauth = async (
+    credentialResponse: CredentialResponse,
+  ) => {
+    const googleIdToken = credentialResponse.credential;
+
+    if (!googleIdToken) {
+      setErrorMessage("Invalid Google token.");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    try {
+      await api.delete("/users/me", {
+        data: { googleIdToken },
+      });
       handleLogout();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -144,6 +211,8 @@ function ProfilePage() {
       } else {
         setErrorMessage("Unexpected error occurred.");
       }
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -316,6 +385,46 @@ function ProfilePage() {
 
         <DangerZone label="Delete my account" onDelete={handleDeleteAccount} />
       </section>
+
+      {showGoogleDeleteReauth && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => {
+            if (!isDeletingAccount) setShowGoogleDeleteReauth(false);
+          }}
+          role="presentation"
+        >
+          <div
+            className={styles.modalCard}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Google reauthentication required"
+          >
+            <h3>Confirm with Google</h3>
+            <p>
+              For security, reauthenticate with Google before deleting your
+              account.
+            </p>
+            <GoogleLogin
+              text="continue_with"
+              onSuccess={handleGoogleDeleteReauth}
+              onError={() => setErrorMessage("Google reauthentication failed.")}
+            />
+            {isDeletingAccount && (
+              <Spinner size={16} text="Deleting account..." />
+            )}
+            <button
+              type="button"
+              className={styles.logoutButton}
+              disabled={isDeletingAccount}
+              onClick={() => setShowGoogleDeleteReauth(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <Message
         type="success"
