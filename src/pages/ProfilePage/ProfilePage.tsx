@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./ProfilePage.module.css";
 import axios from "axios";
-import { API_URL } from "../../config/config";
+import api from "../../services/api";
 
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import AvatarUploader from "../../components/Profile/AvatarUploader";
@@ -16,6 +16,7 @@ type UserProfile = {
   email: string;
   gender: string;
   image: string;
+  provider?: "LOCAL" | "GOOGLE";
 };
 
 type PasswordForm = {
@@ -46,6 +47,7 @@ function ProfilePage() {
     email: "",
     gender: "",
     image: "",
+    provider: "LOCAL",
   });
 
   const { name, gender, image } = profile;
@@ -53,20 +55,14 @@ function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
-
-        const { data } = await axios.get<UserProfile>(`${API_URL}/users/me/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const { data } = await api.get<UserProfile>("/users/me");
 
         setProfile({
           name: data.name ?? "",
           email: data.email ?? "",
           gender: data.gender ?? "",
           image: data.image ?? "",
+          provider: data.provider ?? "LOCAL",
         });
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -84,23 +80,12 @@ function ProfilePage() {
 
     if (isUpdatingProfile) return;
 
-    const token = localStorage.getItem("authToken");
-    if (!token) return;
-
     setIsUpdatingProfile(true);
     setSuccessMessage(null);
     setErrorMessage(null);
 
     try {
-      await axios.put(
-        `${API_URL}/users/me`,
-        { name: name.trim(), gender },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      await api.put("/users/me", { name: name.trim(), gender });
 
       await authenticateUser();
       setSuccessMessage("Profile updated successfully.");
@@ -134,18 +119,19 @@ function ProfilePage() {
     );
     if (!confirmed) return;
 
-    const token = localStorage.getItem("authToken");
-    if (!token) return;
-    const password = window.prompt("Type your password to confirm account deletion:");
-    if (!password) return;
-
     try {
-      await axios.delete(`${API_URL}/users/me`, {
-        data: { password },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (profile.provider === "LOCAL") {
+        const password = window.prompt(
+          "Type your password to confirm account deletion:",
+        );
+        if (!password) return;
+
+        await api.delete("/users/me", {
+          data: { password },
+        });
+      } else {
+        await api.delete("/users/me");
+      }
 
       handleLogout();
     } catch (error: unknown) {
@@ -181,19 +167,12 @@ function ProfilePage() {
       return;
     }
 
-    const token = localStorage.getItem("authToken");
-    if (!token) return;
-
     setIsChangingPassword(true);
     setSuccessMessage(null);
     setErrorMessage(null);
 
     try {
-      await axios.put(`${API_URL}/users/me`, passwordForm, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.put("/users/me", passwordForm);
 
       setSuccessMessage("Password updated successfully.");
 

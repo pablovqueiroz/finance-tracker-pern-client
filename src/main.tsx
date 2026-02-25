@@ -1,22 +1,24 @@
 import "./styles/reset.css";
 import "./styles/variables.css";
 import "./styles/global.css";
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import { ThemeProvider } from './context/ThemeContext.tsx';
-import { BrowserRouter } from 'react-router-dom';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { BrowserRouter } from "react-router-dom";
 import { AuthWrapper } from "./context/AuthContext.tsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
         <AuthWrapper>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </AuthWrapper>
-      </BrowserRouter>
-    </ThemeProvider>
+      </GoogleOAuthProvider>
+    </BrowserRouter>
   </StrictMode>,
 );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../../config/config";
+import api from "../../services/api";
 import Message from "../Message/Message";
 import Spinner from "../Spinner/Spinner";
 import { useAuth } from "../../hooks/useAuth";
@@ -44,16 +44,7 @@ function AvatarUploader({
         formData.append("image", selectedFile);
 
         try {
-            const token = localStorage.getItem("authToken");
-            const { data } = await axios.put(
-                `${API_URL}/users/me`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                },
-            );
+            const { data } = await api.put("/users/me", formData);
             onImageUpdated(data.image);
             await authenticateUser();
             setSelectedFile(null);

@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { Link } from "react-router-dom"
 import TransctionCard from "../TransactionCard/TransctionCard"
 import styles from "./Transactions.module.css"
 

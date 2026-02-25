@@ -1,66 +1,72 @@
-import {createContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { type AuthContextType, type AuthWrapperProps, type User } from "../types/auth.types";
-import axios from "axios";
-import { API_URL } from "../config/config";
+import { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  type AuthContextType,
+  type AuthWrapperProps,
+  type User,
+} from "../types/auth.types";
+import api from "../services/api";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthWrapper = ({ children }: AuthWrapperProps) => {
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-    const nav = useNavigate();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const nav = useNavigate();
 
-    async function authenticateUser(): Promise<User | undefined> {
-        const tokenInStorage = localStorage.getItem("authToken");
+  const isLoggedIn = currentUser !== null;
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("authToken"),
+  );
 
-        if (!tokenInStorage) {
-            setCurrentUser(null);
-            setIsLoggedIn(false)
-            setIsLoading(false)
-            return;
-        }
+  async function authenticateUser(): Promise<void> {
+    const tokenInStorage = localStorage.getItem("authToken");
+    setToken(tokenInStorage);
 
-        try {
-            const { data } = await axios.get(`${API_URL}/users/me`, {
-                headers: {
-                    Authorization: `Bearer ${tokenInStorage}`,
-                },
-            });
-
-            const user = data as User;
-            setCurrentUser(user);
-            setIsLoggedIn(true);
-
-            return user;
-
-        } catch (error) {
-            console.log(error);
-            setCurrentUser(null);
-            setIsLoggedIn(false);
-        } finally {
-            setIsLoading(false);
-        }
+    if (!tokenInStorage) {
+      setCurrentUser(null);
+      setIsLoading(false);
+      return;
     }
-    const handleLogout = (): void => {
-        localStorage.removeItem("authToken");
-        setCurrentUser(null);
-        setIsLoggedIn(false)
-        nav("/login")
-    }
-    useEffect(() => {
-        authenticateUser();
-    }, []);
 
-    return (
-        <AuthContext.Provider
-            value={{
-                currentUser, isLoading, isLoggedIn, authenticateUser, handleLogout
-            }}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+    try {
+      const { data } = await api.get<User>("/users/me");
+      setCurrentUser(data);
+    } catch (error) {
+      console.error(error);
+      localStorage.removeItem("authToken");
+      setToken(null);
+      setCurrentUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleLogout = (): void => {
+    localStorage.removeItem("authToken");
+    setToken(null);
+    setCurrentUser(null);
+    nav("/login");
+  };
+
+  useEffect(() => {
+    void authenticateUser();
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        isLoading,
+        isLoggedIn,
+        token,
+        authenticateUser,
+        handleLogout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
 export { AuthContext, AuthWrapper };

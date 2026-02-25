@@ -1,42 +1,41 @@
-import { FcGoogle } from "react-icons/fc"
-import styles from "./RegisterPage.module.css"
-import { Link, useNavigate } from "react-router"
-import { useState } from "react"
-import { API_URL } from "../../../config/config"
+import styles from "./RegisterPage.module.css";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import axios from "axios";
-import Message from "../../../components/Message/Message"
-
+import api from "../../../services/api";
+import Message from "../../../components/Message/Message";
+import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../../../hooks/useAuth";
 
 function RegisterPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [gender, setGender] = useState("")
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [gender, setGender] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const nav = useNavigate();
+  const { authenticateUser } = useAuth();
 
-  const handleRegister = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleRegister = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting) return;
 
     setErrorMessage(null);
     setIsSubmitting(true);
-    
+
     if (!name || !email || !password || !confirmPassword) {
       setErrorMessage("Please fill in name, email and password.");
-      setIsSubmitting(false)
+      setIsSubmitting(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match.");
-      setIsSubmitting(false)
+      setIsSubmitting(false);
       return;
     }
 
@@ -56,10 +55,7 @@ function RegisterPage() {
     }
 
     try {
-      await axios.post(
-        `${API_URL}/auth/register`,
-        formData
-      );
+      await api.post("/auth/register", formData);
 
       nav("/login");
     } catch (error: unknown) {
@@ -67,7 +63,7 @@ function RegisterPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Signup failed"
+            "Signup failed",
         );
       } else {
         setErrorMessage("An unexpected error occurred.");
@@ -83,14 +79,21 @@ function RegisterPage() {
         <h2 className={styles.title}>Join us!</h2>
 
         <article className={styles.registerField}>
-          <label>Full Name:
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name..." />
+          <label>
+            Full Name:
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Full Name..."
+            />
           </label>
         </article>
 
         <section className={styles.registerField}>
-          <label>Profile picture <small>(max 2MB)</small></label>
+          <label>
+            Profile picture <small>(max 2MB)</small>
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -111,38 +114,51 @@ function RegisterPage() {
             onChange={(e) => setGender(e.target.value)}
           >
             <option value="">Select gender</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="NON_BINARY">Non-binary</option>
-                  <option value="TRANS_MAN">Trans man</option>
-                  <option value="TRANS_WOMAN">Trans woman</option>
-                  <option value="AGENDER">Agender</option>
-                  <option value="GENDERFLUID">Genderfluid</option>
-                  <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-                  <option value="OTHER">Other</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="NON_BINARY">Non-binary</option>
+            <option value="TRANS_MAN">Trans man</option>
+            <option value="TRANS_WOMAN">Trans woman</option>
+            <option value="AGENDER">Agender</option>
+            <option value="GENDERFLUID">Genderfluid</option>
+            <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+            <option value="OTHER">Other</option>
           </select>
         </article>
 
         <article className={styles.registerField}>
-          <label>Email:
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email..." />
+          <label>
+            Email:
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email..."
+            />
           </label>
         </article>
 
         <article className={styles.registerField}>
-          <label>Password:
-            <input type="password" value={password}
+          <label>
+            Password:
+            <input
+              type="password"
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password..." />
+              placeholder="Your password..."
+            />
           </label>
         </article>
 
         <article className={styles.registerField}>
-          <label>Confirm password:
-            <input type="password" value={confirmPassword}
+          <label>
+            Confirm password:
+            <input
+              type="password"
+              value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat your password..." />
+              placeholder="Repeat your password..."
+            />
           </label>
           {confirmPassword && password !== confirmPassword && (
             <small className={styles.PasswordFormHint}>
@@ -159,30 +175,48 @@ function RegisterPage() {
             {isSubmitting ? "Creating account..." : "Register"}
           </button>
         </article>
-          <Message
-            type="error"
-            text={errorMessage}
-            clearMessage={setErrorMessage}
-            duration={4000}
-          />
-        <p className={styles.registerFooter}>
-          or
-        </p>
+        <Message
+          type="error"
+          text={errorMessage}
+          clearMessage={setErrorMessage}
+          duration={4000}
+        />
+        <p className={styles.registerFooter}>or</p>
         <article className={styles.googleLogin}>
-          <button
-            type="button"
-            className={styles.oauthButton}
-          >
-            <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
-            Sign up with Google
-          </button>
+          <GoogleLogin text="signup_with"
+            onSuccess={async (credentialResponse) => {
+              const idToken = credentialResponse.credential;
+
+              if (!idToken) {
+                setErrorMessage("Invalid Google token.");
+                return;
+              }
+
+              try {
+                const { data } = await api.post("/auth/google", { idToken });
+                localStorage.setItem("authToken", data.authToken);
+                await authenticateUser();
+                nav("/profile");
+              } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                  setErrorMessage(
+                    error.response?.data?.errorMessage ??
+                      error.response?.data?.message ??
+                      "Google registration failed.",
+                  );
+                } else {
+                  setErrorMessage("Google registration failed.");
+                }
+              }
+            }}
+            onError={() => setErrorMessage("Google registration failed.")}
+          />
         </article>
         <p className={styles.registerFooter}>
           Already a member? <Link to="/login">Login</Link>
         </p>
       </form>
     </div>
-  )
-
+  );
 }
-export default RegisterPage
+export default RegisterPage;

@@ -16,7 +16,7 @@ export default function MobileMenu() {
         {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
       </NavLink>
 
-      <NavLink to="/create">
+      <NavLink to="/create-account">
         <FaCirclePlus className={styles.createNew} />
       </NavLink>
 

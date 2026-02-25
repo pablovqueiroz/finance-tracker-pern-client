@@ -1,11 +1,11 @@
 import styles from "./LoginPage.module.css";
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../../../config/config";
+import api from "../../../services/api";
 import { useAuth } from "../../../hooks/useAuth";
 import Message from "../../../components/Message/Message";
+import { GoogleLogin } from "@react-oauth/google";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,9 +16,7 @@ function LoginPage() {
   const { authenticateUser } = useAuth();
   const nav = useNavigate();
 
-  const handleLogin = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting) return;
@@ -33,21 +31,17 @@ function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const { data } = await axios.post(
-        `${API_URL}/auth/login`,
-        { email, password }
-      );
+      const { data } = await api.post("/auth/login", { email, password });
 
       localStorage.setItem("authToken", data.authToken);
       await authenticateUser();
       nav("/profile");
-
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Login failed"
+            "Login failed",
         );
       } else {
         setErrorMessage("Unexpected error occurred.");
@@ -100,17 +94,34 @@ function LoginPage() {
         />
 
         <p className={styles.loginFooter}>
-          New here? <Link to="/register">Sign up</Link> <br />or
+          New here? <Link to="/register">Sign up</Link> <br />
+          or
         </p>
 
         <article className={styles.googleLogin}>
-          <button
-            type="button"
-            className={styles.oauthButton}
-          >
-            <FcGoogle className={styles.oauthGoogleIcon} />
-            Continue with Google
-          </button>
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              const idToken = credentialResponse.credential;
+
+              if (!idToken) {
+                setErrorMessage("Invalid Google token.");
+                return;
+              }
+
+              try {
+                const { data } = await api.post("/auth/google", { idToken });
+
+                localStorage.setItem("authToken", data.authToken);
+
+                await authenticateUser();
+
+                nav("/profile");
+              } catch {
+                setErrorMessage("Google login failed.");
+              }
+            }}
+            onError={() => setErrorMessage("Google login failed.")}
+          />
         </article>
       </form>
     </div>

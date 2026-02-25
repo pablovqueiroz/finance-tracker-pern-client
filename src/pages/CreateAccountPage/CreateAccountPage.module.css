@@ -1,0 +1,100 @@
+.accountPageContainer {
+  min-height: calc(100vh - 120px);
+  padding: 24px 16px 100px;
+  display: flex;
+  justify-content: center;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 640px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.title {
+  margin: 0 0 20px;
+  text-align: center;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form input,
+.form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  background: var(--bg-secondary);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.form input:focus,
+.form select:focus {
+  outline: none;
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-red) 18%, transparent);
+  background: var(--bg-primary);
+}
+
+.registerButton {
+  margin-top: 6px;
+  width: fit-content;
+  margin: auto;
+}
+
+.primaryBtn {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--accent-red);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.05s ease;
+}
+
+.primaryBtn:hover {
+  background: var(--accent-hover);
+}
+
+.primaryBtn:active {
+  transform: translateY(1px);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .formContainer {
+    padding: 18px;
+    border-radius: 12px;
+  }
+}

@@ -1,7 +1,7 @@
 import { CiCircleMinus, CiCirclePlus } from "react-icons/ci"
 import { TbReport } from "react-icons/tb"
 import styles from "./ActionButtons.module.css"
-import { Link } from "react-router"
+import { Link } from "react-router-dom"
 
 function ActionButtons() {
     return (
