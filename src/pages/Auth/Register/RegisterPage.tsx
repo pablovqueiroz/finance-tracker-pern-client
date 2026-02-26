@@ -19,13 +19,12 @@ function RegisterPage() {
   const nav = useNavigate();
   const { authenticateUser } = useAuth();
 
-  const handleRegister = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting) return;
 
     setErrorMessage(null);
-    setIsSubmitting(true);
 
     if (!name || !email || !password || !confirmPassword) {
       setErrorMessage("Please fill in name, email and password.");
@@ -183,7 +182,8 @@ function RegisterPage() {
         />
         <p className={styles.registerFooter}>or</p>
         <article className={styles.googleLogin}>
-          <GoogleLogin text="signup_with"
+          <GoogleLogin
+            text="signup_with"
             onSuccess={async (credentialResponse) => {
               const idToken = credentialResponse.credential;
 

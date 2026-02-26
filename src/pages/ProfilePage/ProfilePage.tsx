@@ -58,7 +58,7 @@ function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await api.get<UserProfile>("/users/me");
+        const { data } = await api.get<UserProfile>(`/users/me`);
 
         setProfile({
           name: data.name ?? "",
@@ -164,16 +164,15 @@ function ProfilePage() {
           "";
 
         if (
-          apiMessage === "Google reauthentication is required to delete account."
+          apiMessage ===
+          "Google reauthentication is required to delete account."
         ) {
           setShowGoogleDeleteReauth(true);
           setErrorMessage("Confirm deletion with Google to continue.");
           return;
         }
 
-        setErrorMessage(
-          apiMessage || "Failed deleting profile.",
-        );
+        setErrorMessage(apiMessage || "Failed deleting profile.");
       } else {
         setErrorMessage("Unexpected error occurred.");
       }

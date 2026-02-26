@@ -1,3 +1,96 @@
 .balanceCardContainer {
-    background-color: green;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.counter {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+.navBtn {
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.navBtn:hover {
+  border-color: var(--accent-red);
+}
+
+.accountData h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+}
+
+.accountData p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.meta span {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: var(--border);
+}
+
+.dotActive {
+  width: 20px;
+  border-radius: 999px;
+  background: var(--accent-red);
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--text-muted);
 }

@@ -1,0 +1,110 @@
+.accountDetailsPageContainer {
+  min-height: calc(100vh - 120px);
+  padding: 24px 16px 100px;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.accountDetails,
+.aMembersSection,
+.transactionsSection,
+.savingGoalsSection {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.accountTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+}
+
+.description {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+}
+
+.currency {
+  width: fit-content;
+  margin: 10px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.myRole {
+  margin: 12px 0 0;
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.membersTitle,
+.transactionsTitle,
+.savingGoalsTitle {
+  margin: 0 0 12px;
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.aMembersSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.aMembersSection h3 {
+  grid-column: 1 / -1;
+}
+
+.memberAvatar {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.memberAvatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.memberName {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.memberRole {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.transactionsSection,
+.savingGoalsSection {
+  display: grid;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .accountDetailsPageContainer {
+    padding: 16px 12px 92px;
+    gap: 12px;
+  }
+}

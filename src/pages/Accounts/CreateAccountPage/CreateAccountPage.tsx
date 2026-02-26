@@ -1,10 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import axios from "axios";
 import styles from "./CreateAccountPage.module.css";
-import api from "../../services/api";
-import Message from "../../components/Message/Message";
-
-type Currency = "EUR" | "USD" | "BRL" | "GBP" | "JPY";
+import api from "../../../services/api";
+import Message from "../../../components/Message/Message";
+import type { Currency } from "../../../types/account.types";
 
 type Account = {
   name: string;
@@ -16,6 +15,7 @@ function CreateAccountPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const CURRENCIES: Currency[] = ["EUR", "USD", "BRL", "GBP", "JPY"];
 
   const [account, setAccount] = useState<Account>({
     name: "",
@@ -105,21 +105,18 @@ function CreateAccountPage() {
             />
           </label>
 
-          <label htmlFor="currency">
-            Currency:
-            <select
-              name="currency"
-              id="currency"
-              value={account.currency}
-              onChange={handleChange}
-            >
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-              <option value="BRL">BRL</option>
-              <option value="GBP">GBP</option>
-              <option value="JPY">JPY</option>
-            </select>
-          </label>
+          <select
+            name="currency"
+            id="currency"
+            value={account.currency}
+            onChange={handleChange}
+          >
+            {CURRENCIES.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </select>
 
           <article className={styles.registerButton}>
             <button

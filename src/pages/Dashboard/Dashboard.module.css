@@ -1,0 +1,21 @@
+.DashboardContainer {
+  min-height: calc(100vh - 120px);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 100px;
+  display: grid;
+  gap: 14px;
+}
+
+.welcome,
+.balanceCard,
+.actions,
+.transactions {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .DashboardContainer {
+    padding: 16px 12px 92px;
+  }
+}

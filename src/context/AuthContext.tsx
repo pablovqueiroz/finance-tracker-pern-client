@@ -30,7 +30,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     }
 
     try {
-      const { data } = await api.get<User>("/users/me");
+      const { data } = await api.get<User>(`users/me`);
       setCurrentUser(data);
     } catch (error) {
       console.error(error);

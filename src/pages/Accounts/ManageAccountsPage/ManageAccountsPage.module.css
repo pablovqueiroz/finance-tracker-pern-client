@@ -1,0 +1,25 @@
+.ManageAccountsPage {
+  min-height: calc(100vh - 120px);
+  padding: 24px 16px 100px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.ManageAccountsPage h2 {
+  margin: 0 0 20px;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+}
+
+.ManageAccountsPage section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .ManageAccountsPage {
+    padding: 16px 12px 92px;
+  }
+}

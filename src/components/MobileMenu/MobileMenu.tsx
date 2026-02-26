@@ -2,7 +2,12 @@ import { NavLink } from "react-router-dom";
 import { IoHomeOutline, IoHomeSharp } from "react-icons/io5";
 import { HiOutlineWallet, HiWallet } from "react-icons/hi2";
 import { FaCirclePlus } from "react-icons/fa6";
-import { MdOutlineSavings, MdSavings, MdOutlineAccountCircle, MdAccountCircle } from "react-icons/md";
+import {
+  MdOutlineSavings,
+  MdSavings,
+  MdOutlineAccountCircle,
+  MdAccountCircle,
+} from "react-icons/md";
 import styles from "./MobileMenu.module.css";
 
 export default function MobileMenu() {
@@ -12,7 +17,7 @@ export default function MobileMenu() {
         {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
       </NavLink>
 
-      <NavLink to="/wallet">
+      <NavLink to="/accounts">
         {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
       </NavLink>
 
@@ -25,7 +30,9 @@ export default function MobileMenu() {
       </NavLink>
 
       <NavLink to="/profile">
-        {({ isActive }) => (isActive ? <MdAccountCircle /> : <MdOutlineAccountCircle />)}
+        {({ isActive }) =>
+          isActive ? <MdAccountCircle /> : <MdOutlineAccountCircle />
+        }
       </NavLink>
     </nav>
   );

@@ -1,0 +1,61 @@
+.transactionCardContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--bg-secondary);
+}
+
+.info {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.category {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-transform: capitalize;
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.amount {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.income {
+  color: #0f9d58;
+}
+
+.expense {
+  color: var(--accent-red);
+}
