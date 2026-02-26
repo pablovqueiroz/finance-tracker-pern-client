@@ -5,7 +5,7 @@ Frontend for Finance Tracker, built with React, TypeScript, and Vite.
 ## Overview
 
 This repository contains the web interface for the `finance-tracker-pern` project.
-The app currently includes authentication (login/register), a main dashboard, and a profile page with account editing features.
+The app currently includes authentication, account management, a dashboard with account carousel + transactions, and profile editing features.
 
 ## Tech Stack
 
@@ -19,14 +19,22 @@ The app currently includes authentication (login/register), a main dashboard, an
 ## Current Features
 
 - Token-based authentication stored in `localStorage` (`authToken`)
+- Google OAuth login/register (`POST /auth/google`)
 - Authenticated user check via `GET /users/me`
-- Dashboard with balance, quick actions, and transactions components
+- Accounts flow:
+  - create account
+  - list accounts
+  - account details (members, transactions, saving goals)
+- Dashboard with:
+  - account carousel (switch between accounts)
+  - transactions list for selected account
+  - quick actions and hero section
 - Profile page with:
   - name/gender update
   - password change
   - avatar upload
   - account deletion
-- Mobile menu shown only for logged-in users
+- Mobile menu navigation
 
 ## Routes
 
@@ -35,6 +43,9 @@ The app currently includes authentication (login/register), a main dashboard, an
 - `/register` - Register
 - `/dashboard` - Dashboard
 - `/profile` - User profile
+- `/create-account` - Create account
+- `/accounts` - Accounts list
+- `/accounts/:accountId` - Account details
 - `*` - Not Found
 
 ## Project Structure
@@ -98,9 +109,16 @@ Expected local setup:
 
 Examples of endpoints used by the frontend:
 
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/google`
 - `GET /api/users/me`
 - `PUT /api/users/me`
 - `DELETE /api/users/me`
+- `GET /api/accounts`
+- `POST /api/accounts`
+- `GET /api/accounts/:accountId`
+- `GET /api/transactions/account/:accountId`
 
 ## Related Repository
 
