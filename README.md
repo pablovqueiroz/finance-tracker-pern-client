@@ -5,7 +5,7 @@ Frontend for Finance Tracker, built with React, TypeScript, and Vite.
 ## Overview
 
 This repository contains the web interface for the `finance-tracker-pern` project.
-The app currently includes authentication, account management, a dashboard with account carousel + transactions, and profile editing features.
+The app currently includes authentication, account management, member invites/removal, full transaction CRUD by account, dashboard quick actions, and profile editing features.
 
 ## Tech Stack
 
@@ -27,8 +27,19 @@ The app currently includes authentication, account management, a dashboard with 
   - account details (members, transactions, saving goals)
 - Dashboard with:
   - account carousel (switch between accounts)
+  - account balance in the balance card
+  - account balance in account cards
   - transactions list for selected account
-  - quick actions and hero section
+  - quick actions:
+    - `+` opens "new income" for active account
+    - `-` opens "new expense" for active account
+  - personalized hero (`Hello {user.name}`)
+- Manage transactions page (`/accounts/:accountId/transactions`) with:
+  - create transaction (form opens on button click)
+  - edit transaction (icon button inside card)
+  - delete transaction (icon button inside card)
+  - dynamic categories by transaction type (`INCOME` / `EXPENSE`)
+  - title fallback: if title is empty, category is sent as title
 - Profile page with:
   - name/gender update
   - password change
@@ -46,6 +57,7 @@ The app currently includes authentication, account management, a dashboard with 
 - `/create-account` - Create account
 - `/accounts` - Accounts list
 - `/accounts/:accountId` - Account details
+- `/accounts/:accountId/transactions` - Manage transactions (CRUD)
 - `*` - Not Found
 
 ## Project Structure
@@ -119,6 +131,12 @@ Examples of endpoints used by the frontend:
 - `POST /api/accounts`
 - `GET /api/accounts/:accountId`
 - `GET /api/transactions/account/:accountId`
+- `GET /api/transactions/summary/:accountId`
+- `POST /api/transactions`
+- `PUT /api/transactions/:id`
+- `DELETE /api/transactions/:id`
+- `POST /api/invites`
+- `DELETE /api/accounts/:accountId/members/:memberId`
 
 ## Related Repository
 

@@ -11,6 +11,14 @@ import type {
 import styles from "./Dashboard.module.css";
 import api from "../../services/api";
 
+type AccountSummaryResponse = {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  transactionCount: number;
+  period: string;
+};
+
 function Dashboard() {
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,12 +31,36 @@ function Dashboard() {
     async function fetchAccounts() {
       try {
         const accountsResponse = await api.get<AccountSummary[]>(`/accounts`);
-        const accountList = Array.isArray(accountsResponse.data)
+        const baseAccountList = Array.isArray(accountsResponse.data)
           ? accountsResponse.data.map((account) => ({
               ...account,
               users: account.users ?? [],
             }))
           : [];
+
+        const summaries = await Promise.allSettled(
+          baseAccountList.map((account) =>
+            api.get<AccountSummaryResponse>(`/transactions/summary/${account.id}`),
+          ),
+        );
+
+        const accountList = baseAccountList.map((account, index) => {
+          const summaryResult = summaries[index];
+          if (summaryResult?.status === "fulfilled") {
+            const summary = summaryResult.value.data;
+            return {
+              ...account,
+              balance: summary.balance,
+              _count: {
+                transactions: summary.transactionCount,
+                savingGoals: account._count?.savingGoals ?? 0,
+              },
+            };
+          }
+
+          return account;
+        });
+
         setAccounts(accountList);
         setActiveAccountIndex(0);
       } catch (error: unknown) {
@@ -101,7 +133,7 @@ function Dashboard() {
       </section>
 
       <section className={styles.actions}>
-        <ActionButtons />
+        <ActionButtons accountId={activeAccountId} />
       </section>
 
       <section className={styles.transactions}>

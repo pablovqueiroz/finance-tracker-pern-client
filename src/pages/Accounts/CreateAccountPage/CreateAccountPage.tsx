@@ -3,13 +3,7 @@ import axios from "axios";
 import styles from "./CreateAccountPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
-import type { Currency } from "../../../types/account.types";
-
-type Account = {
-  name: string;
-  description: string;
-  currency: Currency;
-};
+import type { Account, Currency } from "../../../types/account.types";
 
 function CreateAccountPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -79,13 +73,14 @@ function CreateAccountPage() {
 
   return (
     <div className={styles.accountPageContainer}>
-      <div className={styles.formContainer}>
+      <div className={`${styles.formContainer} ui-card`}>
         <h2 className={styles.title}>Create an Account</h2>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label htmlFor="name">
             Title:
             <input
+              className="ui-control"
               type="text"
               name="name"
               id="name"
@@ -98,6 +93,7 @@ function CreateAccountPage() {
           <label htmlFor="description">
             Description:
             <textarea
+              className="ui-control"
               name="description"
               id="description"
               value={account.description}
@@ -106,6 +102,7 @@ function CreateAccountPage() {
           </label>
 
           <select
+            className="ui-control"
             name="currency"
             id="currency"
             value={account.currency}
@@ -119,11 +116,7 @@ function CreateAccountPage() {
           </select>
 
           <article className={styles.registerButton}>
-            <button
-              type="submit"
-              className={styles.primaryBtn}
-              disabled={isSubmitting}
-            >
+            <button type="submit" className="ui-btn" disabled={isSubmitting}>
               {isSubmitting ? "Creating account..." : "Create account"}
             </button>
           </article>

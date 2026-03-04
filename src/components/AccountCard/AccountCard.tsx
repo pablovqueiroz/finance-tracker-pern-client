@@ -17,6 +17,11 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
     (users) => users.userId !== currentUserId && users.role !== "OWNER",
   );
   const locale = navigator.language ?? "pt-PT";
+  const numericBalance = Number(account.balance ?? 0);
+  const formattedBalance = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+  }).format(Number.isFinite(numericBalance) ? numericBalance : 0);
 
   const formattedDate = updatedAt
     ? new Intl.DateTimeFormat(locale, {
@@ -38,6 +43,7 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
 
       <section className={styles.accountBalance}>
         <span className={styles.currencyBadge}>{currency}</span>
+        <p className={styles.balanceValue}>Balance: {formattedBalance}</p>
         {_count && <p>Transactions: {_count.transactions}</p>}
       </section>
 

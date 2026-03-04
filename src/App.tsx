@@ -11,6 +11,7 @@ import CreateAccountPage from "./pages/Accounts/CreateAccountPage/CreateAccountP
 // import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import ManageAccountsPage from "./pages/Accounts/ManageAccountsPage/ManageAccountsPage";
 import AccountDetailsPage from "./pages/Accounts/AccountDetailsPage/AccountDetailsPage";
+import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
 
 function App() {
   // const { isLoggedIn } = useAuth();
@@ -31,6 +32,10 @@ function App() {
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/accounts" element={<ManageAccountsPage />} />
           <Route path="/accounts/:accountId" element={<AccountDetailsPage />} />
+          <Route
+            path="/accounts/:accountId/transactions"
+            element={<CreateTransactionPage />}
+          />
           {/* </Route> */}
         </Routes>
       </main>

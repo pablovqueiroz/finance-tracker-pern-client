@@ -48,8 +48,9 @@
 
 .amount {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .income {
@@ -57,5 +58,37 @@
 }
 
 .expense {
+  color: var(--accent-red);
+}
+
+.rightBlock {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.iconBtn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  border-color: var(--accent-red);
+}
+
+.deleteBtn {
   color: var(--accent-red);
 }

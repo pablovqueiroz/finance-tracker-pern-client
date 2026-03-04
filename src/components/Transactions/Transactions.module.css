@@ -1,3 +1,74 @@
-.transactionContainer{
-    background-color: blue;
+.transactionContainer {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-primary);
+  padding: 14px;
+}
+
+.transactionsTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.transactionsTitle h4 {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: 1rem;
+}
+
+.cardsContainer {
+  display: grid;
+  gap: 8px;
+}
+
+.transactionCard {
+  text-decoration: none;
+  border-radius: 12px;
+  outline: 1px solid transparent;
+  transition:
+    outline-color 0.2s ease,
+    transform 0.08s ease;
+  display: block;
+}
+
+.transactionCard:hover {
+  outline-color: color-mix(in srgb, var(--accent-red) 45%, var(--border));
+  transform: translateY(-1px);
+}
+
+.transactionCard:active {
+  transform: translateY(0);
+}
+
+.transactionCard:focus-visible {
+  outline-color: var(--accent-red);
+}
+
+.transactionCard > * {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.viewMore {
+  justify-self: start;
+  text-decoration: none;
+  color: var(--accent-red);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.viewMore:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .transactionContainer {
+    padding: 12px;
+    gap: 10px;
+  }
 }

@@ -7,16 +7,6 @@
   gap: 16px;
 }
 
-.accountDetails,
-.aMembersSection,
-.transactionsSection,
-.savingGoalsSection {
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-}
-
 .accountTitle {
   margin: 0;
   color: var(--text-main);
@@ -46,6 +36,62 @@
   font-size: 0.9rem;
 }
 
+.balance {
+  width: fit-content;
+  margin: 10px 0 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent-red) 36%, var(--border));
+  background: color-mix(in srgb, var(--accent-red) 10%, var(--bg-secondary));
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.accountDetails .ui-control {
+  margin-top: 8px;
+}
+
+.accountDetails select.ui-control {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 44px;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+}
+
+.accountDetails select.ui-control:focus,
+.accountDetails select.ui-control:active {
+  border-color: var(--accent-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-red) 20%, transparent);
+  background-color: var(--bg-primary);
+}
+
+.accountDetails select.ui-control option {
+  background: var(--bg-primary);
+  color: var(--text-main);
+}
+
+.accountDetails select.ui-control option:checked {
+  background: color-mix(in srgb, var(--accent-red) 18%, var(--bg-primary));
+  color: var(--text-main);
+}
+
+.accountDetails .ui-btn {
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
 .membersTitle,
 .transactionsTitle,
 .savingGoalsTitle {
@@ -62,6 +108,14 @@
 
 .aMembersSection h3 {
   grid-column: 1 / -1;
+}
+
+.inviteForm {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 140px auto;
+  gap: 8px;
+  align-items: end;
 }
 
 .memberAvatar {
@@ -96,15 +150,28 @@
   font-size: 0.8rem;
 }
 
+.memberActionBtn {
+  margin-top: 8px;
+  width: 100%;
+}
+
 .transactionsSection,
 .savingGoalsSection {
   display: grid;
   gap: 8px;
 }
 
+.transactionsSection .ui-btn {
+  width: fit-content;
+}
+
 @media (max-width: 640px) {
   .accountDetailsPageContainer {
     padding: 16px 12px 92px;
     gap: 12px;
+  }
+
+  .inviteForm {
+    grid-template-columns: 1fr;
   }
 }

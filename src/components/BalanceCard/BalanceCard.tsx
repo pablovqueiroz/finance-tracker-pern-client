@@ -32,6 +32,11 @@ function BalanceCard({
     month: "short",
     year: "numeric",
   }).format(new Date(activeAccount.updatedAt));
+  const numericBalance = Number(activeAccount.balance ?? 0);
+  const formattedBalance = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: activeAccount.currency,
+  }).format(Number.isFinite(numericBalance) ? numericBalance : 0);
 
   return (
     <div className={styles.balanceCardContainer}>
@@ -56,6 +61,7 @@ function BalanceCard({
 
       <section className={styles.meta}>
         <span>{activeAccount.currency}</span>
+        <span className={styles.balancePill}>Balance: {formattedBalance}</span>
         <span>Transactions: {activeAccount._count?.transactions ?? 0}</span>
         <span>Updated: {updatedAt}</span>
       </section>

@@ -9,9 +9,20 @@ type SavingGoalCardProps = {
 function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
   const { title, currentAmount, targetAmount, deadline, notes } = goal;
   const locale = navigator.language ?? "pt-PT";
-  const progress = Math.min((currentAmount / targetAmount) * 100, 100).toFixed(
-    0,
-  );
+  const currentAmountValue = Number(currentAmount);
+  const targetAmountValue = Number(targetAmount);
+  const safeCurrentAmount = Number.isFinite(currentAmountValue)
+    ? currentAmountValue
+    : 0;
+  const safeTargetAmount =
+    Number.isFinite(targetAmountValue) && targetAmountValue > 0
+      ? targetAmountValue
+      : 1;
+  const safeTargetAmountDisplay = Number.isFinite(targetAmountValue)
+    ? targetAmountValue
+    : 0;
+  const progress = Math.min((safeCurrentAmount / safeTargetAmount) * 100, 100)
+    .toFixed(0);
 
   const formatAmount = (amount: number) =>
     new Intl.NumberFormat(locale, {
@@ -45,9 +56,9 @@ function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
       </article>
 
       <article className={styles.amounts}>
-        <span>{formatAmount(currentAmount)}</span>
+        <span>{formatAmount(safeCurrentAmount)}</span>
         <span> / </span>
-        <span>{formatAmount(targetAmount)}</span>
+        <span>{formatAmount(safeTargetAmountDisplay)}</span>
       </article>
 
       {formattedDeadline && (

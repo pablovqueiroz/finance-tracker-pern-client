@@ -24,7 +24,7 @@ function Transactions({
         {latest.map((transaction) => (
           <Link
             key={transaction.id}
-            to={`/transactions/${transaction.id}`}
+            to={`/accounts/${accountId}/transactions?edit=${transaction.id}`}
             className={styles.transactionCard}
           >
             <TransactionCard transaction={transaction} currency={currency} />

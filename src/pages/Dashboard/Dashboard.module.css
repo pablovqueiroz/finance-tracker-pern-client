@@ -5,6 +5,11 @@
   padding: 24px 16px 100px;
   display: grid;
   gap: 14px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  grid-template-areas:
+    "welcome actions"
+    "balance actions"
+    "transactions transactions";
 }
 
 .welcome,
@@ -14,8 +19,37 @@
   min-width: 0;
 }
 
+.welcome {
+  grid-area: welcome;
+}
+
+.balanceCard {
+  grid-area: balance;
+}
+
+.actions {
+  grid-area: actions;
+  align-self: start;
+  position: sticky;
+  top: 16px;
+}
+
+.transactions {
+  grid-area: transactions;
+}
+
 @media (max-width: 640px) {
   .DashboardContainer {
     padding: 16px 12px 92px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "welcome"
+      "balance"
+      "actions"
+      "transactions";
+  }
+
+  .actions {
+    position: static;
   }
 }
