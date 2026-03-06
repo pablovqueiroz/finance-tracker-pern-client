@@ -67,11 +67,6 @@
   font-weight: 600;
 }
 
-.balancePill {
-  border-color: color-mix(in srgb, var(--accent-red) 36%, var(--border));
-  background: color-mix(in srgb, var(--accent-red) 10%, var(--bg-secondary));
-}
-
 .dots {
   display: flex;
   align-items: center;

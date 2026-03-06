@@ -1,5 +1,6 @@
 import styles from "./Hero.module.css";
 import { useAuth } from "../../hooks/useAuth";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 
 function Hero() {
   const { currentUser } = useAuth();
@@ -7,7 +8,10 @@ function Hero() {
 
   return (
     <div className={styles.welcomeContainer}>
-      <h3 className={styles.title}>Hello {userName},</h3>
+      <div className={styles.headerRow}>
+        <h3 className={styles.title}>Hello {userName},</h3>
+        <ThemeToggle className={styles.mobileToggle} />
+      </div>
     </div>
   );
 }

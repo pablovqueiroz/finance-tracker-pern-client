@@ -56,12 +56,12 @@ function BalanceCard({
 
       <section className={styles.accountData}>
         <h3>{activeAccount.name}</h3>
+        <h3 className={styles.balancePill}>{formattedBalance}</h3>
         <p>{activeAccount.description || "No description"}</p>
       </section>
 
       <section className={styles.meta}>
         <span>{activeAccount.currency}</span>
-        <span className={styles.balancePill}>Balance: {formattedBalance}</span>
         <span>Transactions: {activeAccount._count?.transactions ?? 0}</span>
         <span>Updated: {updatedAt}</span>
       </section>

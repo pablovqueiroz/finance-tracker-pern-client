@@ -108,3 +108,13 @@ export type savingGoal = {
   updatedBy?: User;
   updatedAt: string | Date;
 };
+
+export type CreateTransactionBody = {
+  title: string;
+  amount: number;
+  type: TransactionType;
+  category: Category;
+  accountId: string;
+  date?: string;
+  notes?: string;
+};

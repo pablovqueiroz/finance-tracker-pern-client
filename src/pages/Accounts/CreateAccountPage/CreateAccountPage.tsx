@@ -4,12 +4,14 @@ import styles from "./CreateAccountPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
 import type { Account, Currency } from "../../../types/account.types";
+import { useNavigate } from "react-router";
 
 function CreateAccountPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const CURRENCIES: Currency[] = ["EUR", "USD", "BRL", "GBP", "JPY"];
+  const nav = useNavigate();
 
   const [account, setAccount] = useState<Account>({
     name: "",
@@ -56,6 +58,7 @@ function CreateAccountPage() {
         description: "",
         currency: "EUR",
       });
+      nav("/accounts");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(
@@ -74,7 +77,7 @@ function CreateAccountPage() {
   return (
     <div className={styles.accountPageContainer}>
       <div className={`${styles.formContainer} ui-card`}>
-        <h2 className={styles.title}>Create an Account</h2>
+        <h2 className={styles.title}>Add Financial Account</h2>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label htmlFor="name">

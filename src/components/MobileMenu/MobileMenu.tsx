@@ -13,27 +13,29 @@ import styles from "./MobileMenu.module.css";
 export default function MobileMenu() {
   return (
     <nav className={styles.mobileMenu}>
-      <NavLink to="/dashboard">
-        {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
-      </NavLink>
+      <div className={styles.mobileMenuContent}>
+        <NavLink to="/dashboard">
+          {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
+        </NavLink>
 
-      <NavLink to="/accounts">
-        {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
-      </NavLink>
+        <NavLink to="/accounts">
+          {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
+        </NavLink>
 
-      <NavLink to="/create-account">
-        <FaCirclePlus className={styles.createNew} />
-      </NavLink>
+        <NavLink to="/create-account">
+          <FaCirclePlus className={styles.createNew} />
+        </NavLink>
 
-      <NavLink to="/savings">
-        {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
-      </NavLink>
+        <NavLink to="/savings">
+          {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
+        </NavLink>
 
-      <NavLink to="/profile">
-        {({ isActive }) =>
-          isActive ? <MdAccountCircle /> : <MdOutlineAccountCircle />
-        }
-      </NavLink>
+        <NavLink to="/profile">
+          {({ isActive }) =>
+            isActive ? <MdAccountCircle /> : <MdOutlineAccountCircle />
+          }
+        </NavLink>
+      </div>
     </nav>
   );
 }
