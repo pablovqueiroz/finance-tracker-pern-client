@@ -1,9 +1,11 @@
 .accountDetailsPageContainer {
   min-height: calc(100vh - 120px);
+  width: 100%;
   padding: 24px 16px 100px;
   max-width: 1080px;
   margin: 0 auto;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
@@ -23,7 +25,6 @@
   width: fit-content;
   margin: 10px 0 0;
   padding: 4px 10px;
-  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg-secondary);
   font-size: 0.82rem;
@@ -40,7 +41,6 @@
   width: fit-content;
   margin: 10px 0 0;
   padding: 6px 10px;
-  border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--accent-red) 36%, var(--border));
   background: color-mix(in srgb, var(--accent-red) 10%, var(--bg-secondary));
   color: var(--text-main);
@@ -89,7 +89,12 @@
 
 .accountDetails .ui-btn {
   margin-top: 10px;
-  margin-right: 8px;
+}
+
+.accountActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .membersTitle,
@@ -115,13 +120,17 @@
   display: grid;
   grid-template-columns: minmax(220px, 1fr) 140px auto;
   gap: 8px;
-  align-items: end;
+  align-items: center;
+}
+
+.inviteForm > * {
+  min-width: 0;
 }
 
 .memberAvatar {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 10px;
+
   padding: 10px;
   display: grid;
   justify-items: center;
@@ -165,9 +174,9 @@
   width: fit-content;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .accountDetailsPageContainer {
-    padding: 16px 12px 92px;
+    padding: 16px 12px 20px;
     gap: 12px;
   }
 

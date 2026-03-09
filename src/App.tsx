@@ -1,23 +1,25 @@
 import { Route, Routes } from "react-router-dom";
 import MobileMenu from "./components/MobileMenu/MobileMenu";
+import NavBar from "./components/NavBar/NavBar";
 import LoginPage from "./pages/Auth/Login/LoginPage";
 import RegisterPage from "./pages/Auth/Register/RegisterPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import HomePage from "./pages/HomePage/HomePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-// import { useAuth } from "./hooks/useAuth";
 import CreateAccountPage from "./pages/Accounts/CreateAccountPage/CreateAccountPage";
 // import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import ManageAccountsPage from "./pages/Accounts/ManageAccountsPage/ManageAccountsPage";
 import AccountDetailsPage from "./pages/Accounts/AccountDetailsPage/AccountDetailsPage";
 import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
+import ManageSavingGoalsPage from "./pages/SavingGoals/ManageSavingGoalsPage";
 
 function App() {
-  // const { isLoggedIn } = useAuth();
-
   return (
     <>
+      <header>
+        <NavBar />
+      </header>
       <main>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -36,13 +38,20 @@ function App() {
             path="/accounts/:accountId/transactions"
             element={<CreateTransactionPage />}
           />
-          {/* </Route> */}
+          <Route path="/savings" element={<ManageSavingGoalsPage />} />
+          <Route
+            path="/accounts/:accountId/savings"
+            element={<ManageSavingGoalsPage />}
+          />
+          <Route
+            path="/accounts/:accountId/saving-goals"
+            element={<ManageSavingGoalsPage />}
+          />
+          {/* </Route> protected routes*/}
         </Routes>
       </main>
       <footer>
-        {/* { isLoggedIn &&  */}
         <MobileMenu />
-        {/* } */}
       </footer>
     </>
   );

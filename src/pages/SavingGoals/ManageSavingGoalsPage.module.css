@@ -6,7 +6,6 @@
   padding: 24px 16px 100px;
   display: grid;
   gap: 16px;
-  overflow-x: clip;
 }
 
 .pageState {
@@ -17,7 +16,7 @@
 
 .header {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .title {
@@ -32,10 +31,40 @@
   color: var(--text-muted);
 }
 
-.formSection h3,
+.accountSelector {
+  display: grid;
+  gap: 6px;
+  color: var(--text-main);
+  font-weight: 600;
+  max-width: 340px;
+}
+
+.reports h3,
 .listSection h3 {
   margin: 0 0 12px;
+}
+
+.reportGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.reportItem {
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.reportItem small {
+  color: var(--text-muted);
+}
+
+.reportItem strong {
   color: var(--text-main);
+  font-size: 1.15rem;
 }
 
 .listHeader {
@@ -55,14 +84,7 @@
   margin-bottom: 14px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 12px;
   background: var(--bg-secondary);
-}
-
-.modeSwitch {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
 }
 
 .form {
@@ -71,113 +93,11 @@
   gap: 12px;
 }
 
-.bulkForm {
-  display: grid;
-  gap: 10px;
-}
-
-.bulkGuide {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg-primary);
-  padding: 10px;
-}
-
-.bulkGuideSummary {
-  cursor: pointer;
-  color: var(--text-main);
-  font-weight: 600;
-}
-
-.bulkGuideContent {
-  margin-top: 8px;
-  display: grid;
-  gap: 6px;
-}
-
-.bulkHint {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.bulkAssistRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.bulkInput {
-  min-height: 180px;
-  resize: vertical;
-}
-
 .form label {
   display: grid;
   gap: 6px;
   color: var(--text-main);
   font-weight: 600;
-}
-
-.enumAssist {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.enumAssistText {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.tooltipWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.tooltipTrigger {
-  border: 1px solid var(--border);
-  background: var(--bg-primary);
-  color: var(--text-main);
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  cursor: pointer;
-}
-
-.tooltipTrigger:hover {
-  background: var(--bg-secondary);
-}
-
-.tooltipBox {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 8px);
-  z-index: 15;
-  min-width: min(260px, 90vw);
-  max-width: min(92vw, 460px);
-  white-space: pre-line;
-  background: var(--text-main);
-  color: var(--bg-primary);
-  border-radius: 0;
-  padding: 8px 10px;
-  font-size: 0.78rem;
-  line-height: 1.35;
-  box-shadow: none;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  font-weight: 500;
-}
-
-.tooltipWrap:hover .tooltipBox,
-.tooltipWrap:focus-within .tooltipBox {
-  visibility: visible;
-  opacity: 1;
 }
 
 .fieldWide {
@@ -215,10 +135,32 @@
 
 .item {
   display: grid;
+  gap: 10px;
   padding: 10px;
   border: 1px solid var(--border);
-  border-radius: 10px;
   background: var(--bg-secondary);
+}
+
+.moneyActions {
+  display: grid;
+  grid-template-columns: minmax(0, 150px) repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moneyInput {
+  min-width: 0;
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .reportGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 700px) {
@@ -236,8 +178,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .listHeader {
+  .reportGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .itemActions {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moneyActions {
     grid-template-columns: 1fr;
   }
 }

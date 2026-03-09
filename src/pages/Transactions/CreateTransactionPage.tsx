@@ -96,12 +96,15 @@ const BULK_TYPE_ALIASES: Record<string, TransactionType> = {
 
 const BULK_CATEGORY_ALIASES: Record<string, Category> = Object.entries(
   CATEGORY_LABELS,
-).reduce((accumulator, [key, label]) => {
-  const category = key as Category;
-  accumulator[category.toLowerCase()] = category;
-  accumulator[label.toLowerCase()] = category;
-  return accumulator;
-}, {} as Record<string, Category>);
+).reduce(
+  (accumulator, [key, label]) => {
+    const category = key as Category;
+    accumulator[category.toLowerCase()] = category;
+    accumulator[label.toLowerCase()] = category;
+    return accumulator;
+  },
+  {} as Record<string, Category>,
+);
 
 const BULK_EXAMPLE = `Salary,1500,Income,Salary,2026-03-01,Monthly salary
 Groceries,120.50,Expense,Groceries,2026-03-02,Weekly supermarket`;
@@ -150,6 +153,21 @@ function CreateTransactionPage() {
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
   const availableCategories =
     form.type === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const getCreatorName = (transaction: Transaction) => {
+    if (typeof transaction.createdBy === "string") return transaction.createdBy;
+    if (transaction.createdBy?.name) return transaction.createdBy.name;
+    if (!transaction.createdById || !account) return undefined;
+    return account.users.find(
+      (member) => member.userId === transaction.createdById,
+    )?.user.name;
+  };
+  const getUpdaterName = (transaction: Transaction) => {
+    if (transaction.updatedBy?.name) return transaction.updatedBy.name;
+    if (!transaction.updatedById || !account) return undefined;
+    return account.users.find(
+      (member) => member.userId === transaction.updatedById,
+    )?.user.name;
+  };
 
   async function loadData() {
     if (!accountId) return;
@@ -202,18 +220,6 @@ function CreateTransactionPage() {
       setIsFormOpen(true);
     }
   }, [searchParams, transactions]);
-
-  useEffect(() => {
-    if (editingId) return;
-    const typeFromQuery = searchParams.get("type");
-    if (typeFromQuery === "INCOME" || typeFromQuery === "EXPENSE") {
-      setForm((prev) => ({
-        ...prev,
-        type: typeFromQuery,
-      }));
-      setIsFormOpen(true);
-    }
-  }, [searchParams, editingId]);
 
   useEffect(() => {
     if (!editingId) return;
@@ -291,14 +297,22 @@ function CreateTransactionPage() {
 
     return lines.map((line, index) => {
       const rowNumber = index + 1;
-      const [titleRaw, amountRaw, typeRaw, categoryRaw, dateRaw = "", ...notesRaw] =
-        line.split(",");
+      const [
+        titleRaw,
+        amountRaw,
+        typeRaw,
+        categoryRaw,
+        dateRaw = "",
+        ...notesRaw
+      ] = line.split(",");
       const notesValue = notesRaw.join(",").trim();
       const title = titleRaw?.trim();
       const amount = Number(amountRaw?.trim());
       const typeToken = typeRaw?.trim().toLowerCase();
       const categoryToken = categoryRaw?.trim().toLowerCase();
-      const type = BULK_TYPE_ALIASES[typeToken] ?? (typeRaw?.trim().toUpperCase() as TransactionType);
+      const type =
+        BULK_TYPE_ALIASES[typeToken] ??
+        (typeRaw?.trim().toUpperCase() as TransactionType);
       const category =
         BULK_CATEGORY_ALIASES[categoryToken] ??
         (categoryRaw?.trim().toUpperCase() as Category);
@@ -315,9 +329,7 @@ function CreateTransactionPage() {
       }
 
       if (type !== "INCOME" && type !== "EXPENSE") {
-        throw new Error(
-          `Line ${rowNumber}: type must be Income or Expense.`,
-        );
+        throw new Error(`Line ${rowNumber}: type must be Income or Expense.`);
       }
 
       if (!ALL_CATEGORIES.includes(category)) {
@@ -399,7 +411,9 @@ function CreateTransactionPage() {
     }
   };
 
-  const handleBulkSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+  const handleBulkSubmit: React.FormEventHandler<HTMLFormElement> = async (
+    e,
+  ) => {
     e.preventDefault();
     if (!accountId || isBulkSubmitting) return;
 
@@ -619,9 +633,9 @@ function CreateTransactionPage() {
                         View codes
                       </button>
                       <span className={styles.tooltipBox} role="tooltip">
-                        {"Income (Entry) -> INCOME"}
+                        {"Income (Entry)"}
                         {"\n"}
-                        {"Expense (Outflow) -> EXPENSE"}
+                        {"Expense (Outflow)"}
                       </span>
                     </span>
                   </span>
@@ -656,10 +670,7 @@ function CreateTransactionPage() {
                       </button>
                       <span className={styles.tooltipBox} role="tooltip">
                         {availableCategories
-                          .map(
-                            (category) =>
-                              `${CATEGORY_LABELS[category]} -> ${category}`,
-                          )
+                          .map((category) => `${CATEGORY_LABELS[category]}`)
                           .join("\n")}
                       </span>
                     </span>
@@ -684,6 +695,7 @@ function CreateTransactionPage() {
                     className="ui-control"
                     id="notes"
                     name="notes"
+                    maxLength={60}
                     value={form.notes}
                     onChange={handleChange}
                   />
@@ -721,8 +733,7 @@ function CreateTransactionPage() {
                   </summary>
                   <div className={styles.bulkGuideContent}>
                     <p className={styles.bulkHint}>
-                      Use one line per transaction with this order:
-                      {" "}
+                      Use one line per transaction with this order:{" "}
                       <code>title,amount,type,category,date,notes</code>
                     </p>
                     <p className={styles.bulkHint}>
@@ -743,9 +754,9 @@ function CreateTransactionPage() {
                           Type options
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          {"Income -> INCOME"}
+                          {"Income"}
                           {"\n"}
-                          {"Expense -> EXPENSE"}
+                          {"Expense"}
                         </span>
                       </span>
                       <span className={styles.tooltipWrap}>
@@ -821,6 +832,8 @@ function CreateTransactionPage() {
                 <TransactionCard
                   transaction={transaction}
                   currency={account.currency}
+                  creatorName={getCreatorName(transaction)}
+                  updaterName={getUpdaterName(transaction)}
                   onEdit={
                     canEditOrDelete
                       ? () => {

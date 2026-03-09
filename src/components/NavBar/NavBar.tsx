@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { IoHomeOutline, IoHomeSharp } from "react-icons/io5";
-import { HiOutlineWallet, HiWallet } from "react-icons/hi2";
-import { FaCirclePlus } from "react-icons/fa6";
-import {
-  MdOutlineSavings,
-  MdSavings,
-  MdOutlineAccountCircle,
-} from "react-icons/md";
 import { useAuth } from "../../hooks/useAuth";
-import styles from "./MobileMenu.module.css";
+import styles from "./NavBar.module.css";
+import ThemeToggle from "../ThemeToggle/ThemeToggle";
 
-export default function MobileMenu() {
-  const { isLoggedIn, handleLogout } = useAuth();
+function NavBar() {
+  const { isLoggedIn, handleLogout, currentUser } = useAuth();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -35,41 +28,57 @@ export default function MobileMenu() {
   if (!isLoggedIn) return null;
 
   return (
-    <nav className={styles.mobileMenu}>
-      <div className={styles.mobileMenuContent}>
-        <NavLink to="/dashboard">
-          {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
+    <nav className={styles.navBar}>
+      <div className={styles.content}>
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          Dashboard
         </NavLink>
-
-        <NavLink to="/accounts">
-          {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
+        <NavLink
+          to="/accounts"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          Accounts
         </NavLink>
-
-        <NavLink to="/create-account">
-          <FaCirclePlus className={styles.createNew} />
+        <NavLink
+          to="/create-account"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          New account
         </NavLink>
-
-        <NavLink to="/savings">
-          {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
+        <NavLink
+          to="/savings"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          Savings
         </NavLink>
 
         <div className={styles.profileWrap} ref={menuRef}>
           <button
-            className={styles.profileBtn}
+            className={`ui-btn ${styles.profileTrigger}`}
             type="button"
             onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-            aria-label="Open profile menu"
           >
-            <MdOutlineAccountCircle />
+            {currentUser?.name || "Profile"}
           </button>
-
+          <ThemeToggle className={styles.toggleTheme} />
           {isProfileMenuOpen && (
             <div className={styles.profileMenu}>
-              <NavLink className={styles.profileMenuItem} to="/profile">
+              <NavLink className={styles.menuItem} to="/profile">
                 Profile details
               </NavLink>
               <button
-                className={styles.profileMenuBtn}
+                className={styles.menuItemButton}
                 type="button"
                 onClick={handleLogout}
               >
@@ -82,3 +91,5 @@ export default function MobileMenu() {
     </nav>
   );
 }
+
+export default NavBar;

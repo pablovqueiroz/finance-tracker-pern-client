@@ -90,7 +90,8 @@ export type Transaction = {
   category: Category;
   notes?: string | null;
   date: string | Date;
-  createdBy?: { name: string; image: string };
+  createdBy?: { name?: string; image?: string } | string;
+  createdById?: string;
   updatedById?: string;
   updatedBy?: User;
   updatedAt: string | Date;

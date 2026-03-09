@@ -86,6 +86,21 @@ function AccountDetailsPage() {
   const canEdit =
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
   const canDelete = currentMember?.role === "OWNER";
+  const getCreatorName = (transaction: Transaction) => {
+    if (typeof transaction.createdBy === "string") return transaction.createdBy;
+    if (transaction.createdBy?.name) return transaction.createdBy.name;
+    if (!transaction.createdById) return undefined;
+    return account?.users.find(
+      (member) => member.userId === transaction.createdById,
+    )?.user.name;
+  };
+  const getUpdaterName = (transaction: Transaction) => {
+    if (transaction.updatedBy?.name) return transaction.updatedBy.name;
+    if (!transaction.updatedById) return undefined;
+    return account?.users.find(
+      (member) => member.userId === transaction.updatedById,
+    )?.user.name;
+  };
 
   function startEdit() {
     if (!account) return;
@@ -278,15 +293,19 @@ function AccountDetailsPage() {
             {currentMember && (
               <p className={styles.myRole}>My role:{currentMember.role}</p>
             )}
-            {canEdit && (
-              <button className="ui-btn" onClick={startEdit}>
-                Edit
-              </button>
-            )}
-            {canDelete && (
-              <button className="ui-btn" onClick={handleDelete}>
-                Delete
-              </button>
+            {(canEdit || canDelete) && (
+              <div className={styles.accountActions}>
+                {canEdit && (
+                  <button className="ui-btn" onClick={startEdit}>
+                    Edit
+                  </button>
+                )}
+                {canDelete && (
+                  <button className="ui-btn" onClick={handleDelete}>
+                    Delete
+                  </button>
+                )}
+              </div>
             )}
           </>
         ) : (
@@ -295,12 +314,14 @@ function AccountDetailsPage() {
               className="ui-control"
               name="name"
               value={form.name}
+              maxLength={20}
               onChange={handleChange}
               placeholder="Account name"
             />
             <textarea
               className="ui-control"
               name="description"
+              maxLength={60}
               value={form.description}
               onChange={handleChange}
               placeholder="Description"
@@ -404,6 +425,8 @@ function AccountDetailsPage() {
               key={transaction.id}
               currency={account.currency}
               transaction={transaction}
+              creatorName={getCreatorName(transaction)}
+              updaterName={getUpdaterName(transaction)}
             />
           ))
         )}
@@ -413,6 +436,12 @@ function AccountDetailsPage() {
         <h3 className={styles.savingGoalsTitle}>
           Saving Goals ({account._count.savingGoals})
         </h3>
+        <button
+          className="ui-btn"
+          onClick={() => navigate(`/accounts/${accountId}/savings`)}
+        >
+          Manage saving goals
+        </button>
         {account.savingGoals.length === 0 ? (
           <p>No saving goals yet</p>
         ) : (

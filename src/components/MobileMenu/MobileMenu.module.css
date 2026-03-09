@@ -1,6 +1,6 @@
 .mobileMenu {
-  height: 10vh;
   display: flex;
+  height: 10vh;
   background-color: #e11d48;
   justify-content: center;
   padding: 10px 0;
@@ -22,8 +22,39 @@
   padding: 0 10px;
 }
 
-.mobileMenu a {
-  color: #1a1a1b;
+.profileWrap {
+  position: relative;
+}
+.profileWrap button {
+  padding-top: 13px;
+}
+
+.profileMenu {
+  position: absolute;
+  right: -10px;
+  bottom: calc(100% + 4px);
+  min-width: 140px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  display: grid;
+}
+
+.profileMenuItem,
+.profileMenuBtn,
+.profileMenu a {
+  background: transparent;
+  color: var(--text-main);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  text-align: left;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+}
+
+.profileMenuBtn {
+  border-bottom: 0;
+  cursor: pointer;
 }
 
 .createNew {
@@ -34,4 +65,10 @@
 
 .createNew:active {
   opacity: 0.85;
+}
+
+@media (min-width: 769px) {
+  .mobileMenu {
+    display: none;
+  }
 }

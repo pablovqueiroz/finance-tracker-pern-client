@@ -4,6 +4,7 @@ import BalanceCard from "../../components/BalanceCard/BalanceCard";
 import Hero from "../../components/Hero/Hero";
 import Transactions from "../../components/Transactions/Transactions";
 import type {
+  AccountDetail,
   AccountSummary,
   Currency,
   Transaction,
@@ -82,14 +83,29 @@ function Dashboard() {
       }
 
       try {
-        const transactionsResponse = await api.get<Transaction[]>(
-          `/transactions/account/${activeAccountId}`,
-        );
+        const [transactionsResponse, accountResponse] = await Promise.all([
+          api.get<Transaction[]>(`/transactions/account/${activeAccountId}`),
+          api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
+            `/accounts/${activeAccountId}`,
+          ),
+        ]);
         const accountTransactions = Array.isArray(transactionsResponse.data)
           ? transactionsResponse.data
           : [];
+        const accountMembers = accountResponse.data.users ?? [];
+
         setTransactions(accountTransactions);
         setCurrency(activeAccount.currency);
+        setAccounts((prev) =>
+          prev.map((account) =>
+            account.id === activeAccountId
+              ? {
+                  ...account,
+                  users: accountMembers,
+                }
+              : account,
+          ),
+        );
       } catch (error: unknown) {
         console.error("Failed to load transactions", error);
         setTransactions([]);
@@ -141,6 +157,7 @@ function Dashboard() {
           transactions={transactions}
           currency={currency}
           accountId={activeAccountId}
+          members={activeAccount?.users ?? []}
         />
       </section>
     </div>

@@ -1,25 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap");
 
-/* 1. RESET GLOBAL & ACESSIBILIDADE */
+/* 1. GLOBAL RESET & ACCESSIBILITY */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent; /* Remove o brilho de toque no iOS */
+  -webkit-tap-highlight-color: transparent; /* Removes tap highlight glow on iOS */
 }
 
-/* 2. ESTRUTURA HTML & iOS FIX */
+/* 2. HTML STRUCTURE & iOS FIX */
 html {
   height: 100%;
-  -webkit-text-size-adjust: 100%; /* Mantém o texto consistente na rotação do iPhone */
+  -webkit-text-size-adjust: 100%; /* Keeps text size consistent on iPhone rotation */
   scroll-behavior: auto;
 }
 
 body {
   min-height: 100vh;
-  /* Garante que o fundo petróleo preencha áreas seguras do iPhone (Notch) */
+  /* Ensures the background fills iPhone safe areas (notch) */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
 
@@ -40,7 +40,7 @@ body {
   line-height: 1.5;
 }
 
-/* 3. INPUTS & BOTÕES (A parte crítica para Finanças) */
+/* 3. INPUTS & BUTTONS (critical for finance UX) */
 input,
 button,
 textarea,
@@ -49,19 +49,19 @@ select {
   color: inherit;
   background: transparent;
   border: none;
-  /* iOS: Remove sombras internas e estilos nativos chatos */
+  /* iOS: removes inner shadows and unwanted native styles */
   -webkit-appearance: none;
   appearance: none;
 }
 
-/* Garante que botões não fiquem selecionados "azulados" ao clicar rápido */
+/* Prevents buttons from staying "blue-selected" after quick taps */
 button {
   cursor: pointer;
   -webkit-user-select: none;
   user-select: none;
 }
 
-/* 4. MÍDIA E LISTAS */
+/* 4. MEDIA & LISTS */
 img,
 svg {
   display: block;
@@ -149,7 +149,7 @@ input:disabled {
   cursor: not-allowed;
 }
 
-/* Error state (opcional) */
+/* Error state (optional) */
 input.error {
   border-color: var(--accent-red);
 }
@@ -166,5 +166,5 @@ input.error {
 }
 
 .message.error {
-  color: var( --accent-red);
+  color: var(--accent-red);
 }

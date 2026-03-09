@@ -61,9 +61,9 @@ function BalanceCard({
       </section>
 
       <section className={styles.meta}>
-        <span>{activeAccount.currency}</span>
-        <span>Transactions: {activeAccount._count?.transactions ?? 0}</span>
+        {/* <span>{activeAccount.currency}</span> */}
         <span>Updated: {updatedAt}</span>
+        <span>Transactions: {activeAccount._count?.transactions ?? 0}</span>
       </section>
 
       {accounts.length > 1 && (

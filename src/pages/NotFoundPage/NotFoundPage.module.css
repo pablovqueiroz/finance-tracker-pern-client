@@ -32,8 +32,11 @@ p {
 }
 
 .homeBtn {
-  display: inline-block;
-  padding: 14px 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 14px;
   background: var(--accent-red);
   color: white;
   border-radius: 10px;

@@ -9,7 +9,7 @@
   padding: 12px;
 }
 
-.icon {
+.rightBlock .icon {
   flex-shrink: 0;
   width: 26px;
   height: 26px;
@@ -17,14 +17,24 @@
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: var(--text-main);
   background: var(--bg-secondary);
+}
+
+.iconIncome {
+  color: #0f9d58;
+}
+
+.iconExpense {
+  color: var(--accent-red);
 }
 
 .info {
   min-width: 0;
   flex: 1;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 2px;
 }
 
@@ -62,8 +72,11 @@
 }
 
 .rightBlock {
-  display: grid;
-  justify-items: end;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100%;
   gap: 6px;
 }
 

@@ -1,0 +1,82 @@
+.navBar {
+  display: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.content {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.link {
+  color: var(--text-main);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+}
+
+.active {
+  border-color: var(--border);
+  background: var(--bg-secondary);
+}
+
+.profileWrap {
+  margin-left: auto;
+  position: relative;
+}
+
+.profileTrigger {
+  min-width: 120px;
+}
+
+.profileMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  display: grid;
+}
+
+.menuItem,
+.menuItemButton {
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-main);
+  text-decoration: none;
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.menuItemButton {
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.menuItem:hover,
+.menuItemButton:hover {
+  background: var(--bg-secondary);
+}
+
+.toggleTheme {
+  top: 0;
+  margin-left: 10px;
+  position: absolute;
+  scale: 0.9;
+}
+
+@media (min-width: 769px) {
+  .navBar {
+    display: block;
+  }
+}

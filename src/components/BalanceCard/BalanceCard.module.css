@@ -29,8 +29,12 @@
   background: var(--bg-secondary);
   color: var(--text-main);
   border-radius: 8px;
-  padding: 6px 10px;
+  min-height: 40px;
+  padding: 10px 14px;
   font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
@@ -61,7 +65,6 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   color: var(--text-main);
-  border-radius: 999px;
   padding: 4px 8px;
   font-size: 0.78rem;
   font-weight: 600;

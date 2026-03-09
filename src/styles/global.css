@@ -1,5 +1,9 @@
 @import "./variables.css";
 
+main {
+  padding-bottom: 76px;
+}
+
 .ui-card {
   background: var(--bg-primary);
   border: 1px solid var(--border);
@@ -32,12 +36,20 @@ textarea.ui-control {
 
 .ui-btn {
   padding: 10px 14px;
+  min-height: 40px;
   border-radius: 0;
   border: 1px solid transparent;
   background: var(--accent-red);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.2;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .ui-btn:hover {
@@ -85,4 +97,10 @@ button:active,
 .ui-btn:hover,
 .ui-btn:active {
   transform: none !important;
+}
+
+@media (min-width: 769px) {
+  main {
+    padding-bottom: 0;
+  }
 }

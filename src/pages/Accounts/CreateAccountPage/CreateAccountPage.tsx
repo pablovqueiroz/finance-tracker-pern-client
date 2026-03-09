@@ -87,6 +87,7 @@ function CreateAccountPage() {
               type="text"
               name="name"
               id="name"
+              maxLength={20}
               value={account.name}
               onChange={handleChange}
               required
@@ -99,6 +100,7 @@ function CreateAccountPage() {
               className="ui-control"
               name="description"
               id="description"
+              maxLength={60}
               value={account.description}
               onChange={handleChange}
             />
