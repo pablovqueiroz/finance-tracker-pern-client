@@ -1,12 +1,14 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import styles from "./CreateAccountPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
 import type { Account, Currency } from "../../../types/account.types";
-import { useNavigate } from "react-router";
 
 function CreateAccountPage() {
+  const { t } = useTranslation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,9 +22,9 @@ function CreateAccountPage() {
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = event.target;
 
     setAccount((prev) => ({
       ...prev,
@@ -30,8 +32,8 @@ function CreateAccountPage() {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (isSubmitting) return;
 
     const payload = {
@@ -41,7 +43,7 @@ function CreateAccountPage() {
     };
 
     if (!payload.name) {
-      setErrorMessage("Account name is required.");
+      setErrorMessage(t("accounts.create.nameRequired"));
       return;
     }
 
@@ -52,7 +54,7 @@ function CreateAccountPage() {
     try {
       await api.post("/accounts", payload);
 
-      setSuccessMessage("Account created successfully!");
+      setSuccessMessage(t("accounts.create.success"));
       setAccount({
         name: "",
         description: "",
@@ -64,10 +66,10 @@ function CreateAccountPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Create account failed",
+            t("accounts.create.failed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.create.unexpected"));
       }
     } finally {
       setIsSubmitting(false);
@@ -77,11 +79,11 @@ function CreateAccountPage() {
   return (
     <div className={styles.accountPageContainer}>
       <div className={`${styles.formContainer} ui-card`}>
-        <h2 className={styles.title}>Add Financial Account</h2>
+        <h2 className={styles.title}>{t("accounts.create.title")}</h2>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <label htmlFor="name">
-            Title:
+            {t("accounts.create.titleLabel")}:
             <input
               className="ui-control"
               type="text"
@@ -95,7 +97,7 @@ function CreateAccountPage() {
           </label>
 
           <label htmlFor="description">
-            Description:
+            {t("accounts.create.descriptionLabel")}:
             <textarea
               className="ui-control"
               name="description"
@@ -122,7 +124,9 @@ function CreateAccountPage() {
 
           <article className={styles.registerButton}>
             <button type="submit" className="ui-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting
+                ? t("accounts.create.submitting")
+                : t("accounts.create.submit")}
             </button>
           </article>
 

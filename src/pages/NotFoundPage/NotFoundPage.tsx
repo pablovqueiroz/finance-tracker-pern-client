@@ -1,23 +1,23 @@
 import { Link } from "react-router-dom";
-import styles from "./NotFoundPage.module.css"
+import { useTranslation } from "react-i18next";
+import styles from "./NotFoundPage.module.css";
 
 function NotFoundPage() {
+  const { t } = useTranslation();
 
-return (
+  return (
     <div className={styles.page}>
       <div className={styles.container}>
         <h1>404</h1>
-        <h2>Page Not Found</h2>
-        <p>
-          The page you are looking for doesn’t exist or may have been moved.
-        </p>
+        <h2>{t("notFound.title")}</h2>
+        <p>{t("notFound.subtitle")}</p>
 
         <Link to="/" className={styles.homeBtn}>
-          Go Back Home
+          {t("notFound.action")}
         </Link>
       </div>
     </div>
   );
-  
 }
-export default NotFoundPage
+
+export default NotFoundPage;

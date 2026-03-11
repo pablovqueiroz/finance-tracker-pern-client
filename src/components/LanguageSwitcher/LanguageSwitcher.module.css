@@ -1,0 +1,116 @@
+.wrapper {
+  display: grid;
+  gap: 6px;
+  position: relative;
+}
+
+.label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.trigger {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.trigger:hover,
+.option:hover {
+  border-color: var(--accent-red);
+}
+
+.triggerContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.currentLabel {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.currentName {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: max(180px, 100%);
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  display: grid;
+  z-index: 20;
+}
+
+.option {
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-main);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.option:last-child {
+  border-bottom: 0;
+}
+
+.optionText {
+  display: grid;
+  gap: 2px;
+}
+
+.optionLabel {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.optionHint {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.optionState {
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-red);
+  flex-shrink: 0;
+}
+
+.active {
+  background: color-mix(in srgb, var(--accent-red) 10%, var(--bg-primary));
+}
+
+@media (max-width: 640px) {
+  .currentName {
+    display: none;
+  }
+}

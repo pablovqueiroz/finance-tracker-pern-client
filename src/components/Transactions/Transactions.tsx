@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import TransactionCard from "../TransactionCard/TransactionCard";
 import styles from "./Transactions.module.css";
 import type {
@@ -20,7 +21,9 @@ function Transactions({
   accountId,
   members = [],
 }: TransactionsProps) {
+  const { t } = useTranslation();
   const latest = transactions.slice(0, 5);
+
   const getCreatorName = (transaction: Transaction) => {
     if (typeof transaction.createdBy === "string") return transaction.createdBy;
     if (transaction.createdBy?.name) return transaction.createdBy.name;
@@ -28,16 +31,18 @@ function Transactions({
     return members.find((member) => member.userId === transaction.createdById)
       ?.user.name;
   };
+
   const getUpdaterName = (transaction: Transaction) => {
     if (transaction.updatedBy?.name) return transaction.updatedBy.name;
     if (!transaction.updatedById) return undefined;
     return members.find((member) => member.userId === transaction.updatedById)
       ?.user.name;
   };
+
   return (
     <div className={styles.transactionContainer}>
       <section className={styles.transactionsTitle}>
-        <h4>Transactions</h4>
+        <h4>{t("transactionsList.title")}</h4>
       </section>
       <section className={styles.cardsContainer}>
         {latest.map((transaction) => (
@@ -55,15 +60,16 @@ function Transactions({
           </Link>
         ))}
       </section>
-      {transactions.length > 5 && (
+      {transactions.length > 5 ? (
         <Link
           to={`/accounts/${accountId}/transactions`}
           className={styles.viewMore}
         >
-          Ver mais ({transactions.length - 5})
+          {t("transactionsList.viewMore", { count: transactions.length - 5 })}
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }
+
 export default Transactions;

@@ -1,12 +1,15 @@
-import styles from "../../pages/ProfilePage/ProfilePage.module.css"
-
+import { useTranslation } from "react-i18next";
+import styles from "../../pages/ProfilePage/ProfilePage.module.css";
 
 function ProfileHeader() {
+  const { t } = useTranslation();
+
   return (
     <header className={styles.profileHeader}>
-       <h1>My Profile</h1>
-        <p>Manage your profile...</p>
-      </header>
-  )
+      <h1>{t("profile.title")}</h1>
+      <p>{t("profile.subtitle")}</p>
+    </header>
+  );
 }
-export default ProfileHeader
+
+export default ProfileHeader;

@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import type { Currency, savingGoal } from "../../types/account.types";
+import { getLocale } from "../../i18n/getLocale";
 import styles from "./SavingGoalCard.module.css";
 
 type SavingGoalCardProps = {
@@ -7,8 +9,9 @@ type SavingGoalCardProps = {
 };
 
 function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
+  const { i18n, t } = useTranslation();
   const { title, currentAmount, targetAmount, deadline, notes } = goal;
-  const locale = navigator.language ?? "pt-PT";
+  const locale = getLocale(i18n.resolvedLanguage);
   const currentAmountValue = Number(currentAmount);
   const targetAmountValue = Number(targetAmount);
   const safeCurrentAmount = Number.isFinite(currentAmountValue)
@@ -42,7 +45,7 @@ function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
     <div className={styles.savigGoalCardContainer}>
       <article className={styles.info}>
         <p className={styles.title}>{title}</p>
-        {notes && <small className={styles.notes}>{notes}</small>}
+        {notes ? <small className={styles.notes}>{notes}</small> : null}
       </article>
 
       <article className={styles.progress}>
@@ -61,10 +64,13 @@ function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
         <span>{formatAmount(safeTargetAmountDisplay)}</span>
       </article>
 
-      {formattedDeadline && (
-        <small className={styles.deadline}>Deadline: {formattedDeadline}</small>
-      )}
+      {formattedDeadline ? (
+        <small className={styles.deadline}>
+          {t("common.deadline")}: {formattedDeadline}
+        </small>
+      ) : null}
     </div>
   );
 }
+
 export default SavingGoalCard;

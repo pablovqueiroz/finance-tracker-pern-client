@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import styles from "./ManageAccountsPage.module.css";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
+import styles from "./ManageAccountsPage.module.css";
 import api from "../../../services/api";
 import AccountCard from "../../../components/AccountCard/AccountCard";
 import { useAuth } from "../../../hooks/useAuth";
@@ -15,6 +16,7 @@ type AccountSummaryResponse = {
 };
 
 function ManageAccountsPage() {
+  const { t } = useTranslation();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [, setErrorMessage] = useState<string | null>(null);
   const nav = useNavigate();
@@ -79,10 +81,10 @@ function ManageAccountsPage() {
 
   return (
     <div className={styles.ManageAccountsPage}>
-      <h2>All accounts here</h2>
+      <h2>{t("accounts.manage.title")}</h2>
       <section>
         {accounts.length === 0 ? (
-          <p>No transactions yet</p>
+          <p>{t("accounts.manage.empty")}</p>
         ) : (
           accounts.map((account) => (
             <AccountCard

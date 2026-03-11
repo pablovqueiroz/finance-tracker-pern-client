@@ -15,7 +15,7 @@ function ProfileForm({ children, onSubmit, submitLabel }: ProfileFormProps) {
       {children}
 
       <section className={styles.saveButton}>
-        <button type="submit">{submitLabel || "Save Changes"}</button>
+        <button type="submit">{submitLabel || "Save profile"}</button>
       </section>
     </form>
   );

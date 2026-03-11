@@ -1,7 +1,7 @@
 .page {
   min-height: 100vh;
   width: 100%;
-  padding: 80px 24px;
+  padding: 72px 24px 40px;
   background: var(--bg-primary);
   color: var(--text-main);
   overflow-x: clip;
@@ -10,37 +10,144 @@
     color 0.3s ease;
 }
 
-.toggleTheme {
-  top: 0;
-  margin: 10px 10px 0 0;
-  padding: 10px;
+.utilityControls {
   position: absolute;
-  right: 0;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  z-index: 1;
+}
+
+.utilityControls > * {
+  flex-shrink: 0;
 }
 
 .hero {
-  max-width: 900px;
-  margin: 0 auto 100px;
+  max-width: 1100px;
+  margin: 0 auto 56px;
+  display: grid;
+  gap: 18px;
+  padding-top: 24px;
+}
+
+.heroContent {
   text-align: center;
+}
+
+.eyebrow,
+.sectionEyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .hero h1 {
   font-size: clamp(2.2rem, 4vw, 3.2rem);
+  margin: 18px 0 20px;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 680px;
+  margin: 0 auto 16px;
+}
+
+.description {
+  max-width: 680px;
+  margin: 0 auto 32px;
+  color: var(--text-main);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.heroHighlights {
+  display: grid;
+  gap: 12px;
+}
+
+.highlightCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.highlightCard strong {
+  font-size: 1.15rem;
+  color: var(--text-main);
+}
+
+.highlightCard p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.highlightLabel {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sectionHeader {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  display: grid;
+  gap: 12px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.features,
+.howItWorks,
+.benefits {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.features,
+.howItWorks {
   margin-bottom: 20px;
 }
 
-.hero p {
-  font-size: 1.15rem;
-  color: var(--text-muted);
-  max-width: 650px;
-  margin: 0 auto 40px;
-}
-
 .actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 12px;
+  width: min(100%, 320px);
+  margin: 0 auto;
 }
 
 .primaryBtn {
@@ -52,6 +159,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   transition: all 0.2s ease;
   border: 1px solid transparent;
 }
@@ -70,6 +178,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   transition: all 0.2s ease;
 }
 
@@ -78,39 +187,170 @@
   color: var(--accent-red);
 }
 
-.features {
+.featureGrid,
+.stepsGrid,
+.benefitsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding-bottom: 24px;
+  gap: 16px;
 }
 
-.card {
+.card,
+.stepCard,
+.benefitCard {
   background: var(--bg-secondary);
-  padding: 32px 24px;
+  padding: 24px 20px;
   border: 1px solid var(--border);
+  border-radius: 16px;
   transition: all 0.25s ease;
 }
 
 .card h3 {
-  margin-bottom: 12px;
-  font-size: 1.2rem;
+  margin: 0 0 10px;
+  font-size: 1.1rem;
 }
 
-.card p {
+.cardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  font-size: 1.35rem;
+}
+
+.card p,
+.stepCard p,
+.benefitCard p {
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.6;
 }
 
+.stepCard {
+  display: grid;
+  gap: 10px;
+}
+
+.stepCard h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.stepNumber {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--accent-red);
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.benefitCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.benefitMarker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(231, 76, 60, 0.12);
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+/* .card:hover,
+.stepCard:hover,
+.benefitCard:hover,
+.highlightCard:hover {
+  border-color: var(--accent-red);
+  transform: translateY(-2px);
+} */
+
+.card h3,
+.stepCard h3,
+.benefitCard h3 {
+  margin-bottom: 12px;
+}
+
 @media (max-width: 768px) {
   .page {
-    padding: 60px 20px;
+    padding: 15px 20px 10px;
+  }
+
+  .utilityControls {
+    position: static;
+    margin-bottom: 24px;
   }
 
   .hero {
-    margin-bottom: 60px;
+    margin-bottom: 44px;
+    padding-top: 0;
+  }
+}
+
+@media (min-width: 641px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  .heroContent {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .subtitle,
+  .description {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 16px;
+    width: auto;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: auto;
+  }
+
+  .sectionHeader {
+    gap: 14px;
+  }
+}
+
+@media (min-width: 900px) {
+  .heroHighlights {
+    align-content: center;
+  }
+
+  .featureGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .benefitsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

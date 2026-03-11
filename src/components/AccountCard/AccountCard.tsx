@@ -1,4 +1,6 @@
+import { useTranslation } from "react-i18next";
 import type { AccountSummary } from "../../types/account.types";
+import { getLocale } from "../../i18n/getLocale";
 import styles from "./AccountCard.module.css";
 
 type AccountCardProps = {
@@ -8,15 +10,16 @@ type AccountCardProps = {
 };
 
 function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
+  const { i18n, t } = useTranslation();
   const { id, name, description, currency, updatedAt, _count } = account;
   const users = account.users ?? [];
 
   const currentMember = users.find((user) => user.userId === currentUserId);
   const owner = users.find((user) => user.role === "OWNER");
   const otherMembers = users.filter(
-    (users) => users.userId !== currentUserId && users.role !== "OWNER",
+    (user) => user.userId !== currentUserId && user.role !== "OWNER",
   );
-  const locale = navigator.language ?? "pt-PT";
+  const locale = getLocale(i18n.resolvedLanguage);
   const numericBalance = Number(account.balance ?? 0);
   const formattedBalance = new Intl.NumberFormat(locale, {
     style: "currency",
@@ -37,20 +40,32 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
         <article className={styles.title}>
           <h3>{name}</h3>
           <small className={styles.accountId}>{id}</small>
-          {description && <p>{description}</p>}
+          {description ? <p>{description}</p> : null}
         </article>
       </section>
 
       <section className={styles.accountBalance}>
         <span className={styles.currencyBadge}>{currency}</span>
-        <p className={styles.balanceValue}>Balance: {formattedBalance}</p>
-        {_count && <p>Transactions: {_count.transactions}</p>}
+        <p className={styles.balanceValue}>
+          {t("accountCard.balance", { amount: formattedBalance })}
+        </p>
+        {_count ? (
+          <p>{t("accountCard.transactions", { count: _count.transactions })}</p>
+        ) : null}
       </section>
 
       <section className={styles.accountOwner}>
-        {currentMember && <p>My role: {currentMember.role}</p>}
-        {owner && <p>Owner: {owner.user.name}</p>}
-        {otherMembers.length > 0 && (
+        {currentMember ? (
+          <p>
+            {t("accountCard.myRole", {
+              role: t(`roles.${currentMember.role}`, {
+                defaultValue: currentMember.role,
+              }),
+            })}
+          </p>
+        ) : null}
+        {owner ? <p>{t("accountCard.owner", { name: owner.user.name })}</p> : null}
+        {otherMembers.length > 0 ? (
           <article className={styles.membersAvatar}>
             {otherMembers.map((member) => (
               <img
@@ -62,12 +77,13 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
               />
             ))}
           </article>
-        )}
+        ) : null}
       </section>
       <section className={styles.lastUpdate}>
-        <p>Last update: {formattedDate}</p>
+        <p>{t("accountCard.lastUpdate", { date: formattedDate })}</p>
       </section>
     </div>
   );
 }
+
 export default AccountCard;

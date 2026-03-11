@@ -1,8 +1,9 @@
-import type { Currency, Transaction } from "../../types/account.types";
-import styles from "./TransactionCard.module.css";
-import { FaAngleDoubleDown, FaAngleDoubleUp } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { FaAngleDoubleDown, FaAngleDoubleUp, FaRegEdit } from "react-icons/fa";
 import { MdOutlineDeleteSweep } from "react-icons/md";
+import type { Currency, Transaction } from "../../types/account.types";
+import { getLocale } from "../../i18n/getLocale";
+import styles from "./TransactionCard.module.css";
 
 type TransctionCardProps = {
   transaction?: Transaction;
@@ -23,6 +24,8 @@ function TransactionCard({
   onDelete,
   isDeleting = false,
 }: TransctionCardProps) {
+  const { i18n, t } = useTranslation();
+
   if (!transaction) return null;
 
   const {
@@ -36,7 +39,7 @@ function TransactionCard({
     updatedById,
     updatedAt,
   } = transaction;
-  const locale = navigator.language ?? "pt-PT";
+  const locale = getLocale(i18n.resolvedLanguage);
   const normalizedAmount = Number(amount);
   const safeAmount = Number.isFinite(normalizedAmount) ? normalizedAmount : 0;
 
@@ -54,14 +57,14 @@ function TransactionCard({
     typeof createdBy === "string" ? createdBy : createdBy?.name;
   const resolvedCreatorName = creatorName ?? createdByFromTransaction;
   const createdByLabel = resolvedCreatorName
-    ? `Created by ${resolvedCreatorName}`
-    : "Creator not informed";
+    ? t("transactionCard.createdBy", { name: resolvedCreatorName })
+    : t("transactionCard.creatorNotInformed");
   const resolvedUpdaterName = updaterName ?? updatedBy?.name;
   const hasUpdateInfo = Boolean(resolvedUpdaterName || updatedById);
   const editedByLabel = hasUpdateInfo
     ? resolvedUpdaterName
-      ? `Edited by ${resolvedUpdaterName}`
-      : "Edited by unknown user"
+      ? t("transactionCard.editedBy", { name: resolvedUpdaterName })
+      : t("transactionCard.editedByUnknown")
     : null;
   const updatedAtDate = new Date(updatedAt);
   const hasValidUpdatedAt = Number.isFinite(updatedAtDate.getTime());
@@ -85,17 +88,13 @@ function TransactionCard({
       </span>
       <article className={styles.info}>
         <p className={styles.title}>{title}</p>
-        <p className={styles.category}>{category}</p>
+        <p className={styles.category}>
+          {t(`categories.${category}`, { defaultValue: category })}
+        </p>
         <small className={styles.date}>{formattedDate}</small>
-        {!hasUpdateInfo && (
-          <small className={styles.date}>{createdByLabel}</small>
-        )}
-        {editedByLabel && (
-          <small className={styles.date}>{editedByLabel}</small>
-        )}
-        {editedAtLabel && (
-          <small className={styles.date}>{editedAtLabel}</small>
-        )}
+        {!hasUpdateInfo ? <small className={styles.date}>{createdByLabel}</small> : null}
+        {editedByLabel ? <small className={styles.date}>{editedByLabel}</small> : null}
+        {editedAtLabel ? <small className={styles.date}>{editedAtLabel}</small> : null}
       </article>
       <div className={styles.rightBlock}>
         <p
@@ -103,43 +102,44 @@ function TransactionCard({
         >
           {sign} {formattedAmount}
         </p>
-        {(onEdit || onDelete) && (
+        {onEdit || onDelete ? (
           <div className={styles.actions}>
-            {onEdit && (
+            {onEdit ? (
               <button
                 type="button"
                 className={styles.iconBtn}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   onEdit();
                 }}
-                title="Edit transaction"
-                aria-label="Edit transaction"
+                title={t("transactionCard.edit")}
+                aria-label={t("transactionCard.edit")}
               >
                 <FaRegEdit />
               </button>
-            )}
-            {onDelete && (
+            ) : null}
+            {onDelete ? (
               <button
                 type="button"
                 className={`${styles.iconBtn} ${styles.deleteBtn}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   onDelete();
                 }}
                 disabled={isDeleting}
-                title="Delete transaction"
-                aria-label="Delete transaction"
+                title={t("transactionCard.delete")}
+                aria-label={t("transactionCard.delete")}
               >
                 {isDeleting ? "..." : <MdOutlineDeleteSweep />}
               </button>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
 }
+
 export default TransactionCard;

@@ -1,13 +1,15 @@
-import styles from "./RegisterPage.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
+import styles from "./RegisterPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
-import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../../../hooks/useAuth";
 
 function RegisterPage() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,21 +21,21 @@ function RegisterPage() {
   const nav = useNavigate();
   const { authenticateUser } = useAuth();
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
     if (isSubmitting) return;
 
     setErrorMessage(null);
 
     if (!name || !email || !password || !confirmPassword) {
-      setErrorMessage("Please fill in name, email and password.");
+      setErrorMessage(t("auth.register.fillAllFields"));
       setIsSubmitting(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
+      setErrorMessage(t("auth.register.passwordsDoNotMatch"));
       setIsSubmitting(false);
       return;
     }
@@ -62,10 +64,10 @@ function RegisterPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Signup failed",
+            t("auth.register.failed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("auth.register.unexpected"));
       }
     } finally {
       setIsSubmitting(false);
@@ -75,29 +77,30 @@ function RegisterPage() {
   return (
     <div className={styles.registerContainer}>
       <form className={styles.registerForm} onSubmit={handleRegister}>
-        <h2 className={styles.title}>Join us!</h2>
+        <h2 className={styles.title}>{t("auth.register.title")}</h2>
 
         <article className={styles.registerField}>
           <label>
-            Full Name:
+            {t("auth.register.fullName")}:
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name..."
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t("auth.register.fullNamePlaceholder")}
             />
           </label>
         </article>
 
         <section className={styles.registerField}>
           <label>
-            Profile picture <small>(max 2MB)</small>
+            {t("auth.register.profilePicture")}{" "}
+            <small>{t("auth.register.maxSize")}</small>
           </label>
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
+            onChange={(event) => {
+              const file = event.target.files?.[0];
               if (file) {
                 setAvatar(file);
               }
@@ -105,65 +108,65 @@ function RegisterPage() {
           />
         </section>
         <article className={styles.registerField}>
-          <label htmlFor="gender">Gender</label>
+          <label htmlFor="gender">{t("auth.register.gender")}</label>
           <select
             id="gender"
             name="gender"
             value={gender}
-            onChange={(e) => setGender(e.target.value)}
+            onChange={(event) => setGender(event.target.value)}
           >
-            <option value="">Select gender</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="NON_BINARY">Non-binary</option>
-            <option value="TRANS_MAN">Trans man</option>
-            <option value="TRANS_WOMAN">Trans woman</option>
-            <option value="AGENDER">Agender</option>
-            <option value="GENDERFLUID">Genderfluid</option>
-            <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-            <option value="OTHER">Other</option>
+            <option value="">{t("genders.select")}</option>
+            <option value="MALE">{t("genders.MALE")}</option>
+            <option value="FEMALE">{t("genders.FEMALE")}</option>
+            <option value="NON_BINARY">{t("genders.NON_BINARY")}</option>
+            <option value="TRANS_MAN">{t("genders.TRANS_MAN")}</option>
+            <option value="TRANS_WOMAN">{t("genders.TRANS_WOMAN")}</option>
+            <option value="AGENDER">{t("genders.AGENDER")}</option>
+            <option value="GENDERFLUID">{t("genders.GENDERFLUID")}</option>
+            <option value="PREFER_NOT_TO_SAY">{t("genders.PREFER_NOT_TO_SAY")}</option>
+            <option value="OTHER">{t("genders.OTHER")}</option>
           </select>
         </article>
 
         <article className={styles.registerField}>
           <label>
-            Email:
+            {t("auth.register.email")}:
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email..."
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder={t("auth.register.emailPlaceholder")}
             />
           </label>
         </article>
 
         <article className={styles.registerField}>
           <label>
-            Password:
+            {t("auth.register.password")}:
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password..."
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={t("auth.register.passwordPlaceholder")}
             />
           </label>
         </article>
 
         <article className={styles.registerField}>
           <label>
-            Confirm password:
+            {t("auth.register.confirmPassword")}:
             <input
               type="password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat your password..."
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              placeholder={t("auth.register.confirmPasswordPlaceholder")}
             />
           </label>
-          {confirmPassword && password !== confirmPassword && (
+          {confirmPassword && password !== confirmPassword ? (
             <small className={styles.PasswordFormHint}>
-              Passwords do not match
+              {t("auth.register.passwordsDoNotMatch")}
             </small>
-          )}
+          ) : null}
         </article>
         <article className={styles.registerButton}>
           <button
@@ -171,7 +174,9 @@ function RegisterPage() {
             className={styles.primaryBtn}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating account..." : "Register"}
+            {isSubmitting
+              ? t("auth.register.submitting")
+              : t("auth.register.submit")}
           </button>
         </article>
         <Message
@@ -180,7 +185,7 @@ function RegisterPage() {
           clearMessage={setErrorMessage}
           duration={4000}
         />
-        <p className={styles.registerFooter}>or</p>
+        <p className={styles.registerFooter}>{t("auth.register.or")}</p>
         <article className={styles.googleLogin}>
           <GoogleLogin
             text="signup_with"
@@ -188,7 +193,7 @@ function RegisterPage() {
               const idToken = credentialResponse.credential;
 
               if (!idToken) {
-                setErrorMessage("Invalid Google token.");
+                setErrorMessage(t("auth.register.invalidGoogleToken"));
                 return;
               }
 
@@ -202,21 +207,23 @@ function RegisterPage() {
                   setErrorMessage(
                     error.response?.data?.errorMessage ??
                       error.response?.data?.message ??
-                      "Google registration failed.",
+                      t("auth.register.googleFailed"),
                   );
                 } else {
-                  setErrorMessage("Google registration failed.");
+                  setErrorMessage(t("auth.register.googleFailed"));
                 }
               }
             }}
-            onError={() => setErrorMessage("Google registration failed.")}
+            onError={() => setErrorMessage(t("auth.register.googleFailed"))}
           />
         </article>
         <p className={styles.registerFooter}>
-          Already a member? <Link to="/login">Login</Link>
+          {t("auth.register.alreadyMember")}{" "}
+          <Link to="/login">{t("auth.register.login")}</Link>
         </p>
       </form>
     </div>
   );
 }
+
 export default RegisterPage;
