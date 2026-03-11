@@ -46,7 +46,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     localStorage.removeItem("authToken");
     setToken(null);
     setCurrentUser(null);
-    nav("/login");
+    nav("/");
   };
 
   useEffect(() => {

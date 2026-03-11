@@ -29,20 +29,66 @@
 .profileWrap {
   margin-left: auto;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .profileTrigger {
-  min-width: 120px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50% !important;
+  cursor: pointer;
+}
+
+.profileTrigger:hover {
+  border-color: var(--accent-red);
+}
+
+.profileImage,
+.profileFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50% !important;
+}
+
+.profileImage {
+  display: block;
+  object-fit: cover;
+}
+
+.profileFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .profileMenu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 180px;
+  min-width: 220px;
   border: 1px solid var(--border);
   background: var(--bg-primary);
   display: grid;
+}
+
+.menuLanguage {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .menuItem,
@@ -56,11 +102,19 @@
   padding: 10px 12px;
   font-size: 0.92rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .menuItemButton {
   border-bottom: 0;
   font-weight: 600;
+}
+
+.menuIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .menuItem:hover,
@@ -69,10 +123,19 @@
 }
 
 .toggleTheme {
-  top: 0;
-  margin-left: 10px;
-  position: absolute;
+  position: static;
   scale: 0.9;
+}
+
+.menuLanguage :global(.language-switcher__control) {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.menuLanguage :global(.language-switcher__menu) {
+  left: 0;
+  right: 0;
+  min-width: 100%;
 }
 
 @media (min-width: 769px) {

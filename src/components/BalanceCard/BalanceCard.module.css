@@ -1,4 +1,5 @@
 .balanceCardContainer {
+  --carousel-peek: 24px;
   background: var(--bg-primary);
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -10,36 +11,94 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .counter {
   color: var(--text-muted);
   font-size: 0.8rem;
+  margin-left: auto;
 }
 
-.controls {
-  display: flex;
-  gap: 8px;
+.desktopControls {
+  display: none;
+  align-items: center;
+  gap: 6px;
 }
 
-.navBtn {
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  color: var(--text-main);
-  border-radius: 8px;
-  min-height: 40px;
-  padding: 10px 14px;
-  font-size: 0.82rem;
+.arrowButton {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-size: 1.9rem;
 }
 
-.navBtn:hover {
+.arrowButton:hover {
+  color: var(--accent-red);
+}
+
+.carousel {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  margin-inline: calc(var(--carousel-peek) * -1);
+  outline: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselDragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.track {
+  display: flex;
+  gap: 12px;
+  padding-inline: var(--carousel-peek);
+}
+
+.slide {
+  flex: 0 0 calc(100% - (var(--carousel-peek) * 2));
+  scroll-snap-align: center;
+}
+
+.slideCard {
+  min-height: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.slideCardActive {
   border-color: var(--accent-red);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.accountData {
+  display: grid;
+  gap: 8px;
 }
 
 .accountData h3 {
@@ -49,8 +108,18 @@
   font-size: 1.1rem;
 }
 
+.balancePill {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+}
+
 .accountData p {
-  margin: 8px 0 0;
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.9rem;
 }
@@ -96,4 +165,31 @@
 .emptyState {
   margin: 0;
   color: var(--text-muted);
+}
+
+@media (min-width: 640px) {
+  .balanceCardContainer {
+    --carousel-peek: 40px;
+  }
+
+  .track {
+    gap: 16px;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktopControls {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .balanceCardContainer {
+    --carousel-peek: 18px;
+    padding: 14px;
+  }
+
+  .slideCard {
+    padding: 14px;
+  }
 }

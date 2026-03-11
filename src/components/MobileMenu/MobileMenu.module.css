@@ -22,21 +22,41 @@
   padding: 0 10px;
 }
 
+.mobileMenuContent > a,
+.profileBtn {
+  min-width: 44px;
+  display: inline-grid;
+  place-items: center;
+  color: inherit;
+}
+
 .profileWrap {
   position: relative;
+  display: flex;
+  align-items: center;
 }
-.profileWrap button {
-  padding-top: 13px;
+
+.profileBtn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: inherit;
+  cursor: pointer;
 }
 
 .profileMenu {
   position: absolute;
   right: -10px;
   bottom: calc(100% + 4px);
-  min-width: 140px;
+  min-width: 220px;
   border: 1px solid var(--border);
   background: var(--bg-primary);
   display: grid;
+}
+
+.profileMenuLanguage {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .profileMenuItem,
@@ -50,11 +70,31 @@
   text-align: left;
   font-size: 0.9rem;
   padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .profileMenuBtn {
   border-bottom: 0;
   cursor: pointer;
+  width: 100%;
+}
+
+.menuIcon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.profileMenuLanguage :global(.language-switcher__control) {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.profileMenuLanguage :global(.language-switcher__menu) {
+  left: 0;
+  right: 0;
+  min-width: 100%;
 }
 
 .createNew {

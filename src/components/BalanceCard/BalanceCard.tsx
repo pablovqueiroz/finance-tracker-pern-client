@@ -1,4 +1,14 @@
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
+import { IoIosArrowDropleft, IoIosArrowDropright } from "react-icons/io";
+import { useTranslation } from "react-i18next";
 import type { AccountSummary } from "../../types/account.types";
+import { getLocale } from "../../i18n/getLocale";
 import styles from "./BalanceCard.module.css";
 
 type BalanceCardProps = {
@@ -16,57 +26,233 @@ function BalanceCard({
   onNext,
   onSelect,
 }: BalanceCardProps) {
+  const { i18n, t } = useTranslation();
+  const locale = getLocale(i18n.resolvedLanguage);
   const activeAccount = accounts[activeIndex] ?? null;
-  const locale = navigator.language ?? "pt-PT";
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const slideRefs = useRef<Array<HTMLElement | null>>([]);
+  const scrollTimeoutRef = useRef<number | null>(null);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const activeSlide = slideRefs.current[activeIndex];
+    if (!activeSlide) {
+      return;
+    }
+
+    activeSlide.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeIndex, accounts.length]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current !== null) {
+        window.clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const syncActiveIndexFromScroll = () => {
+    const carousel = carouselRef.current;
+    if (!carousel || accounts.length <= 1) {
+      return;
+    }
+
+    const carouselRect = carousel.getBoundingClientRect();
+    const carouselCenter = carouselRect.left + carouselRect.width / 2;
+    let nextIndex = activeIndex;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    slideRefs.current.forEach((slide, index) => {
+      if (!slide) {
+        return;
+      }
+
+      const slideRect = slide.getBoundingClientRect();
+      const slideCenter = slideRect.left + slideRect.width / 2;
+      const distance = Math.abs(slideCenter - carouselCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        nextIndex = index;
+      }
+    });
+
+    if (nextIndex !== activeIndex) {
+      onSelect(nextIndex);
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollTimeoutRef.current !== null) {
+      window.clearTimeout(scrollTimeoutRef.current);
+    }
+
+    scrollTimeoutRef.current = window.setTimeout(syncActiveIndexFromScroll, 100);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      onPrev();
+    }
+
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      onNext();
+    }
+  };
+
+  const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    const carousel = carouselRef.current;
+    if (!carousel || accounts.length <= 1 || event.button !== 0) {
+      return;
+    }
+
+    dragStartXRef.current = event.clientX;
+    dragStartScrollLeftRef.current = carousel.scrollLeft;
+    hasDraggedRef.current = false;
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    const carousel = carouselRef.current;
+    if (!carousel || !isDragging) {
+      return;
+    }
+
+    const deltaX = event.clientX - dragStartXRef.current;
+    if (Math.abs(deltaX) > 4) {
+      hasDraggedRef.current = true;
+    }
+
+    carousel.scrollLeft = dragStartScrollLeftRef.current - deltaX;
+    event.preventDefault();
+  };
+
+  const finishMouseDrag = () => {
+    if (!isDragging) {
+      return;
+    }
+
+    setIsDragging(false);
+    if (hasDraggedRef.current) {
+      handleScroll();
+    }
+  };
 
   if (!activeAccount) {
     return (
       <div className={styles.balanceCardContainer}>
-        <p className={styles.emptyState}>No accounts yet.</p>
+        <p className={styles.emptyState}>{t("balanceCard.noAccounts")}</p>
       </div>
     );
   }
-
-  const updatedAt = new Intl.DateTimeFormat(locale, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(activeAccount.updatedAt));
-  const numericBalance = Number(activeAccount.balance ?? 0);
-  const formattedBalance = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: activeAccount.currency,
-  }).format(Number.isFinite(numericBalance) ? numericBalance : 0);
 
   return (
     <div className={styles.balanceCardContainer}>
       <section className={styles.header}>
         <small className={styles.counter}>
-          Account {activeIndex + 1} of {accounts.length}
+          {t("balanceCard.counter", {
+            current: activeIndex + 1,
+            total: accounts.length,
+          })}
         </small>
-        <div className={styles.controls}>
-          <button type="button" onClick={onPrev} className={styles.navBtn}>
-            Prev
-          </button>
-          <button type="button" onClick={onNext} className={styles.navBtn}>
-            Next
-          </button>
+
+        {accounts.length > 1 ? (
+          <div className={styles.desktopControls}>
+            <button
+              type="button"
+              className={styles.arrowButton}
+              onClick={onPrev}
+              aria-label={t("balanceCard.prev")}
+              title={t("balanceCard.prev")}
+            >
+              <IoIosArrowDropleft />
+            </button>
+            <button
+              type="button"
+              className={styles.arrowButton}
+              onClick={onNext}
+              aria-label={t("balanceCard.next")}
+              title={t("balanceCard.next")}
+            >
+              <IoIosArrowDropright />
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <div
+        ref={carouselRef}
+        className={`${styles.carousel} ${isDragging ? styles.carouselDragging : ""}`.trim()}
+        onKeyDown={handleKeyDown}
+        onScroll={handleScroll}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={finishMouseDrag}
+        onMouseLeave={finishMouseDrag}
+        tabIndex={accounts.length > 1 ? 0 : -1}
+        aria-label={t("balanceCard.counter", {
+          current: activeIndex + 1,
+          total: accounts.length,
+        })}
+      >
+        <div className={styles.track}>
+          {accounts.map((account, index) => {
+            const updatedAt = new Intl.DateTimeFormat(locale, {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }).format(new Date(account.updatedAt));
+            const numericBalance = Number(account.balance ?? 0);
+            const formattedBalance = new Intl.NumberFormat(locale, {
+              style: "currency",
+              currency: account.currency,
+            }).format(Number.isFinite(numericBalance) ? numericBalance : 0);
+
+            return (
+              <article
+                key={account.id}
+                ref={(element) => {
+                  slideRefs.current[index] = element;
+                }}
+                className={styles.slide}
+                aria-hidden={index !== activeIndex}
+              >
+                <div
+                  className={`${styles.slideCard} ${
+                    index === activeIndex ? styles.slideCardActive : ""
+                  }`}
+                >
+                  <section className={styles.accountData}>
+                    <h3>{account.name}</h3>
+                    <h3 className={styles.balancePill}>{formattedBalance}</h3>
+                    <p>{account.description || t("common.noDescription")}</p>
+                  </section>
+
+                  <section className={styles.meta}>
+                    <span>{t("balanceCard.updated", { date: updatedAt })}</span>
+                    <span>
+                      {t("balanceCard.transactions", {
+                        count: account._count?.transactions ?? 0,
+                      })}
+                    </span>
+                  </section>
+                </div>
+              </article>
+            );
+          })}
         </div>
-      </section>
+      </div>
 
-      <section className={styles.accountData}>
-        <h3>{activeAccount.name}</h3>
-        <h3 className={styles.balancePill}>{formattedBalance}</h3>
-        <p>{activeAccount.description || "No description"}</p>
-      </section>
-
-      <section className={styles.meta}>
-        {/* <span>{activeAccount.currency}</span> */}
-        <span>Updated: {updatedAt}</span>
-        <span>Transactions: {activeAccount._count?.transactions ?? 0}</span>
-      </section>
-
-      {accounts.length > 1 && (
+      {accounts.length > 1 ? (
         <section className={styles.dots}>
           {accounts.map((account, index) => (
             <button
@@ -74,11 +260,11 @@ function BalanceCard({
               type="button"
               onClick={() => onSelect(index)}
               className={`${styles.dot} ${index === activeIndex ? styles.dotActive : ""}`}
-              aria-label={`Select account ${index + 1}`}
+              aria-label={t("balanceCard.selectAccount", { index: index + 1 })}
             />
           ))}
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

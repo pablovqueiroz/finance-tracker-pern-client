@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IoHomeOutline, IoHomeSharp } from "react-icons/io5";
 import { HiOutlineWallet, HiWallet } from "react-icons/hi2";
 import { FaCirclePlus } from "react-icons/fa6";
+import { FiMessageSquare } from "react-icons/fi";
 import {
   MdOutlineSavings,
   MdSavings,
@@ -10,9 +12,11 @@ import {
 } from "react-icons/md";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./MobileMenu.module.css";
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 export default function MobileMenu() {
   const { isLoggedIn, handleLogout } = useAuth();
+  const { t } = useTranslation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -58,25 +62,35 @@ export default function MobileMenu() {
             className={styles.profileBtn}
             type="button"
             onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-            aria-label="Open profile menu"
+            aria-label={t("nav.openProfileMenu")}
           >
             <MdOutlineAccountCircle />
           </button>
 
-          {isProfileMenuOpen && (
+          {isProfileMenuOpen ? (
             <div className={styles.profileMenu}>
               <NavLink className={styles.profileMenuItem} to="/profile">
-                Profile details
+                {t("nav.profileDetails")}
+              </NavLink>
+              <NavLink className={styles.profileMenuItem} to="/invites">
+                {t("nav.invites")}
+              </NavLink>
+              <div className={styles.profileMenuLanguage}>
+                <LanguageSwitcher />
+              </div>
+              <NavLink className={styles.profileMenuItem} to="/contact#contact">
+                <FiMessageSquare className={styles.menuIcon} />
+                <span>{t("nav.sendFeedback")}</span>
               </NavLink>
               <button
                 className={styles.profileMenuBtn}
                 type="button"
                 onClick={handleLogout}
               >
-                Logout
+                {t("nav.logout")}
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>
