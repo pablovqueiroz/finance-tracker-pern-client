@@ -2,10 +2,16 @@
 
 Frontend for Finance Tracker, built with React, TypeScript, and Vite.
 
+## Live Demo
+
+A live version of the application can be accessed here:
+
+[Live Demo](LIVE_DEMO_LINK_HERE)
+
 ## Overview
 
 This repository contains the web interface for the `finance-tracker-pern` project.
-The app currently includes authentication, account management, member invites/removal, full transaction CRUD by account, dashboard quick actions, and profile editing features.
+The app currently includes authentication, account management, member invites/removal, full transaction CRUD by account, dashboard quick actions, reports, improved onboarding content on the home page, and profile editing features.
 
 ## Tech Stack
 
@@ -25,8 +31,14 @@ The app currently includes authentication, account management, member invites/re
   - create account
   - list accounts
   - account details (members, transactions, saving goals)
+- Public home page with:
+  - clearer product explanation for new users
+  - feature overview cards
+  - step-by-step onboarding content
+  - benefits section explaining the value of the app
 - Dashboard with:
   - account carousel (switch between accounts)
+  - swipe on mobile, drag with mouse on desktop, and desktop arrow controls
   - account balance in the balance card
   - account balance in account cards
   - transactions list for selected account
@@ -46,6 +58,28 @@ The app currently includes authentication, account management, member invites/re
   - avatar upload
   - account deletion
 - Mobile menu navigation
+
+## UI Consistency
+
+- Button alignment and spacing were reviewed across the main flows, including navigation, forms, profile actions, account management, invites, and contact sections.
+- The layout fixes were implemented with a mobile-first approach so buttons stack, stretch, and align predictably on smaller screens before expanding on larger breakpoints.
+- Excessive bottom spacing was reduced across page wrappers and sections to keep mobile screens tighter and reduce unnecessary scrolling.
+- The dashboard account switcher now uses a swipeable carousel, making it easier to browse accounts on mobile while keeping the existing dashboard flow intact.
+- The desktop navbar now uses a profile avatar trigger instead of rendering the username, which keeps the header more consistent and prevents long names from affecting the layout.
+- The language switcher was updated to a cleaner dropdown-style control and the profile menus were reordered to prioritize the most frequently used actions.
+
+## Loading System
+
+- Spinner-based loading states were replaced with skeleton placeholders that better match the final UI structure.
+- Skeleton loading improves perceived performance by keeping the layout stable while content is fetched.
+- The loading states were adjusted to preserve mobile layout proportions and reduce visual shifts when data becomes available.
+
+## Internationalization
+
+- The frontend now includes internationalization support with `i18next`, `react-i18next`, and browser language detection.
+- Supported languages are English, Portuguese, and Spanish, with English as the default fallback language.
+- Language switching is available on the public home page and inside the authenticated interface through the profile and navigation menus.
+- Post-i18n additions were reviewed so the newer home page onboarding content is also covered in Portuguese and Spanish.
 
 ## Routes
 
