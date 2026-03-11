@@ -1,13 +1,16 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CiCircleMinus, CiCirclePlus } from "react-icons/ci";
 import { TbReport } from "react-icons/tb";
 import styles from "./ActionButtons.module.css";
-import { Link } from "react-router-dom";
 
 type ActionButtonsProps = {
   accountId?: string;
 };
 
 function ActionButtons({ accountId = "" }: ActionButtonsProps) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const hasAccount = Boolean(accountId);
   const incomePath = hasAccount
     ? `/accounts/${accountId}/transactions?type=INCOME`
@@ -15,12 +18,16 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
   const expensePath = hasAccount
     ? `/accounts/${accountId}/transactions?type=EXPENSE`
     : "";
-  const transactionsPath = hasAccount ? `/accounts/${accountId}/transactions` : "";
+  const disabledTitle = t("actions.selectAccountFirst");
 
   return (
     <div className={styles.actionButtonsContainer}>
       {hasAccount ? (
-        <Link to={incomePath} className={styles.actionButton} title="New income">
+        <Link
+          to={incomePath}
+          className={styles.actionButton}
+          title={t("actions.newIncome")}
+        >
           <CiCirclePlus />
         </Link>
       ) : (
@@ -28,7 +35,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           className={`${styles.actionButton} ${styles.disabled}`}
           type="button"
           disabled
-          title="Select an account first"
+          title={disabledTitle}
         >
           <CiCirclePlus />
         </button>
@@ -38,7 +45,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
         <Link
           to={expensePath}
           className={styles.actionButton}
-          title="New expense"
+          title={t("actions.newExpense")}
         >
           <CiCircleMinus />
         </Link>
@@ -47,26 +54,27 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           className={`${styles.actionButton} ${styles.disabled}`}
           type="button"
           disabled
-          title="Select an account first"
+          title={disabledTitle}
         >
           <CiCircleMinus />
         </button>
       )}
 
       {hasAccount ? (
-        <Link
-          to={transactionsPath}
+        <button
           className={styles.actionButton}
-          title="Transactions list"
+          type="button"
+          title={t("actions.reports")}
+          onClick={() => navigate("/reports")}
         >
           <TbReport />
-        </Link>
+        </button>
       ) : (
         <button
           className={`${styles.actionButton} ${styles.disabled}`}
           type="button"
           disabled
-          title="Select an account first"
+          title={disabledTitle}
         >
           <TbReport />
         </button>

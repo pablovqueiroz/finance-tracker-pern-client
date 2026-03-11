@@ -1,0 +1,50 @@
+.pageContainer {
+  min-height: calc(100vh - 120px);
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 28px;
+  display: grid;
+  gap: 16px;
+}
+
+.header {
+  display: grid;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.section {
+  display: grid;
+  gap: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 1.05rem;
+}
+
+.sectionCopy {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 16px 12px 24px;
+    gap: 12px;
+  }
+}

@@ -13,6 +13,10 @@ import ManageAccountsPage from "./pages/Accounts/ManageAccountsPage/ManageAccoun
 import AccountDetailsPage from "./pages/Accounts/AccountDetailsPage/AccountDetailsPage";
 import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
 import ManageSavingGoalsPage from "./pages/SavingGoals/ManageSavingGoalsPage";
+import ReportsPage from "./pages/ReportsPage";
+import AccountMembersPage from "./pages/AccountMembersPage";
+import InvitesPage from "./pages/InvitesPage";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
   return (
@@ -34,6 +38,10 @@ function App() {
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/accounts" element={<ManageAccountsPage />} />
           <Route path="/accounts/:accountId" element={<AccountDetailsPage />} />
+          <Route path="/accounts/:accountId/members" element={<AccountMembersPage />} />
+          <Route path="/invites" element={<InvitesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route
             path="/accounts/:accountId/transactions"
             element={<CreateTransactionPage />}

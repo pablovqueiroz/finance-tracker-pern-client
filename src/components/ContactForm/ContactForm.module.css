@@ -1,0 +1,55 @@
+.contactForm {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.fields {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.messageField {
+  min-height: 160px;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+}
+
+.actions > button {
+  width: 100%;
+}
+
+.status {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.success {
+  color: #15803d;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .actions > button {
+    width: auto;
+  }
+}

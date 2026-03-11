@@ -340,7 +340,7 @@ function AccountDetailsPage() {
                 </option>
               ))}
             </select>
-            <div>
+            <div className={styles.editActions}>
               <button
                 className="ui-btn"
                 onClick={handleSave}
@@ -361,7 +361,25 @@ function AccountDetailsPage() {
       </section>
 
       <section className={`${styles.aMembersSection} ui-card`}>
-        <h3 className={styles.membersTitle}>Members</h3>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.membersTitle}>Members</h3>
+          <div className={styles.accountActions}>
+            <button
+              className="ui-btn"
+              type="button"
+              onClick={() => navigate(`/accounts/${accountId}/members`)}
+            >
+              Manage members
+            </button>
+            <button
+              className="ui-btn"
+              type="button"
+              onClick={() => navigate(`/invites?accountId=${accountId}`)}
+            >
+              Invites
+            </button>
+          </div>
+        </div>
         {canEdit && (
           <form className={styles.inviteForm} onSubmit={handleInviteMember}>
             <input

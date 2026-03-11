@@ -1,7 +1,7 @@
 .accountDetailsPageContainer {
   min-height: calc(100vh - 120px);
   width: 100%;
-  padding: 24px 16px 100px;
+  padding: 24px 16px 28px;
   max-width: 1080px;
   margin: 0 auto;
   display: flex;
@@ -48,11 +48,11 @@
   font-weight: 700;
 }
 
-.accountDetails .ui-control {
+.accountDetails :global(.ui-control) {
   margin-top: 8px;
 }
 
-.accountDetails select.ui-control {
+.accountDetails :global(select.ui-control) {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -70,31 +70,34 @@
   background-repeat: no-repeat;
 }
 
-.accountDetails select.ui-control:focus,
-.accountDetails select.ui-control:active {
+.accountDetails :global(select.ui-control:focus),
+.accountDetails :global(select.ui-control:active) {
   border-color: var(--accent-red);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-red) 20%, transparent);
   background-color: var(--bg-primary);
 }
 
-.accountDetails select.ui-control option {
+.accountDetails :global(select.ui-control) option {
   background: var(--bg-primary);
   color: var(--text-main);
 }
 
-.accountDetails select.ui-control option:checked {
+.accountDetails :global(select.ui-control) option:checked {
   background: color-mix(in srgb, var(--accent-red) 18%, var(--bg-primary));
   color: var(--text-main);
-}
-
-.accountDetails .ui-btn {
-  margin-top: 10px;
 }
 
 .accountActions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.editActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .membersTitle,
@@ -113,6 +116,15 @@
 
 .aMembersSection h3 {
   grid-column: 1 / -1;
+}
+
+.sectionHeader {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .inviteForm {
@@ -170,7 +182,8 @@
   gap: 8px;
 }
 
-.transactionsSection .ui-btn {
+.transactionsSection :global(.ui-btn),
+.savingGoalsSection :global(.ui-btn) {
   width: fit-content;
 }
 
@@ -178,6 +191,25 @@
   .accountDetailsPageContainer {
     padding: 16px 12px 20px;
     gap: 12px;
+  }
+
+  .sectionHeader {
+    align-items: stretch;
+  }
+
+  .accountActions,
+  .editActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .accountActions > button,
+  .accountActions > a,
+  .editActions > button,
+  .inviteForm > button,
+  .transactionsSection :global(.ui-btn),
+  .savingGoalsSection :global(.ui-btn) {
+    width: 100%;
   }
 
   .inviteForm {
