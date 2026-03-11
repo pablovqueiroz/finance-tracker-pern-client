@@ -1,6 +1,7 @@
 import "./styles/reset.css";
 import "./styles/variables.css";
 import "./styles/global.css";
+import "./i18n/i18n";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
