@@ -1,6 +1,6 @@
 
 .registerContainer{
-  padding: 24px 24px 100px 24px;
+  padding: 24px 24px 28px 24px;
   margin: 0 auto;
    max-width: 600px;
 }
@@ -10,7 +10,8 @@
   margin: 0;
 }
 .registerContainer form {
-  align-items: center;
+  display: grid;
+  gap: 14px;
 }
 .registerField {
   width: 100%;
@@ -26,13 +27,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   transition: all 0.2s ease;
   border: 1px solid transparent;
 }
 
 .oauthButton {
   box-sizing: border-box;
-  min-width: 250px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   position: relative;
   padding: 10px 14px;
   min-height: 40px;
@@ -53,6 +57,26 @@
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.1s ease;
+}
+
+.registerButton,
+.googleLogin {
+  width: 100%;
+}
+
+.registerButton {
+  display: grid;
+}
+
+.googleLogin {
+  display: flex;
+  justify-content: center;
+}
+
+.googleLogin > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 .oauthGoogleIcon {
   position: absolute;
@@ -76,4 +100,19 @@
 
 .registerFooter a:hover {
   text-decoration: underline;
+}
+
+@media (min-width: 641px) {
+  .registerButton {
+    justify-items: center;
+  }
+
+  .primaryBtn {
+    width: auto;
+    min-width: 180px;
+  }
+
+  .googleLogin > div {
+    width: auto;
+  }
 }

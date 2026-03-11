@@ -3,7 +3,7 @@
   width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 16px 100px;
+  padding: 24px 16px 28px;
   display: grid;
   gap: 16px;
 }
@@ -173,9 +173,16 @@
     grid-template-columns: 1fr;
   }
 
+  .listHeader > button,
+  .formActions > button,
+  .moneyActions > button,
+  .itemActions > button {
+    width: 100%;
+  }
+
   .formActions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .reportGrid {
@@ -184,7 +191,7 @@
 
   .itemActions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .moneyActions {

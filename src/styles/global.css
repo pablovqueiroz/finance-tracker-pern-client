@@ -37,6 +37,8 @@ textarea.ui-control {
 .ui-btn {
   padding: 10px 14px;
   min-height: 40px;
+  box-sizing: border-box;
+  max-width: 100%;
   border-radius: 0;
   border: 1px solid transparent;
   background: var(--accent-red);

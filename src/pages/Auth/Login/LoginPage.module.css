@@ -8,7 +8,8 @@
   padding: 24px;
 }
 .loginContainer form {
-  align-items: center;
+  display: grid;
+  gap: 14px;
 }
 
 .loginField {
@@ -25,6 +26,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   transition: all 0.2s ease;
   border: 1px solid transparent;
 }
@@ -54,7 +56,9 @@
 
 .oauthButton {
   box-sizing: border-box;
-  min-width: 250px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   position: relative;
   padding: 10px 14px;
   min-height: 40px;
@@ -77,8 +81,43 @@
     transform 0.1s ease;
 }
 
+.loginButton,
+.googleLogin {
+  width: 100%;
+}
+
+.loginButton {
+  display: grid;
+}
+
+.googleLogin {
+  display: flex;
+  justify-content: center;
+}
+
+.googleLogin > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .oauthGoogleIcon {
   position: absolute;
   left: 14px;
   font-size: 19px;
+}
+
+@media (min-width: 641px) {
+  .loginButton {
+    justify-items: center;
+  }
+
+  .primaryBtn {
+    width: auto;
+    min-width: 180px;
+  }
+
+  .googleLogin > div {
+    width: auto;
+  }
 }

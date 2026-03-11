@@ -1,6 +1,6 @@
 .ManageAccountsPage {
   min-height: calc(100vh - 120px);
-  padding: 24px 16px 100px;
+  padding: 24px 16px 28px;
   max-width: 1080px;
   margin: 0 auto;
 }
@@ -20,6 +20,6 @@
 
 @media (max-width: 640px) {
   .ManageAccountsPage {
-    padding: 16px 12px 92px;
+    padding: 16px 12px 24px;
   }
 }
