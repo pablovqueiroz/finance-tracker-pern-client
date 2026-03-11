@@ -3,6 +3,10 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import styles from "./CreateTransactionPage.module.css";
 import api from "../../services/api";
+import Skeleton from "../../components/Skeleton/Skeleton";
+import SkeletonButton from "../../components/Skeleton/SkeletonButton";
+import SkeletonCard from "../../components/Skeleton/SkeletonCard";
+import SkeletonText from "../../components/Skeleton/SkeletonText";
 import type {
   AccountDetail,
   Category,
@@ -118,14 +122,18 @@ type TransactionForm = {
   notes: string;
 };
 
-const initialForm: TransactionForm = {
+const getTodayDate = () => new Date().toISOString().split("T")[0];
+
+const createInitialForm = (
+  type: TransactionType = "EXPENSE",
+): TransactionForm => ({
   title: "",
   amount: "",
-  type: "EXPENSE",
+  type,
   category: "OTHERS",
-  date: "",
+  date: getTodayDate(),
   notes: "",
-};
+});
 
 function CreateTransactionPage() {
   const { accountId } = useParams<{ accountId: string }>();
@@ -133,7 +141,7 @@ function CreateTransactionPage() {
   const { currentUser } = useAuth();
   const [account, setAccount] = useState<AccountDetail | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [form, setForm] = useState<TransactionForm>(initialForm);
+  const [form, setForm] = useState<TransactionForm>(() => createInitialForm());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -270,7 +278,7 @@ function CreateTransactionPage() {
   };
 
   const clearForm = () => {
-    setForm(initialForm);
+    setForm(createInitialForm());
     setEditingId(null);
     setIsFormOpen(false);
     setIsBulkMode(false);
@@ -489,8 +497,37 @@ function CreateTransactionPage() {
     }
   }
 
+  const handleSetToday = () => {
+    setForm((prev) => ({
+      ...prev,
+      date: getTodayDate(),
+    }));
+  };
+
   if (isLoading) {
-    return <p className={styles.pageState}>Loading transactions...</p>;
+    return (
+      <div className={styles.pageContainer} aria-busy="true">
+        <section className={`${styles.header} ui-card`}>
+          <Skeleton width="42%" height={26} />
+          <SkeletonText lines={1} widths={["24%"]} />
+          <SkeletonButton width={140} />
+        </section>
+
+        <section className={`${styles.listSection} ui-card`}>
+          <div className={styles.listHeader}>
+            <Skeleton width="36%" height={20} />
+            <SkeletonButton width={170} />
+            <SkeletonButton width={140} />
+          </div>
+
+          <div style={{ display: "grid", gap: "10px" }}>
+            <SkeletonCard avatar lines={2} actionCount={2} />
+            <SkeletonCard avatar lines={2} actionCount={2} />
+            <SkeletonCard avatar lines={2} actionCount={2} />
+          </div>
+        </section>
+      </div>
+    );
   }
 
   if (!account || !accountId) {
@@ -532,7 +569,7 @@ function CreateTransactionPage() {
                 typeFromQuery === "INCOME" || typeFromQuery === "EXPENSE"
                   ? typeFromQuery
                   : "EXPENSE";
-              setForm({ ...initialForm, type: nextType });
+              setForm(createInitialForm(nextType));
               setEditingId(null);
               setIsBulkMode(false);
               setIsFormOpen(true);
@@ -679,14 +716,23 @@ function CreateTransactionPage() {
 
                 <label htmlFor="date">
                   Date
-                  <input
-                    className="ui-control"
-                    id="date"
-                    name="date"
-                    type="date"
-                    value={form.date}
-                    onChange={handleChange}
-                  />
+                  <div className={styles.dateInputRow}>
+                    <input
+                      className="ui-control"
+                      id="date"
+                      name="date"
+                      type="date"
+                      value={form.date}
+                      onChange={handleChange}
+                    />
+                    <button
+                      className={`${styles.secondaryBtn} ${styles.todayButton} ui-btn`}
+                      type="button"
+                      onClick={handleSetToday}
+                    >
+                      Today
+                    </button>
+                  </div>
                 </label>
 
                 <label htmlFor="notes" className={styles.fieldWide}>

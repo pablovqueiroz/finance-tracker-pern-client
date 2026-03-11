@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./ProfilePage.module.css";
-import axios from "axios";
 import api from "../../services/api";
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import AvatarUploader from "../../components/Profile/AvatarUploader";
 import ProfileForm from "../../components/Profile/ProfileForm";
+import SkeletonText from "../../components/Skeleton/SkeletonText";
 import Message from "../../components/Message/Message";
 import DangerZone from "../../components/Profile/DangerZone";
-import Spinner from "../../components/Spinner/Spinner";
+import LanguageSwitcher from "../../components/LanguageSwitcher/LanguageSwitcher";
 
 type UserProfile = {
   name: string;
@@ -31,6 +32,7 @@ const defaultImg =
 
 function ProfilePage() {
   const { authenticateUser, handleLogout } = useAuth();
+  const { t } = useTranslation();
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -88,11 +90,10 @@ function ProfilePage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [showGoogleDeleteReauth, isDeletingAccount]);
 
-  // Update profile
   const handleUpdateProfile: React.FormEventHandler<HTMLFormElement> = async (
-    e,
+    event,
   ) => {
-    e.preventDefault();
+    event.preventDefault();
 
     if (isUpdatingProfile) return;
 
@@ -104,23 +105,22 @@ function ProfilePage() {
       await api.put("/users/me", { name: name.trim(), gender });
 
       await authenticateUser();
-      setSuccessMessage("Profile updated successfully.");
+      setSuccessMessage(t("profile.updatedSuccessfully"));
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed updating profile.",
+            t("profile.updateFailed"),
         );
       } else {
-        setErrorMessage("Unexpected error occurred.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsUpdatingProfile(false);
     }
   };
 
-  // Update avatar locally
   const handleImageUpdated = (newImageUrl: string) => {
     setProfile((prev) => ({
       ...prev,
@@ -128,11 +128,8 @@ function ProfilePage() {
     }));
   };
 
-  // Delete account
   const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete your account?",
-    );
+    const confirmed = window.confirm(t("profile.deleteConfirm"));
     if (!confirmed) return;
 
     setSuccessMessage(null);
@@ -143,9 +140,7 @@ function ProfilePage() {
       return;
     }
 
-    const password = window.prompt(
-      "Type your password to confirm account deletion:",
-    );
+    const password = window.prompt(t("profile.deletePrompt"));
     if (!password) return;
 
     setIsDeletingAccount(true);
@@ -168,13 +163,13 @@ function ProfilePage() {
           "Google reauthentication is required to delete account."
         ) {
           setShowGoogleDeleteReauth(true);
-          setErrorMessage("Confirm deletion with Google to continue.");
+          setErrorMessage(t("profile.googleReauthRequired"));
           return;
         }
 
-        setErrorMessage(apiMessage || "Failed deleting profile.");
+        setErrorMessage(apiMessage || t("profile.deleteFailed"));
       } else {
-        setErrorMessage("Unexpected error occurred.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsDeletingAccount(false);
@@ -187,7 +182,7 @@ function ProfilePage() {
     const googleIdToken = credentialResponse.credential;
 
     if (!googleIdToken) {
-      setErrorMessage("Invalid Google token.");
+      setErrorMessage(t("profile.googleInvalidToken"));
       return;
     }
 
@@ -205,17 +200,16 @@ function ProfilePage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed deleting profile.",
+            t("profile.deleteFailed"),
         );
       } else {
-        setErrorMessage("Unexpected error occurred.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsDeletingAccount(false);
     }
   };
 
-  // Password validation
   const isPasswordFormValid = (): boolean => {
     const { currentPassword, newPassword, confirmNewPassword } = passwordForm;
     if (!currentPassword || !newPassword || !confirmNewPassword) return false;
@@ -224,14 +218,13 @@ function ProfilePage() {
     return true;
   };
 
-  // Change password
   const handleChangePassword: React.FormEventHandler<HTMLFormElement> = async (
-    e,
+    event,
   ) => {
-    e.preventDefault();
+    event.preventDefault();
 
     if (!isPasswordFormValid()) {
-      setErrorMessage("Please fill all fields correctly.");
+      setErrorMessage(t("profile.fillPasswordFields"));
       return;
     }
 
@@ -242,7 +235,7 @@ function ProfilePage() {
     try {
       await api.put("/users/me", passwordForm);
 
-      setSuccessMessage("Password updated successfully.");
+      setSuccessMessage(t("profile.passwordUpdated"));
 
       setPasswordForm({
         currentPassword: "",
@@ -254,10 +247,10 @@ function ProfilePage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to update password.",
+            t("profile.passwordUpdateFailed"),
         );
       } else {
-        setErrorMessage("Unexpected error occurred.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsChangingPassword(false);
@@ -268,15 +261,21 @@ function ProfilePage() {
     <div className={styles.profilePageContainer}>
       <section className={styles.profileCard}>
         <ProfileHeader />
+
         <div className={styles.headerActions}>
           <button
             type="button"
             className={styles.logoutButton}
             onClick={handleLogout}
           >
-            Logout
+            {t("profile.logout")}
           </button>
         </div>
+
+        <section className={styles.preferenceSection}>
+          <h2>{t("language.label")}</h2>
+          <LanguageSwitcher className={styles.profileLanguageSwitcher} />
+        </section>
 
         <div className={styles.profileForm}>
           <article className={styles.firstBlock}>
@@ -287,38 +286,40 @@ function ProfilePage() {
 
             <ProfileForm
               onSubmit={handleUpdateProfile}
-              submitLabel="Save profile"
+              submitLabel={t("profile.saveProfile")}
               isLoading={isUpdatingProfile}
             >
               <label>
-                Name
+                {t("profile.name")}
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) =>
-                    setProfile({ ...profile, name: e.target.value })
+                  onChange={(event) =>
+                    setProfile({ ...profile, name: event.target.value })
                   }
                 />
               </label>
 
               <label>
-                Gender
+                {t("profile.gender")}
                 <select
                   value={gender}
-                  onChange={(e) =>
-                    setProfile({ ...profile, gender: e.target.value })
+                  onChange={(event) =>
+                    setProfile({ ...profile, gender: event.target.value })
                   }
                 >
-                  <option value="">Select gender</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="NON_BINARY">Non-binary</option>
-                  <option value="TRANS_MAN">Trans man</option>
-                  <option value="TRANS_WOMAN">Trans woman</option>
-                  <option value="AGENDER">Agender</option>
-                  <option value="GENDERFLUID">Genderfluid</option>
-                  <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-                  <option value="OTHER">Other</option>
+                  <option value="">{t("genders.select")}</option>
+                  <option value="MALE">{t("genders.MALE")}</option>
+                  <option value="FEMALE">{t("genders.FEMALE")}</option>
+                  <option value="NON_BINARY">{t("genders.NON_BINARY")}</option>
+                  <option value="TRANS_MAN">{t("genders.TRANS_MAN")}</option>
+                  <option value="TRANS_WOMAN">{t("genders.TRANS_WOMAN")}</option>
+                  <option value="AGENDER">{t("genders.AGENDER")}</option>
+                  <option value="GENDERFLUID">{t("genders.GENDERFLUID")}</option>
+                  <option value="PREFER_NOT_TO_SAY">
+                    {t("genders.PREFER_NOT_TO_SAY")}
+                  </option>
+                  <option value="OTHER">{t("genders.OTHER")}</option>
                 </select>
               </label>
             </ProfileForm>
@@ -327,65 +328,70 @@ function ProfilePage() {
       </section>
 
       <section className={styles.securitySection}>
-        <h2>Security</h2>
+        <h2>{t("profile.security")}</h2>
 
         <form
           className={styles.profileSecurityForm}
           onSubmit={handleChangePassword}
         >
           <label>
-            Current password
+            {t("profile.currentPassword")}
             <input
               type="password"
               value={passwordForm.currentPassword}
-              onChange={(e) =>
+              onChange={(event) =>
                 setPasswordForm({
                   ...passwordForm,
-                  currentPassword: e.target.value,
+                  currentPassword: event.target.value,
                 })
               }
             />
           </label>
 
           <label>
-            New password
+            {t("profile.newPassword")}
             <input
               type="password"
               value={passwordForm.newPassword}
-              onChange={(e) =>
+              onChange={(event) =>
                 setPasswordForm({
                   ...passwordForm,
-                  newPassword: e.target.value,
+                  newPassword: event.target.value,
                 })
               }
             />
           </label>
 
           <label>
-            Confirm new password
+            {t("profile.confirmNewPassword")}
             <input
               type="password"
               value={passwordForm.confirmNewPassword}
-              onChange={(e) =>
+              onChange={(event) =>
                 setPasswordForm({
                   ...passwordForm,
-                  confirmNewPassword: e.target.value,
+                  confirmNewPassword: event.target.value,
                 })
               }
             />
           </label>
 
-          {isChangingPassword && <Spinner size={16} text="Changing..." />}
+          {isChangingPassword ? (
+            <SkeletonText lines={1} widths={["108px"]} lineHeight={16} />
+          ) : null}
 
           <button type="submit" disabled={!isPasswordFormValid()}>
-            Change password
+            {t("profile.changePassword")}
           </button>
         </form>
 
-        <DangerZone label="Delete my account" onDelete={handleDeleteAccount} />
+        <DangerZone
+          label={t("profile.deleteMyAccount")}
+          onDelete={handleDeleteAccount}
+        />
       </section>
 
-      {showGoogleDeleteReauth && (
+      {showGoogleDeleteReauth ? (
         <div
           className={styles.modalOverlay}
           onClick={() => {
@@ -398,32 +404,29 @@ function ProfilePage() {
             onClick={(event) => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="Google reauthentication required"
+            aria-label={t("profile.googleDialogTitle")}
           >
-            <h3>Confirm with Google</h3>
-            <p>
-              For security, reauthenticate with Google before deleting your
-              account.
-            </p>
+            <h3>{t("profile.googleDialogTitle")}</h3>
+            <p>{t("profile.googleDialogCopy")}</p>
             <GoogleLogin
               text="continue_with"
               onSuccess={handleGoogleDeleteReauth}
-              onError={() => setErrorMessage("Google reauthentication failed.")}
+              onError={() => setErrorMessage(t("profile.googleReauthFailed"))}
             />
-            {isDeletingAccount && (
-              <Spinner size={16} text="Deleting account..." />
-            )}
+            {isDeletingAccount ? (
+              <SkeletonText lines={1} widths={["132px"]} lineHeight={16} />
+            ) : null}
             <button
               type="button"
               className={styles.logoutButton}
               disabled={isDeletingAccount}
               onClick={() => setShowGoogleDeleteReauth(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       <Message
         type="success"

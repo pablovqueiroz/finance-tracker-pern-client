@@ -1,0 +1,91 @@
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--border) 72%, var(--bg-secondary));
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, #ffffff 18%, transparent),
+    transparent
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.circle {
+  border-radius: 999px !important;
+}
+
+.textGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.button {
+  min-height: 40px;
+}
+
+.card {
+  display: grid;
+  gap: 12px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardHeaderText {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.media {
+  width: 100%;
+}
+
+.inlineStatus {
+  width: 120px;
+  height: 16px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

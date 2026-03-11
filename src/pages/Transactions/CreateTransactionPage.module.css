@@ -3,7 +3,7 @@
   width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 16px 100px;
+  padding: 24px 16px 28px;
   display: grid;
   gap: 16px;
   overflow-x: clip;
@@ -119,6 +119,13 @@
   font-weight: 600;
 }
 
+.dateInputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
 .enumAssist {
   display: flex;
   align-items: center;
@@ -200,6 +207,10 @@
   background: var(--bg-secondary);
 }
 
+.todayButton {
+  white-space: nowrap;
+}
+
 .dangerBtn {
   background: #b91c1c;
 }
@@ -231,9 +242,25 @@
     grid-template-columns: 1fr;
   }
 
+  .dateInputRow {
+    grid-template-columns: 1fr;
+  }
+
+  .listHeader > button,
+  .modeSwitch > button,
+  .dateInputRow > button,
+  .formActions > button {
+    width: 100%;
+  }
+
+  .modeSwitch {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .formActions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .listHeader {

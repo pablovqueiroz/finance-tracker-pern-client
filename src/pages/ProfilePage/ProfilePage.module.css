@@ -1,7 +1,7 @@
 .profilePageContainer {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 16px 12px 56px;
+  padding: 16px 12px 24px;
   display: grid;
   gap: 18px;
 }
@@ -42,9 +42,37 @@
 }
 
 .headerActions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  gap: 10px;
+  width: 100%;
   margin-bottom: 14px;
+}
+
+.preferenceSection {
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 16px 14px;
+  margin-bottom: 14px;
+  display: grid;
+  gap: 10px;
+  background: color-mix(in srgb, var(--bg-primary) 82%, transparent);
+}
+
+.preferenceSection h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.profileLanguageSwitcher :global(.language-switcher__control) {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.profileLanguageSwitcher :global(.language-switcher__menu) {
+  left: 0;
+  right: 0;
+  min-width: 100%;
 }
 
 .logoutButton {
@@ -58,6 +86,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -122,6 +151,10 @@
   gap: 10px;
 }
 
+.uploadActions > * {
+  width: 100%;
+}
+
 .uploadButton,
 .saveButton button,
 .profileSecurityForm button,
@@ -182,9 +215,12 @@
 }
 
 .saveButton {
-  display: flex;
-  justify-content: stretch;
+  display: grid;
   margin-top: 4px;
+}
+
+.saveButton button {
+  width: 100%;
 }
 
 .securitySection {
@@ -242,6 +278,7 @@
 
 .deleteAccountButton {
   margin-top: 4px;
+  display: grid;
 }
 
 .dangerButton {
@@ -249,6 +286,7 @@
   padding: 10px 14px;
   background: var(--accent-red);
   color: #ffffff;
+  width: 100%;
 }
 
 .dangerButton:hover {
@@ -289,7 +327,7 @@
 /* mobile first: enhancement for tablet */
 @media (min-width: 640px) {
   .profilePageContainer {
-    padding: 22px 16px 64px;
+    padding: 22px 16px 28px;
     gap: 22px;
   }
 
@@ -305,6 +343,7 @@
 
   .logoutButton {
     min-width: 132px;
+    width: auto;
   }
 
   .firstBlock {
@@ -316,6 +355,7 @@
   }
 
   .saveButton {
+    display: flex;
     justify-content: flex-end;
   }
 
@@ -324,12 +364,30 @@
     width: auto;
     min-width: 180px;
   }
+
+  .headerActions {
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+  }
+
+  .headerActions > * {
+    width: auto;
+  }
+
+  .dangerButton {
+    width: auto;
+  }
+
+  .deleteAccountButton {
+    display: block;
+  }
 }
 
 /* desktop */
 @media (min-width: 900px) {
   .profilePageContainer {
-    padding: 28px 18px 72px;
+    padding: 28px 18px 32px;
     gap: 24px;
   }
 

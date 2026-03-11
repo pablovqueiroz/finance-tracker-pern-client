@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import BalanceCard from "../../components/BalanceCard/BalanceCard";
 import Hero from "../../components/Hero/Hero";
+import Skeleton from "../../components/Skeleton/Skeleton";
+import SkeletonButton from "../../components/Skeleton/SkeletonButton";
+import SkeletonCard from "../../components/Skeleton/SkeletonCard";
+import SkeletonText from "../../components/Skeleton/SkeletonText";
 import Transactions from "../../components/Transactions/Transactions";
 import type {
   AccountDetail,
@@ -25,12 +29,15 @@ function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currency, setCurrency] = useState<Currency>("EUR");
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const activeAccount = accounts[activeAccountIndex] ?? null;
   const activeAccountId = activeAccount?.id ?? "";
 
   useEffect(() => {
     async function fetchAccounts() {
       try {
+        setIsLoadingAccounts(true);
         const accountsResponse = await api.get<AccountSummary[]>(`/accounts`);
         const baseAccountList = Array.isArray(accountsResponse.data)
           ? accountsResponse.data.map((account) => ({
@@ -68,6 +75,8 @@ function Dashboard() {
         console.error("Failed to load accounts", error);
         setAccounts([]);
         setActiveAccountIndex(0);
+      } finally {
+        setIsLoadingAccounts(false);
       }
     }
 
@@ -79,10 +88,12 @@ function Dashboard() {
       if (!activeAccountId) {
         setTransactions([]);
         setCurrency("EUR");
+        setIsLoadingTransactions(false);
         return;
       }
 
       try {
+        setIsLoadingTransactions(true);
         const [transactionsResponse, accountResponse] = await Promise.all([
           api.get<Transaction[]>(`/transactions/account/${activeAccountId}`),
           api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
@@ -110,6 +121,8 @@ function Dashboard() {
         console.error("Failed to load transactions", error);
         setTransactions([]);
         setCurrency(activeAccount.currency);
+      } finally {
+        setIsLoadingTransactions(false);
       }
     }
 
@@ -132,6 +145,56 @@ function Dashboard() {
     setActiveAccountIndex(index);
   };
 
+  if (isLoadingAccounts) {
+    return (
+      <div className={styles.DashboardContainer} aria-busy="true">
+        <section className={`${styles.welcome} ui-card`}>
+          <SkeletonText lines={2} widths={["36%", "58%"]} />
+        </section>
+
+        <section className={`${styles.balanceCard} ui-card`}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <Skeleton width="36%" height={14} />
+          </div>
+          <SkeletonCard lines={3} />
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <SkeletonButton width={86} />
+            <SkeletonButton width={98} />
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Skeleton width={10} height={10} circle />
+            <Skeleton width={10} height={10} circle />
+            <Skeleton width={10} height={10} circle />
+          </div>
+        </section>
+
+        <section className={`${styles.actions} ui-card`}>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <Skeleton width={56} height={56} />
+            <Skeleton width={56} height={56} />
+            <Skeleton width={56} height={56} />
+          </div>
+        </section>
+
+        <section className={`${styles.transactions} ui-card`}>
+          <Skeleton width="32%" height={18} />
+          <div style={{ display: "grid", gap: "10px" }}>
+            <SkeletonCard avatar lines={2} />
+            <SkeletonCard avatar lines={2} />
+            <SkeletonCard avatar lines={2} />
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.DashboardContainer}>
       <section className={styles.welcome}>
@@ -153,14 +216,26 @@ function Dashboard() {
       </section>
 
       <section className={styles.transactions}>
-        <Transactions
-          transactions={transactions}
-          currency={currency}
-          accountId={activeAccountId}
-          members={activeAccount?.users ?? []}
-        />
+        {isLoadingTransactions ? (
+          <div className="ui-card">
+            <Skeleton width="32%" height={18} />
+            <div style={{ display: "grid", gap: "10px", marginTop: "12px" }}>
+              <SkeletonCard avatar lines={2} />
+              <SkeletonCard avatar lines={2} />
+              <SkeletonCard avatar lines={2} />
+            </div>
+          </div>
+        ) : (
+          <Transactions
+            transactions={transactions}
+            currency={currency}
+            accountId={activeAccountId}
+            members={activeAccount?.users ?? []}
+          />
+        )}
       </section>
     </div>
   );
 }
+
 export default Dashboard;
