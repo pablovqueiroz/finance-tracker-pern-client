@@ -48,10 +48,6 @@ function LanguageSwitcher({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [currentLanguage]);
-
   return (
     <div
       ref={wrapperRef}
@@ -86,7 +82,10 @@ function LanguageSwitcher({
                 type="button"
                 role="menuitemradio"
                 aria-checked={isActive}
-                onClick={() => void i18n.changeLanguage(option.code)}
+                onClick={() => {
+                  setIsOpen(false);
+                  void i18n.changeLanguage(option.code);
+                }}
               >
                 <span className={styles.optionText}>
                   <span className={styles.optionLabel}>{t(option.labelKey)}</span>

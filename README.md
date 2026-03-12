@@ -1,10 +1,16 @@
-# Finance Tracker Frontend
+# Finance Tracker Client
 
-Frontend for the Finance Tracker project, built with React, TypeScript, and Vite.
+React + TypeScript frontend for the Finance Tracker PERN application.
 
 ## Overview
 
-This application provides the client interface for a personal finance tracker with account-based organization, shared access, saving goals, analytics, and multilingual support.
+This client covers the full user-facing flow of the project: authentication, account management, transactions, saving goals, reports, invitations, profile management, and contact form integration.
+
+## Live Demo
+
+A live version of the client will be available here soon:
+
+- `CLIENT_LIVE_DEMO_URL`
 
 ## Tech Stack
 
@@ -18,56 +24,53 @@ This application provides the client interface for a personal finance tracker wi
 - i18next
 - CSS Modules
 
-## Main Features
+## Features
 
-- Authentication with token persistence in `localStorage`
-- Google OAuth integration
-- Account creation and account detail management
-- Shared accounts with members and invite flows
-- Transaction management with:
-  - create, edit, and delete flows
-  - category-aware forms
-  - local search and category filtering
-- Saving goals with progress tracking and movement history
-- Reports with:
-  - income vs expenses
-  - income and expense category charts
-  - balance history
-  - saving goal progress insights
-  - Excel export with summary sheets and report datasets
-- Reusable floating toast notifications for success and error feedback
+- Email/password authentication
+- Google OAuth sign-in
+- Profile editing, password update, avatar upload, and account deletion
+- Multi-account workspace with member roles
+- Transaction creation, editing, deletion, and bulk import
+- Saving goals with balance movement tracking
+- Reports with charts and Excel export
+- Invitation inbox and sent/expired invite management
 - Internationalization in English, Portuguese, and Spanish
-- Responsive dashboard with account carousel and quick actions
+- Responsive layout with desktop navigation and mobile menu
 
 ## Routes
 
-- `/` - Home
-- `/login` - Login
-- `/register` - Register
-- `/dashboard` - Dashboard
-- `/profile` - User profile
-- `/create-account` - Create account
-- `/accounts` - Accounts list
-- `/accounts/:accountId` - Account details
-- `/accounts/:accountId/members` - Account members
-- `/accounts/:accountId/transactions` - Transactions
-- `/invites` - Invites
-- `/reports` - Reports
-- `/contact` - Contact
-- `/savings` - Saving goals
-- `/accounts/:accountId/savings` - Saving goals for a specific account
-- `/accounts/:accountId/saving-goals` - Alternate saving goals route
+- `/`
+- `/login`
+- `/register`
+- `/dashboard`
+- `/profile`
+- `/create-account`
+- `/accounts`
+- `/accounts/:accountId`
+- `/accounts/:accountId/members`
+- `/accounts/:accountId/transactions`
+- `/invites`
+- `/contact`
+- `/reports`
+- `/savings`
+- `/accounts/:accountId/savings`
+- `/accounts/:accountId/saving-goals`
 
 ## Project Structure
 
-- `src/components` - reusable UI building blocks
-- `src/pages` - page-level route components
-- `src/hooks` - custom hooks
-- `src/context` - app providers
-- `src/services` - API client setup
-- `src/config` - runtime configuration
-- `src/i18n` - translations and i18n setup
-- `src/styles` - global styles and design tokens
+```txt
+src/
+  components/   reusable UI components
+  config/       runtime config such as API base URL
+  context/      auth and theme providers
+  hooks/        custom hooks
+  i18n/         i18n bootstrap and locale files
+  pages/        route-level pages
+  services/     API client setup
+  styles/       global CSS, reset, and variables
+  types/        shared frontend types
+  utils/        view helpers
+```
 
 ## Prerequisites
 
@@ -82,20 +85,20 @@ npm install
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root.
 
 ```env
-VITE_API_URL=http://localhost:5005/api
+VITE_API_URL=http://localhost:5000/api
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
 ```
 
 Notes:
 
-- `VITE_API_URL` must include the `/api` prefix if the backend exposes routes under `/api/*`.
-- If `VITE_API_URL` is not set, the frontend falls back to `http://localhost:5005/api`.
-- `VITE_GOOGLE_CLIENT_ID` is required for Google OAuth.
-- `VITE_EMAILJS_PUBLIC_KEY` is required for the contact form integration.
+- `VITE_API_URL` should point to the server API base path.
+- If `VITE_API_URL` is not set, the app currently falls back to `http://localhost:5005/api` in `src/config/config.ts`, so setting it explicitly is recommended for local development.
+- `VITE_GOOGLE_CLIENT_ID` is required for Google sign-in.
+- `VITE_EMAILJS_PUBLIC_KEY` is required for the contact form.
 
 ## Available Scripts
 
@@ -108,47 +111,29 @@ npm run lint
 
 ## Local Development
 
+Start the Vite dev server:
+
 ```bash
 npm run dev
 ```
 
-By default, Vite runs on `http://localhost:5173`.
+Default local URL:
 
-## Production Build
+- `http://localhost:5173`
+
+Make sure the backend is running and CORS allows the frontend origin.
+
+## Build
 
 ```bash
 npm run build
 ```
 
-The production output is generated in the `dist` directory.
-
-## Vercel Deployment
-
-This project is ready to be deployed on Vercel.
-
-Recommended Vercel settings:
-
-- Framework Preset: `Vite`
-- Build Command: `npm run build`
-- Output Directory: `dist`
-
-Required environment variables in Vercel:
-
-- `VITE_API_URL`
-- `VITE_GOOGLE_CLIENT_ID`
-- `VITE_EMAILJS_PUBLIC_KEY`
-
-The repository includes `vercel.json` with an SPA rewrite so direct navigation to client-side routes works correctly.
+The production bundle is generated in `dist/`.
 
 ## Backend Integration
 
-Expected backend setup:
-
-- Backend API available under `/api`
-- CORS configured for the frontend origin
-- Auth endpoints enabled for token and Google login flows
-
-Examples of endpoints consumed by the frontend:
+The client expects a backend exposing routes under `/api`, including:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
@@ -160,15 +145,27 @@ Examples of endpoints consumed by the frontend:
 - `POST /api/accounts`
 - `GET /api/accounts/:accountId`
 - `GET /api/accounts/:accountId/members`
+- `PATCH /api/accounts/:accountId/members/:memberId`
 - `GET /api/transactions/account/:accountId`
-- `GET /api/transactions/summary/:accountId`
-- `GET /api/transactions/analytics/:accountId`
 - `POST /api/transactions`
+- `POST /api/transactions/bulk`
 - `PUT /api/transactions/:id`
 - `DELETE /api/transactions/:id`
+- `GET /api/transactions/summary/:accountId`
+- `GET /api/transactions/analytics/:accountId`
 - `GET /api/saving-goals/account/:accountId`
-- `POST /api/invites`
+- `POST /api/saving-goals`
+- `POST /api/saving-goals/:id/move-money`
+- `GET /api/invites/received`
+- `GET /api/invites/sent`
+- `GET /api/invites/expired`
 
-## Related Repository
+## Deployment Notes
 
-- Backend: <https://github.com/pablovqueiroz/finance-tracker-pern-server>
+The project can be deployed as a static Vite application on platforms such as Vercel.
+
+Required production environment variables:
+
+- `VITE_API_URL`
+- `VITE_GOOGLE_CLIENT_ID`
+- `VITE_EMAILJS_PUBLIC_KEY`

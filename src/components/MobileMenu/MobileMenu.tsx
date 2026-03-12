@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IoHomeOutline, IoHomeSharp } from "react-icons/io5";
 import { HiOutlineWallet, HiWallet } from "react-icons/hi2";
@@ -19,7 +19,6 @@ export default function MobileMenu() {
   const { t } = useTranslation();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const location = useLocation();
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -32,28 +31,24 @@ export default function MobileMenu() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  useEffect(() => {
-    setIsProfileMenuOpen(false);
-  }, [location.pathname]);
-
   if (!isLoggedIn) return null;
 
   return (
     <nav className={styles.mobileMenu}>
       <div className={styles.mobileMenuContent}>
-        <NavLink to="/dashboard">
+        <NavLink to="/dashboard" onClick={() => setIsProfileMenuOpen(false)}>
           {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
         </NavLink>
 
-        <NavLink to="/accounts">
+        <NavLink to="/accounts" onClick={() => setIsProfileMenuOpen(false)}>
           {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
         </NavLink>
 
-        <NavLink to="/create-account">
+        <NavLink to="/create-account" onClick={() => setIsProfileMenuOpen(false)}>
           <FaCirclePlus className={styles.createNew} />
         </NavLink>
 
-        <NavLink to="/savings">
+        <NavLink to="/savings" onClick={() => setIsProfileMenuOpen(false)}>
           {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
         </NavLink>
 
@@ -69,23 +64,38 @@ export default function MobileMenu() {
 
           {isProfileMenuOpen ? (
             <div className={styles.profileMenu}>
-              <NavLink className={styles.profileMenuItem} to="/profile">
+              <NavLink
+                className={styles.profileMenuItem}
+                to="/profile"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
                 {t("nav.profileDetails")}
               </NavLink>
-              <NavLink className={styles.profileMenuItem} to="/invites">
+              <NavLink
+                className={styles.profileMenuItem}
+                to="/invites"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
                 {t("nav.invites")}
               </NavLink>
               <div className={styles.profileMenuLanguage}>
                 <LanguageSwitcher />
               </div>
-              <NavLink className={styles.profileMenuItem} to="/contact#contact">
+              <NavLink
+                className={styles.profileMenuItem}
+                to="/contact#contact"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
                 <FiMessageSquare className={styles.menuIcon} />
                 <span>{t("nav.sendFeedback")}</span>
               </NavLink>
               <button
                 className={styles.profileMenuBtn}
                 type="button"
-                onClick={handleLogout}
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  handleLogout();
+                }}
               >
                 {t("nav.logout")}
               </button>
