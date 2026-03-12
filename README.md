@@ -1,17 +1,10 @@
-# Finance Tracker (Frontend)
+# Finance Tracker Frontend
 
-Frontend for Finance Tracker, built with React, TypeScript, and Vite.
-
-## Live Demo
-
-A live version of the application can be accessed here:
-
-[Live Demo](LIVE_DEMO_LINK_HERE)
+Frontend for the Finance Tracker project, built with React, TypeScript, and Vite.
 
 ## Overview
 
-This repository contains the web interface for the `finance-tracker-pern` project.
-The app currently includes authentication, account management, member invites/removal, full transaction CRUD by account, dashboard quick actions, reports, improved onboarding content on the home page, and profile editing features.
+This application provides the client interface for a personal finance tracker with account-based organization, shared access, saving goals, analytics, and multilingual support.
 
 ## Tech Stack
 
@@ -20,66 +13,31 @@ The app currently includes authentication, account management, member invites/re
 - Vite
 - React Router
 - Axios
+- Chart.js
+- ExcelJS
+- i18next
 - CSS Modules
 
-## Current Features
+## Main Features
 
-- Token-based authentication stored in `localStorage` (`authToken`)
-- Google OAuth login/register (`POST /auth/google`)
-- Authenticated user check via `GET /users/me`
-- Accounts flow:
-  - create account
-  - list accounts
-  - account details (members, transactions, saving goals)
-- Public home page with:
-  - clearer product explanation for new users
-  - feature overview cards
-  - step-by-step onboarding content
-  - benefits section explaining the value of the app
-- Dashboard with:
-  - account carousel (switch between accounts)
-  - swipe on mobile, drag with mouse on desktop, and desktop arrow controls
-  - account balance in the balance card
-  - account balance in account cards
-  - transactions list for selected account
-  - quick actions:
-    - `+` opens "new income" for active account
-    - `-` opens "new expense" for active account
-  - personalized hero (`Hello {user.name}`)
-- Manage transactions page (`/accounts/:accountId/transactions`) with:
-  - create transaction (form opens on button click)
-  - edit transaction (icon button inside card)
-  - delete transaction (icon button inside card)
-  - dynamic categories by transaction type (`INCOME` / `EXPENSE`)
-  - title fallback: if title is empty, category is sent as title
-- Profile page with:
-  - name/gender update
-  - password change
-  - avatar upload
-  - account deletion
-- Mobile menu navigation
-
-## UI Consistency
-
-- Button alignment and spacing were reviewed across the main flows, including navigation, forms, profile actions, account management, invites, and contact sections.
-- The layout fixes were implemented with a mobile-first approach so buttons stack, stretch, and align predictably on smaller screens before expanding on larger breakpoints.
-- Excessive bottom spacing was reduced across page wrappers and sections to keep mobile screens tighter and reduce unnecessary scrolling.
-- The dashboard account switcher now uses a swipeable carousel, making it easier to browse accounts on mobile while keeping the existing dashboard flow intact.
-- The desktop navbar now uses a profile avatar trigger instead of rendering the username, which keeps the header more consistent and prevents long names from affecting the layout.
-- The language switcher was updated to a cleaner dropdown-style control and the profile menus were reordered to prioritize the most frequently used actions.
-
-## Loading System
-
-- Spinner-based loading states were replaced with skeleton placeholders that better match the final UI structure.
-- Skeleton loading improves perceived performance by keeping the layout stable while content is fetched.
-- The loading states were adjusted to preserve mobile layout proportions and reduce visual shifts when data becomes available.
-
-## Internationalization
-
-- The frontend now includes internationalization support with `i18next`, `react-i18next`, and browser language detection.
-- Supported languages are English, Portuguese, and Spanish, with English as the default fallback language.
-- Language switching is available on the public home page and inside the authenticated interface through the profile and navigation menus.
-- Post-i18n additions were reviewed so the newer home page onboarding content is also covered in Portuguese and Spanish.
+- Authentication with token persistence in `localStorage`
+- Google OAuth integration
+- Account creation and account detail management
+- Shared accounts with members and invite flows
+- Transaction management with:
+  - create, edit, and delete flows
+  - category-aware forms
+  - local search and category filtering
+- Saving goals with progress tracking and movement history
+- Reports with:
+  - income vs expenses
+  - income and expense category charts
+  - balance history
+  - saving goal progress insights
+  - Excel export with summary sheets and report datasets
+- Reusable floating toast notifications for success and error feedback
+- Internationalization in English, Portuguese, and Spanish
+- Responsive dashboard with account carousel and quick actions
 
 ## Routes
 
@@ -91,17 +49,25 @@ The app currently includes authentication, account management, member invites/re
 - `/create-account` - Create account
 - `/accounts` - Accounts list
 - `/accounts/:accountId` - Account details
-- `/accounts/:accountId/transactions` - Manage transactions (CRUD)
-- `*` - Not Found
+- `/accounts/:accountId/members` - Account members
+- `/accounts/:accountId/transactions` - Transactions
+- `/invites` - Invites
+- `/reports` - Reports
+- `/contact` - Contact
+- `/savings` - Saving goals
+- `/accounts/:accountId/savings` - Saving goals for a specific account
+- `/accounts/:accountId/saving-goals` - Alternate saving goals route
 
 ## Project Structure
 
-- `src/pages` - application pages
-- `src/components` - reusable components
-- `src/context` - global providers (`Auth`, `Theme`)
+- `src/components` - reusable UI building blocks
+- `src/pages` - page-level route components
 - `src/hooks` - custom hooks
-- `src/config` - configuration (e.g., API base URL)
-- `src/styles` - global styles and variables
+- `src/context` - app providers
+- `src/services` - API client setup
+- `src/config` - runtime configuration
+- `src/i18n` - translations and i18n setup
+- `src/styles` - global styles and design tokens
 
 ## Prerequisites
 
@@ -120,40 +86,69 @@ Create a `.env` file in the project root:
 
 ```env
 VITE_API_URL=http://localhost:5005/api
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
 ```
 
-Important note:
+Notes:
 
-- The frontend builds URLs in the format `${API_URL}/users/me`.
-- So for a backend exposing routes under `/api/*`, `VITE_API_URL` must include `/api`.
-- If not set, the fallback is already `http://localhost:5005/api`.
+- `VITE_API_URL` must include the `/api` prefix if the backend exposes routes under `/api/*`.
+- If `VITE_API_URL` is not set, the frontend falls back to `http://localhost:5005/api`.
+- `VITE_GOOGLE_CLIENT_ID` is required for Google OAuth.
+- `VITE_EMAILJS_PUBLIC_KEY` is required for the contact form integration.
 
 ## Available Scripts
 
 ```bash
-npm run dev      # start development server
-npm run build    # type-check + production build
-npm run preview  # preview production build
-npm run lint     # run ESLint
+npm run dev
+npm run build
+npm run preview
+npm run lint
 ```
 
-## Running Locally
+## Local Development
 
 ```bash
 npm run dev
 ```
 
-Open the URL shown by Vite (usually `http://localhost:5173`).
+By default, Vite runs on `http://localhost:5173`.
+
+## Production Build
+
+```bash
+npm run build
+```
+
+The production output is generated in the `dist` directory.
+
+## Vercel Deployment
+
+This project is ready to be deployed on Vercel.
+
+Recommended Vercel settings:
+
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+
+Required environment variables in Vercel:
+
+- `VITE_API_URL`
+- `VITE_GOOGLE_CLIENT_ID`
+- `VITE_EMAILJS_PUBLIC_KEY`
+
+The repository includes `vercel.json` with an SPA rewrite so direct navigation to client-side routes works correctly.
 
 ## Backend Integration
 
-Expected local setup:
+Expected backend setup:
 
-- Backend running at `http://localhost:5005`
-- API routes exposed under `/api/*`
-- Backend CORS allowing `http://localhost:5173`
+- Backend API available under `/api`
+- CORS configured for the frontend origin
+- Auth endpoints enabled for token and Google login flows
 
-Examples of endpoints used by the frontend:
+Examples of endpoints consumed by the frontend:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
@@ -164,13 +159,15 @@ Examples of endpoints used by the frontend:
 - `GET /api/accounts`
 - `POST /api/accounts`
 - `GET /api/accounts/:accountId`
+- `GET /api/accounts/:accountId/members`
 - `GET /api/transactions/account/:accountId`
 - `GET /api/transactions/summary/:accountId`
+- `GET /api/transactions/analytics/:accountId`
 - `POST /api/transactions`
 - `PUT /api/transactions/:id`
 - `DELETE /api/transactions/:id`
+- `GET /api/saving-goals/account/:accountId`
 - `POST /api/invites`
-- `DELETE /api/accounts/:accountId/members/:memberId`
 
 ## Related Repository
 
