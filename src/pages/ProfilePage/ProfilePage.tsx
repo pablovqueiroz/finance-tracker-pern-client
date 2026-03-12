@@ -26,9 +26,6 @@ type PasswordForm = {
   confirmNewPassword: string;
 };
 
-const defaultImg =
-  "https://res.cloudinary.com/dacvtyyst/image/upload/v1769168326/bwcwiefeph34flwiwohy.jpg";
-
 function ProfilePage() {
   const { authenticateUser, handleLogout } = useAuth();
   const { t } = useTranslation();
@@ -264,7 +261,8 @@ function ProfilePage() {
         <div className={styles.profileForm}>
           <article className={styles.firstBlock}>
             <AvatarUploader
-              imageUrl={image || defaultImg}
+              imageUrl={image}
+              userName={name}
               onImageUpdated={handleImageUpdated}
             />
 

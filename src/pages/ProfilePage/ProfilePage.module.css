@@ -126,6 +126,21 @@
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-red) 12%, transparent);
 }
 
+.avatarFallback {
+  width: 112px;
+  height: 112px;
+  border-radius: 999px;
+  border: 3px solid color-mix(in srgb, var(--accent-red) 42%, var(--border));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent-red) 12%, transparent);
+  background: color-mix(in srgb, var(--bg-primary) 78%, transparent);
+  color: var(--text-main);
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
 .changeButton {
   color: var(--accent-red);
   font-weight: 700;
@@ -414,6 +429,11 @@
   }
 
   .avatarImage {
+    width: 132px;
+    height: 132px;
+  }
+
+  .avatarFallback {
     width: 132px;
     height: 132px;
   }

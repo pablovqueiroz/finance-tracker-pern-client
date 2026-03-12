@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import api from "../../services/api";
@@ -9,11 +9,26 @@ import styles from "../../pages/ProfilePage/ProfilePage.module.css";
 
 type AvatarUploaderProps = {
   imageUrl: string;
+  userName?: string;
   onImageUpdated: (imageUrl: string) => void;
 };
 
+function getInitials(name?: string) {
+  if (!name) return "?";
+
+  return (
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "?"
+  );
+}
+
 function AvatarUploader({
   imageUrl,
+  userName,
   onImageUpdated,
 }: AvatarUploaderProps) {
   const { t } = useTranslation();
@@ -22,6 +37,11 @@ function AvatarUploader({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [imageUrl]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -61,11 +81,18 @@ function AvatarUploader({
 
   return (
     <div className={styles.avatarUploader}>
-      <img
-        src={imageUrl}
-        alt={t("profile.avatarAlt")}
-        className={styles.avatarImage}
-      />
+      {imageUrl && !hasImageError ? (
+        <img
+          src={imageUrl}
+          alt={t("profile.avatarAlt")}
+          className={styles.avatarImage}
+          onError={() => setHasImageError(true)}
+        />
+      ) : (
+        <div className={styles.avatarFallback} aria-label={t("profile.avatarAlt")}>
+          {getInitials(userName)}
+        </div>
+      )}
 
       <label className={styles.changeButton}>
         {t("profile.changePhoto")}

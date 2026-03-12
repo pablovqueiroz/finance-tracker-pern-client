@@ -23,9 +23,10 @@ function getInitials(name?: string) {
 function NavBar() {
   const { isLoggedIn, handleLogout, currentUser } = useAuth();
   const { t } = useTranslation();
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
   const profileInitials = getInitials(currentUser?.name);
 
   useEffect(() => {
@@ -39,15 +40,11 @@ function NavBar() {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  useEffect(() => {
-    setIsProfileMenuOpen(false);
-  }, [location.pathname]);
-
   if (!isLoggedIn) return null;
 
   return (
     <nav className={styles.navBar}>
-      <div className={styles.content}>
+      <div className={styles.content} key={`${location.pathname}-${currentUser?.image ?? ""}`}>
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
@@ -73,6 +70,7 @@ function NavBar() {
         >
           {t("nav.savings")}
         </NavLink>
+
         <NavLink
           to="/reports"
           className={({ isActive }) =>
@@ -90,6 +88,7 @@ function NavBar() {
         >
           {t("nav.newAccount")}
         </NavLink>
+
         <NavLink
           to="/invites"
           className={({ isActive }) =>
@@ -107,11 +106,13 @@ function NavBar() {
             aria-label={t("nav.openProfileMenu")}
             title={currentUser?.name || t("nav.profile")}
           >
-            {currentUser?.image ? (
+            {currentUser?.image && !hasImageError ? (
               <img
                 className={styles.profileImage}
                 src={currentUser.image}
                 alt={t("profile.avatarAlt")}
+                onError={() => setHasImageError(true)}
+                onLoad={() => setHasImageError(false)}
               />
             ) : (
               <span className={styles.profileFallback} aria-hidden="true">
