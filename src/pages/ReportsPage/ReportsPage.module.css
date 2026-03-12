@@ -1,0 +1,269 @@
+.pageContainer {
+  min-height: calc(100vh - 120px);
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 28px;
+  display: grid;
+  gap: 16px;
+}
+
+.pageState {
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: center;
+}
+
+.header {
+  display: grid;
+  gap: 14px;
+  position: relative;
+}
+
+.headerIntro {
+  display: grid;
+  gap: 6px;
+  padding-right: 64px;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.exportButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: #217346;
+  color: #fff;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.exportButton:hover {
+  background: #21734644;
+}
+
+.exportButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.exportButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.title {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.accountSelector {
+  display: grid;
+  gap: 6px;
+  max-width: 340px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.inlineSelector {
+  display: grid;
+  gap: 6px;
+  max-width: 320px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.goalProgress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goalProgressBar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.goalProgressFill {
+  height: 100%;
+  background: var(--accent-red);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.goalProgress small {
+  min-width: 38px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.summarySection {
+  display: grid;
+  gap: 12px;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+}
+
+.summaryCard small {
+  color: var(--text-muted);
+}
+
+.summaryCard strong {
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.chartSection {
+  display: grid;
+  gap: 12px;
+}
+
+.chartSection h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.chartWrap {
+  min-height: 340px;
+  position: relative;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  display: grid;
+  align-items: center;
+}
+
+.dataList {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.chartFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dataListTotal {
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.dataRow,
+.dataRowMuted {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dataRow {
+  color: var(--text-main);
+}
+
+.dataRowMuted {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.emptyState {
+  height: 100%;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding: 16px 12px 24px;
+    gap: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
+  }
+
+  .chartWrap {
+    min-height: 280px;
+  }
+
+  .headerActions {
+    align-items: stretch;
+  }
+
+  .inlineSelector {
+    max-width: none;
+  }
+
+  .headerIntro {
+    padding-right: 0;
+  }
+
+  .exportButton {
+    position: static;
+    justify-self: end;
+  }
+
+  .chartFooter {
+    align-items: stretch;
+  }
+}

@@ -1,4 +1,4 @@
-.savigGoalCardContainer {
+.savingGoalCardContainer {
   display: grid;
   gap: 10px;
   background: var(--bg-primary);

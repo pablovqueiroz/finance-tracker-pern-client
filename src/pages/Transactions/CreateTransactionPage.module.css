@@ -47,6 +47,26 @@
   margin-bottom: 12px;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.filterField {
+  display: grid;
+  gap: 6px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.categoryTotal {
+  margin: 0 0 12px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
 .listHeader h3 {
   margin: 0;
 }
@@ -265,6 +285,10 @@
 
   .listHeader {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
     grid-template-columns: 1fr;
   }
 }

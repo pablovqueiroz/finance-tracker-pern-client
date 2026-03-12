@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import styles from "./CreateTransactionPage.module.css";
 import api from "../../services/api";
 import Skeleton from "../../components/Skeleton/Skeleton";
@@ -17,6 +18,12 @@ import type {
 import Message from "../../components/Message/Message";
 import TransactionCard from "../../components/TransactionCard/TransactionCard";
 import { useAuth } from "../../hooks/useAuth";
+import { getLocale } from "../../i18n/getLocale";
+import {
+  getCategoryLabel,
+  getCurrencyLabel,
+  getTransactionTypeLabel,
+} from "../../utils/displayLabels";
 
 const INCOME_CATEGORIES: Category[] = [
   "SALARY",
@@ -53,11 +60,6 @@ const EXPENSE_CATEGORIES: Category[] = [
 ];
 
 const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES] as const;
-
-const TYPE_LABELS: Record<TransactionType, string> = {
-  INCOME: "Income (Entry)",
-  EXPENSE: "Expense (Outflow)",
-};
 
 const CATEGORY_LABELS: Record<Category, string> = {
   SALARY: "Salary",
@@ -110,9 +112,6 @@ const BULK_CATEGORY_ALIASES: Record<string, Category> = Object.entries(
   {} as Record<string, Category>,
 );
 
-const BULK_EXAMPLE = `Salary,1500,Income,Salary,2026-03-01,Monthly salary
-Groceries,120.50,Expense,Groceries,2026-03-02,Weekly supermarket`;
-
 type TransactionForm = {
   title: string;
   amount: string;
@@ -136,6 +135,7 @@ const createInitialForm = (
 });
 
 function CreateTransactionPage() {
+  const { i18n, t } = useTranslation();
   const { accountId } = useParams<{ accountId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentUser } = useAuth();
@@ -152,6 +152,8 @@ function CreateTransactionPage() {
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [bulkText, setBulkText] = useState("");
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<Category | "">("");
 
   const currentMember = useMemo(
     () => account?.users.find((member) => member.userId === currentUser?.id),
@@ -161,6 +163,51 @@ function CreateTransactionPage() {
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
   const availableCategories =
     form.type === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const bulkExample = t("transactionsPage.example");
+  const locale = getLocale(i18n.resolvedLanguage);
+  const categoryOptions = useMemo(
+    () =>
+      [...new Set(transactions.map((transaction) => transaction.category))].sort(
+        (left, right) =>
+          getCategoryLabel(t, left).localeCompare(getCategoryLabel(t, right)),
+      ),
+    [t, transactions],
+  );
+  const filteredTransactions = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    return transactions.filter((transaction) => {
+      if (selectedCategory && transaction.category !== selectedCategory) {
+        return false;
+      }
+
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      const fields = [
+        transaction.title,
+        getTransactionTypeLabel(t, transaction.type),
+        transaction.type,
+        String(transaction.amount),
+        getCategoryLabel(t, transaction.category),
+        transaction.category,
+        transaction.notes ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return fields.includes(normalizedSearch);
+    });
+  }, [searchTerm, selectedCategory, t, transactions]);
+  const selectedCategoryTotal = useMemo(() => {
+    if (!selectedCategory) return null;
+
+    return filteredTransactions.reduce((total, transaction) => {
+      const amount = Number(transaction.amount);
+      return Number.isFinite(amount) ? total + amount : total;
+    }, 0);
+  }, [filteredTransactions, selectedCategory]);
   const getCreatorName = (transaction: Transaction) => {
     if (typeof transaction.createdBy === "string") return transaction.createdBy;
     if (transaction.createdBy?.name) return transaction.createdBy.name;
@@ -208,7 +255,7 @@ function CreateTransactionPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load account transactions", error);
-      setErrorMessage("Failed to load transactions.");
+      setErrorMessage(t("transactionsPage.loadFailed"));
       setAccount(null);
       setTransactions([]);
     } finally {
@@ -300,7 +347,7 @@ function CreateTransactionPage() {
       .filter((line) => line.length > 0);
 
     if (lines.length === 0) {
-      throw new Error("Paste at least one transaction line.");
+      throw new Error(t("transactionsPage.bulkPasteRequired"));
     }
 
     return lines.map((line, index) => {
@@ -328,21 +375,28 @@ function CreateTransactionPage() {
 
       if (!title || !amountRaw || !typeRaw || !categoryRaw) {
         throw new Error(
-          `Line ${rowNumber}: use format "title,amount,type,category,date,notes".`,
+          t("transactionsPage.bulkLineRequired", { row: rowNumber }),
         );
       }
 
       if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error(`Line ${rowNumber}: amount must be greater than zero.`);
+        throw new Error(
+          t("transactionsPage.bulkAmountInvalid", { row: rowNumber }),
+        );
       }
 
       if (type !== "INCOME" && type !== "EXPENSE") {
-        throw new Error(`Line ${rowNumber}: type must be Income or Expense.`);
+        throw new Error(
+          t("transactionsPage.bulkTypeInvalid", { row: rowNumber }),
+        );
       }
 
       if (!ALL_CATEGORIES.includes(category)) {
         throw new Error(
-          `Line ${rowNumber}: category "${categoryRaw}" is not recognized.`,
+          t("transactionsPage.bulkCategoryInvalid", {
+            row: rowNumber,
+            category: categoryRaw,
+          }),
         );
       }
 
@@ -350,7 +404,10 @@ function CreateTransactionPage() {
         const parsedDate = new Date(date);
         if (Number.isNaN(parsedDate.getTime())) {
           throw new Error(
-            `Line ${rowNumber}: invalid date "${date}". Use YYYY-MM-DD.`,
+            t("transactionsPage.bulkDateInvalid", {
+              row: rowNumber,
+              date,
+            }),
           );
         }
       }
@@ -373,7 +430,7 @@ function CreateTransactionPage() {
 
     const parsedAmount = Number(form.amount);
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      setErrorMessage("Amount must be greater than zero.");
+      setErrorMessage(t("transactionsPage.amountInvalid"));
       return;
     }
 
@@ -393,10 +450,10 @@ function CreateTransactionPage() {
       setIsSubmitting(true);
       if (editingId) {
         await api.put(`/transactions/${editingId}`, payload);
-        setSuccessMessage("Transaction updated.");
+        setSuccessMessage(t("transactionsPage.updated"));
       } else {
         await api.post("/transactions", payload);
-        setSuccessMessage("Transaction created.");
+        setSuccessMessage(t("transactionsPage.created"));
       }
 
       setErrorMessage(null);
@@ -408,10 +465,10 @@ function CreateTransactionPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to save transaction.",
+            t("transactionsPage.saveFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -431,7 +488,9 @@ function CreateTransactionPage() {
     } catch (error: unknown) {
       setSuccessMessage(null);
       setErrorMessage(
-        error instanceof Error ? error.message : "Invalid bulk input.",
+        error instanceof Error
+          ? error.message
+          : t("transactionsPage.bulkInvalid"),
       );
       return;
     }
@@ -441,7 +500,9 @@ function CreateTransactionPage() {
       const response = await api.post<{ count: number }>("/transactions/bulk", {
         transactions: transactionsPayload,
       });
-      setSuccessMessage(`${response.data.count} transaction(s) created.`);
+      setSuccessMessage(
+        t("transactionsPage.bulkCreated", { count: response.data.count }),
+      );
       setErrorMessage(null);
       setBulkText("");
       setIsFormOpen(false);
@@ -453,10 +514,10 @@ function CreateTransactionPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to create transactions in bulk.",
+            t("transactionsPage.bulkSaveFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -466,9 +527,7 @@ function CreateTransactionPage() {
 
   async function handleDelete(transactionId: string) {
     if (!canEditOrDelete) return;
-    const confirmation = window.confirm(
-      "This transaction will be permanently deleted. Continue?",
-    );
+    const confirmation = window.confirm(t("transactionsPage.deleteConfirm"));
     if (!confirmation) return;
 
     try {
@@ -477,7 +536,7 @@ function CreateTransactionPage() {
       setTransactions((prev) =>
         prev.filter((item) => item.id !== transactionId),
       );
-      setSuccessMessage("Transaction removed.");
+      setSuccessMessage(t("transactionsPage.deleted"));
       setErrorMessage(null);
       if (editingId === transactionId) clearForm();
     } catch (error: unknown) {
@@ -486,23 +545,16 @@ function CreateTransactionPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to delete transaction.",
+            t("transactionsPage.deleteFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
       setDeletingId(null);
     }
   }
-
-  const handleSetToday = () => {
-    setForm((prev) => ({
-      ...prev,
-      date: getTodayDate(),
-    }));
-  };
 
   if (isLoading) {
     return (
@@ -531,8 +583,16 @@ function CreateTransactionPage() {
   }
 
   if (!account || !accountId) {
-    return <p className={styles.pageState}>Account not found.</p>;
+    return <p className={styles.pageState}>{t("transactionsPage.notFound")}</p>;
   }
+
+  const formattedSelectedCategoryTotal =
+    selectedCategoryTotal === null
+      ? null
+      : new Intl.NumberFormat(locale, {
+          style: "currency",
+          currency: account.currency,
+        }).format(selectedCategoryTotal);
 
   return (
     <div className={styles.pageContainer}>
@@ -550,16 +610,26 @@ function CreateTransactionPage() {
       />
 
       <section className={`${styles.header} ui-card`}>
-        <h2 className={styles.title}>Transactions - {account.name}</h2>
-        <p className={styles.subtitle}>Currency: {account.currency}</p>
+        <h2 className={styles.title}>
+          {t("transactionsPage.headerTitle", { name: account.name })}
+        </h2>
+        <p className={styles.subtitle}>
+          {t("transactionsPage.headerSubtitle", {
+            currency: getCurrencyLabel(t, account.currency),
+          })}
+        </p>
         <Link className="ui-btn" to={`/accounts/${accountId}`}>
-          Back to account
+          {t("common.backToAccount")}
         </Link>
       </section>
 
       <section className={`${styles.listSection} ui-card`}>
         <div className={styles.listHeader}>
-          <h3>All transactions ({transactions.length})</h3>
+          <h3>
+            {t("transactionsPage.allTransactions", {
+              count: filteredTransactions.length,
+            })}
+          </h3>
           <button
             className="ui-btn"
             type="button"
@@ -575,7 +645,7 @@ function CreateTransactionPage() {
               setIsFormOpen(true);
             }}
           >
-            Create transaction
+            {t("transactionsPage.createTransaction")}
           </button>
           <button
             className={`${styles.secondaryBtn} ui-btn`}
@@ -586,7 +656,7 @@ function CreateTransactionPage() {
               setIsFormOpen(true);
             }}
           >
-            Create in bulk
+            {t("transactionsPage.createBulk")}
           </button>
         </div>
 
@@ -594,10 +664,10 @@ function CreateTransactionPage() {
           <section className={styles.formSection}>
             <h3>
               {editingId
-                ? "Edit transaction"
+                ? t("transactionsPage.editTransaction")
                 : isBulkMode
-                  ? "New transactions (bulk)"
-                  : "New transaction"}
+                  ? t("transactionsPage.newTransactionsBulk")
+                  : t("transactionsPage.newTransaction")}
             </h3>
             {!editingId && (
               <div className={styles.modeSwitch}>
@@ -606,21 +676,21 @@ function CreateTransactionPage() {
                   type="button"
                   onClick={() => setIsBulkMode(false)}
                 >
-                  Single
+                  {t("transactionsPage.single")}
                 </button>
                 <button
                   className={`${isBulkMode ? "ui-btn" : `${styles.secondaryBtn} ui-btn`}`}
                   type="button"
                   onClick={() => setIsBulkMode(true)}
                 >
-                  Bulk
+                  {t("transactionsPage.bulk")}
                 </button>
               </div>
             )}
             {!isBulkMode ? (
               <form className={styles.form} onSubmit={handleSubmit}>
                 <label htmlFor="title">
-                  Title
+                  {t("transactionsPage.title")}
                   <input
                     className="ui-control"
                     id="title"
@@ -631,7 +701,7 @@ function CreateTransactionPage() {
                 </label>
 
                 <label htmlFor="amount">
-                  Amount
+                  {t("transactionsPage.amount")}
                   <input
                     className="ui-control"
                     id="amount"
@@ -646,7 +716,7 @@ function CreateTransactionPage() {
                 </label>
 
                 <label htmlFor="type">
-                  Type
+                  {t("transactionsPage.type")}
                   <select
                     className="ui-control"
                     id="type"
@@ -654,32 +724,36 @@ function CreateTransactionPage() {
                     value={form.type}
                     onChange={handleChange}
                   >
-                    <option value="EXPENSE">{TYPE_LABELS.EXPENSE}</option>
-                    <option value="INCOME">{TYPE_LABELS.INCOME}</option>
+                    <option value="EXPENSE">
+                      {getTransactionTypeLabel(t, "EXPENSE")}
+                    </option>
+                    <option value="INCOME">
+                      {getTransactionTypeLabel(t, "INCOME")}
+                    </option>
                   </select>
                   <span className={styles.enumAssist}>
                     <span className={styles.enumAssistText}>
-                      Friendly labels are shown.
+                      {t("transactionsPage.typeFriendlyLabels")}
                     </span>
                     <span className={styles.tooltipWrap}>
                       <button
                         className={styles.tooltipTrigger}
                         type="button"
-                        aria-label="Show enum codes for type"
+                        aria-label={t("transactionsPage.viewCodes")}
                       >
-                        View codes
+                        {t("transactionsPage.viewCodes")}
                       </button>
                       <span className={styles.tooltipBox} role="tooltip">
-                        {"Income (Entry)"}
+                        {getTransactionTypeLabel(t, "INCOME")}
                         {"\n"}
-                        {"Expense (Outflow)"}
+                        {getTransactionTypeLabel(t, "EXPENSE")}
                       </span>
                     </span>
                   </span>
                 </label>
 
                 <label htmlFor="category">
-                  Category
+                  {t("transactionsPage.category")}
                   <select
                     className="ui-control"
                     id="category"
@@ -689,25 +763,25 @@ function CreateTransactionPage() {
                   >
                     {availableCategories.map((category) => (
                       <option key={category} value={category}>
-                        {CATEGORY_LABELS[category]}
+                        {getCategoryLabel(t, category)}
                       </option>
                     ))}
                   </select>
                   <span className={styles.enumAssist}>
                     <span className={styles.enumAssistText}>
-                      Hover/touch to see category codes.
+                      {t("transactionsPage.categoryCodesHint")}
                     </span>
                     <span className={styles.tooltipWrap}>
                       <button
                         className={styles.tooltipTrigger}
                         type="button"
-                        aria-label="Show enum codes for categories"
+                        aria-label={t("transactionsPage.viewCodes")}
                       >
-                        View codes
+                        {t("transactionsPage.viewCodes")}
                       </button>
                       <span className={styles.tooltipBox} role="tooltip">
                         {availableCategories
-                          .map((category) => `${CATEGORY_LABELS[category]}`)
+                          .map((category) => `${getCategoryLabel(t, category)}`)
                           .join("\n")}
                       </span>
                     </span>
@@ -715,7 +789,7 @@ function CreateTransactionPage() {
                 </label>
 
                 <label htmlFor="date">
-                  Date
+                  {t("transactionsPage.date")}
                   <div className={styles.dateInputRow}>
                     <input
                       className="ui-control"
@@ -725,18 +799,18 @@ function CreateTransactionPage() {
                       value={form.date}
                       onChange={handleChange}
                     />
-                    <button
+                    {/* <button
                       className={`${styles.secondaryBtn} ${styles.todayButton} ui-btn`}
                       type="button"
                       onClick={handleSetToday}
                     >
-                      Today
-                    </button>
+                      {t("common.today")}
+                    </button> */}
                   </div>
                 </label>
 
                 <label htmlFor="notes" className={styles.fieldWide}>
-                  Notes
+                  {t("transactionsPage.notes")}
                   <textarea
                     className="ui-control"
                     id="notes"
@@ -755,11 +829,11 @@ function CreateTransactionPage() {
                   >
                     {isSubmitting
                       ? editingId
-                        ? "Updating..."
-                        : "Creating..."
+                        ? t("transactionsPage.updating")
+                        : t("transactionsPage.creating")
                       : editingId
-                        ? "Update"
-                        : "Create"}
+                        ? t("transactionsPage.update")
+                        : t("transactionsPage.create")}
                   </button>
                   <button
                     className={`${styles.secondaryBtn} ui-btn`}
@@ -767,7 +841,7 @@ function CreateTransactionPage() {
                     onClick={clearForm}
                     disabled={isSubmitting}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>
@@ -775,58 +849,56 @@ function CreateTransactionPage() {
               <form className={styles.bulkForm} onSubmit={handleBulkSubmit}>
                 <details className={styles.bulkGuide}>
                   <summary className={styles.bulkGuideSummary}>
-                    How to fill bulk transactions
+                    {t("transactionsPage.bulkGuideTitle")}
                   </summary>
                   <div className={styles.bulkGuideContent}>
                     <p className={styles.bulkHint}>
-                      Use one line per transaction with this order:{" "}
+                      {t("transactionsPage.bulkGuideFormat")}{" "}
                       <code>title,amount,type,category,date,notes</code>
                     </p>
                     <p className={styles.bulkHint}>
-                      Hover the labels below or tap them on mobile to view
-                      accepted options.
+                      {t("transactionsPage.bulkGuideHint")}
                     </p>
                     <div className={styles.bulkAssistRow}>
                       <span className={styles.tooltipWrap}>
                         <button className={styles.tooltipTrigger} type="button">
-                          Required fields
+                          {t("transactionsPage.bulkRequiredFields")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          title, amount, type, category
+                          {t("transactionsPage.bulkRequiredValues")}
                         </span>
                       </span>
                       <span className={styles.tooltipWrap}>
                         <button className={styles.tooltipTrigger} type="button">
-                          Type options
+                          {t("transactionsPage.bulkTypeOptions")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          {"Income"}
+                          {t("transactionTypes.incomeSimple")}
                           {"\n"}
-                          {"Expense"}
+                          {t("transactionTypes.expenseSimple")}
                         </span>
                       </span>
                       <span className={styles.tooltipWrap}>
                         <button className={styles.tooltipTrigger} type="button">
-                          Date format
+                          {t("transactionsPage.bulkDateFormat")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          Use YYYY-MM-DD{"\n"}
-                          Example: 2026-03-06
+                          {t("transactionsPage.bulkDateExample")}
                         </span>
                       </span>
                       <span className={styles.tooltipWrap}>
                         <button className={styles.tooltipTrigger} type="button">
-                          Category options
+                          {t("transactionsPage.bulkCategoryOptions")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          Income:{"\n"}
-                          {INCOME_CATEGORIES.map(
-                            (category) => CATEGORY_LABELS[category],
+                          {t("transactionTypes.incomeSimple")}:{"\n"}
+                          {INCOME_CATEGORIES.map((category) =>
+                            getCategoryLabel(t, category),
                           ).join(", ")}
                           {"\n\n"}
-                          Expense:{"\n"}
-                          {EXPENSE_CATEGORIES.map(
-                            (category) => CATEGORY_LABELS[category],
+                          {t("transactionTypes.expenseSimple")}:{"\n"}
+                          {EXPENSE_CATEGORIES.map((category) =>
+                            getCategoryLabel(t, category),
                           ).join(", ")}
                         </span>
                       </span>
@@ -836,15 +908,15 @@ function CreateTransactionPage() {
                 <button
                   className={`${styles.secondaryBtn} ui-btn`}
                   type="button"
-                  onClick={() => setBulkText(BULK_EXAMPLE)}
+                  onClick={() => setBulkText(bulkExample)}
                 >
-                  Fill sample lines
+                  {t("transactionsPage.fillSample")}
                 </button>
                 <textarea
                   className={`ui-control ${styles.bulkInput}`}
                   value={bulkText}
                   onChange={(event) => setBulkText(event.target.value)}
-                  placeholder={BULK_EXAMPLE}
+                  placeholder={bulkExample}
                   required
                 />
                 <div className={styles.formActions}>
@@ -853,7 +925,9 @@ function CreateTransactionPage() {
                     type="submit"
                     disabled={isBulkSubmitting}
                   >
-                    {isBulkSubmitting ? "Creating..." : "Create in bulk"}
+                    {isBulkSubmitting
+                      ? t("transactionsPage.creating")
+                      : t("transactionsPage.createBulkSubmit")}
                   </button>
                   <button
                     className={`${styles.secondaryBtn} ui-btn`}
@@ -861,7 +935,7 @@ function CreateTransactionPage() {
                     onClick={clearForm}
                     disabled={isBulkSubmitting}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>
@@ -869,11 +943,55 @@ function CreateTransactionPage() {
           </section>
         )}
 
+        <div className={styles.filters}>
+          <label className={styles.filterField} htmlFor="transaction-search">
+            {t("transactionsPage.search")}
+            <input
+              id="transaction-search"
+              className="ui-control"
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={t("transactionsPage.searchPlaceholder")}
+            />
+          </label>
+
+          <label className={styles.filterField} htmlFor="transaction-category">
+            {t("transactionsPage.filterCategory")}
+            <select
+              id="transaction-category"
+              className="ui-control"
+              value={selectedCategory}
+              onChange={(event) =>
+                setSelectedCategory(event.target.value as Category | "")
+              }
+            >
+              <option value="">{t("transactionsPage.allCategories")}</option>
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {getCategoryLabel(t, category)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {formattedSelectedCategoryTotal ? (
+          <p className={styles.categoryTotal}>
+            {t("transactionsPage.categoryTotal", {
+              category: getCategoryLabel(t, selectedCategory as Category),
+              amount: formattedSelectedCategoryTotal,
+            })}
+          </p>
+        ) : null}
+
         {transactions.length === 0 ? (
-          <p>No transactions registered yet.</p>
+          <p>{t("transactionsPage.noTransactions")}</p>
+        ) : filteredTransactions.length === 0 ? (
+          <p>{t("transactionsPage.noFilteredTransactions")}</p>
         ) : (
           <div className={styles.list}>
-            {transactions.map((transaction) => (
+            {filteredTransactions.map((transaction) => (
               <article className={styles.item} key={transaction.id}>
                 <TransactionCard
                   transaction={transaction}

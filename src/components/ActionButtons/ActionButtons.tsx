@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CiCircleMinus, CiCirclePlus } from "react-icons/ci";
 import { TbReport } from "react-icons/tb";
 import styles from "./ActionButtons.module.css";
+import { FaChartSimple } from "react-icons/fa6";
+import { GiExpense, GiReceiveMoney } from "react-icons/gi";
 
 type ActionButtonsProps = {
   accountId?: string;
@@ -28,7 +29,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           className={styles.actionButton}
           title={t("actions.newIncome")}
         >
-          <CiCirclePlus />
+          <GiReceiveMoney />
         </Link>
       ) : (
         <button
@@ -37,7 +38,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           disabled
           title={disabledTitle}
         >
-          <CiCirclePlus />
+          <GiReceiveMoney />
         </button>
       )}
 
@@ -47,7 +48,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           className={styles.actionButton}
           title={t("actions.newExpense")}
         >
-          <CiCircleMinus />
+          <GiExpense />
         </Link>
       ) : (
         <button
@@ -56,7 +57,27 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           disabled
           title={disabledTitle}
         >
-          <CiCircleMinus />
+          <GiExpense />
+        </button>
+      )}
+
+      {hasAccount ? (
+        <button
+          className={styles.actionButton}
+          type="button"
+          title={t("actions.transactions")}
+          onClick={() => navigate(`/accounts/${accountId}/transactions`)}
+        >
+          <TbReport />
+        </button>
+      ) : (
+        <button
+          className={`${styles.actionButton} ${styles.disabled}`}
+          type="button"
+          disabled
+          title={disabledTitle}
+        >
+          <TbReport />
         </button>
       )}
 
@@ -67,7 +88,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           title={t("actions.reports")}
           onClick={() => navigate("/reports")}
         >
-          <TbReport />
+          <FaChartSimple />
         </button>
       ) : (
         <button
@@ -76,7 +97,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           disabled
           title={disabledTitle}
         >
-          <TbReport />
+          <FaChartSimple />
         </button>
       )}
     </div>

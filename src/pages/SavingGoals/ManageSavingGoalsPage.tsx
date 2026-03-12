@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import styles from "./ManageSavingGoalsPage.module.css";
 import api from "../../services/api";
 import type {
@@ -10,6 +11,8 @@ import type {
 } from "../../types/account.types";
 import Message from "../../components/Message/Message";
 import SavingGoalCard from "../../components/SavingGoalCard/SavingGoalCard";
+import { getCurrencyLabel } from "../../utils/displayLabels";
+import { getLocale } from "../../i18n/getLocale";
 
 type SavingGoalForm = {
   title: string;
@@ -38,9 +41,11 @@ const initialForm: SavingGoalForm = {
 };
 
 function ManageSavingGoalsPage() {
+  const { t, i18n } = useTranslation();
   const { accountId: routeAccountId } = useParams<{ accountId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const locale = getLocale(i18n.resolvedLanguage);
 
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
@@ -127,7 +132,7 @@ function ManageSavingGoalsPage() {
         );
       } catch (error: unknown) {
         console.error("Failed to load accounts", error);
-        setErrorMessage("Failed to load accounts.");
+        setErrorMessage(t("savingGoals.loadAccountsFailed"));
         setAccounts([]);
         setSelectedAccountId("");
       } finally {
@@ -160,7 +165,7 @@ function ManageSavingGoalsPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load saving goals", error);
-      setErrorMessage("Failed to load saving goals.");
+      setErrorMessage(t("savingGoals.loadGoalsFailed"));
       setAccount(null);
       setGoals([]);
       setAccountBalance(null);
@@ -201,15 +206,15 @@ function ManageSavingGoalsPage() {
     const currentAmount = Number(form.currentAmount);
 
     if (!title) {
-      setErrorMessage("Title is required.");
+      setErrorMessage(t("savingGoals.titleRequired"));
       return;
     }
     if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
-      setErrorMessage("Target amount must be greater than zero.");
+      setErrorMessage(t("savingGoals.targetAmountInvalid"));
       return;
     }
     if (!Number.isFinite(currentAmount) || currentAmount < 0) {
-      setErrorMessage("Current amount must be zero or more.");
+      setErrorMessage(t("savingGoals.currentAmountInvalid"));
       return;
     }
 
@@ -226,10 +231,10 @@ function ManageSavingGoalsPage() {
       setIsSaving(true);
       if (editingId) {
         await api.put(`/saving-goals/${editingId}`, payload);
-        setSuccessMessage("Saving goal updated.");
+        setSuccessMessage(t("savingGoals.goalUpdated"));
       } else {
         await api.post("/saving-goals", payload);
-        setSuccessMessage("Saving goal created.");
+        setSuccessMessage(t("savingGoals.goalCreated"));
       }
       setErrorMessage(null);
       clearForm();
@@ -240,10 +245,10 @@ function ManageSavingGoalsPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to save saving goal.",
+            t("savingGoals.saveFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -253,7 +258,7 @@ function ManageSavingGoalsPage() {
 
   async function handleDelete(goalId: string) {
     const confirmation = window.confirm(
-      "This saving goal will be permanently deleted. Continue?",
+      t("savingGoals.deleteConfirm"),
     );
     if (!confirmation) return;
 
@@ -262,7 +267,7 @@ function ManageSavingGoalsPage() {
       await api.delete(`/saving-goals/${goalId}`);
       setGoals((prev) => prev.filter((goal) => goal.id !== goalId));
       setErrorMessage(null);
-      setSuccessMessage("Saving goal removed.");
+      setSuccessMessage(t("savingGoals.goalDeleted"));
       if (editingId === goalId) clearForm();
     } catch (error: unknown) {
       console.error("Failed to delete saving goal", error);
@@ -270,10 +275,10 @@ function ManageSavingGoalsPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to delete saving goal.",
+            t("savingGoals.deleteFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -288,17 +293,17 @@ function ManageSavingGoalsPage() {
     const currentAmount = Number(goal.currentAmount);
 
     if (!Number.isFinite(amount) || amount <= 0) {
-      setErrorMessage("Enter a valid amount greater than zero.");
+      setErrorMessage(t("savingGoals.moveAmountInvalid"));
       return;
     }
 
     if (type === "REMOVE" && amount > currentAmount) {
-      setErrorMessage("Cannot remove more than current saved amount.");
+      setErrorMessage(t("savingGoals.removeTooMuch"));
       return;
     }
 
     if (type === "ADD" && accountBalance !== null && amount > accountBalance) {
-      setErrorMessage("Insufficient account balance.");
+      setErrorMessage(t("savingGoals.insufficientBalance"));
       return;
     }
 
@@ -312,8 +317,8 @@ function ManageSavingGoalsPage() {
       setErrorMessage(null);
       setSuccessMessage(
         type === "ADD"
-          ? "Money added to saving goal."
-          : "Money moved back to account.",
+          ? t("savingGoals.moneyAdded")
+          : t("savingGoals.moneyRemoved"),
       );
       await loadGoals(selectedAccountId);
     } catch (error: unknown) {
@@ -322,10 +327,10 @@ function ManageSavingGoalsPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to move money.",
+            t("savingGoals.moveFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -341,12 +346,12 @@ function ManageSavingGoalsPage() {
     const isCompleted = currentAmount >= targetAmount && targetAmount > 0;
 
     if (!isCompleted) {
-      setErrorMessage("Goal must be completed before closing.");
+      setErrorMessage(t("savingGoals.closeIncomplete"));
       return;
     }
 
     const confirmation = window.confirm(
-      "Move all saved money back to account and close this goal?",
+      t("savingGoals.closeConfirm"),
     );
     if (!confirmation) return;
 
@@ -360,7 +365,7 @@ function ManageSavingGoalsPage() {
       }
       await api.delete(`/saving-goals/${goal.id}`);
       setErrorMessage(null);
-      setSuccessMessage("Goal closed and money moved to account.");
+      setSuccessMessage(t("savingGoals.goalClosed"));
       await loadGoals(selectedAccountId);
     } catch (error: unknown) {
       console.error("Failed to close saving goal", error);
@@ -368,10 +373,10 @@ function ManageSavingGoalsPage() {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to close saving goal.",
+            t("savingGoals.closeFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -380,17 +385,17 @@ function ManageSavingGoalsPage() {
   }
 
   if (isLoadingAccounts) {
-    return <p className={styles.pageState}>Loading accounts...</p>;
+    return <p className={styles.pageState}>{t("savingGoals.loadingAccounts")}</p>;
   }
 
   if (accounts.length === 0) {
     return (
       <div className={styles.pageContainer}>
         <section className="ui-card">
-          <h2 className={styles.title}>Savings goals</h2>
-          <p>Create an account first to start tracking savings goals.</p>
+          <h2 className={styles.title}>{t("savingGoals.title")}</h2>
+          <p>{t("savingGoals.emptyAccounts")}</p>
           <Link className="ui-btn" to="/create-account">
-            Create account
+            {t("common.createAccount")}
           </Link>
         </section>
       </div>
@@ -413,11 +418,11 @@ function ManageSavingGoalsPage() {
       />
 
       <section className={`${styles.header} ui-card`}>
-        <h2 className={styles.title}>Savings goals</h2>
-        <p className={styles.subtitle}>Create, update and track your goals by account.</p>
+        <h2 className={styles.title}>{t("savingGoals.title")}</h2>
+        <p className={styles.subtitle}>{t("savingGoals.subtitle")}</p>
 
         <label className={styles.accountSelector} htmlFor="accountId">
-          Account
+          {t("common.account")}
           <select
             className="ui-control"
             id="accountId"
@@ -440,14 +445,17 @@ function ManageSavingGoalsPage() {
 
         {account && (
           <>
-            <p className={styles.subtitle}>Currency: {account.currency}</p>
+            <p className={styles.subtitle}>
+              {t("common.currency")}: {getCurrencyLabel(t, account.currency)}
+            </p>
             {accountBalance !== null && (
               <p className={styles.subtitle}>
-                Account balance:{" "}
-                {new Intl.NumberFormat(navigator.language ?? "pt-PT", {
-                  style: "currency",
-                  currency: account.currency,
-                }).format(accountBalance)}
+                {t("savingGoals.accountBalance", {
+                  amount: new Intl.NumberFormat(locale, {
+                    style: "currency",
+                    currency: account.currency,
+                  }).format(accountBalance),
+                })}
               </p>
             )}
           </>
@@ -455,22 +463,22 @@ function ManageSavingGoalsPage() {
       </section>
 
       <section className={`${styles.reports} ui-card`}>
-        <h3>Reports</h3>
+        <h3>{t("savingGoals.reportsTitle")}</h3>
         <div className={styles.reportGrid}>
           <article className={styles.reportItem}>
-            <small>Total goals</small>
+            <small>{t("savingGoals.totalGoals")}</small>
             <strong>{goals.length}</strong>
           </article>
           <article className={styles.reportItem}>
-            <small>Completed goals</small>
+            <small>{t("savingGoals.completedGoals")}</small>
             <strong>{reports.completedCount}</strong>
           </article>
           <article className={styles.reportItem}>
-            <small>Overdue goals</small>
+            <small>{t("savingGoals.overdueGoals")}</small>
             <strong>{reports.overdueCount}</strong>
           </article>
           <article className={styles.reportItem}>
-            <small>Overall completion</small>
+            <small>{t("savingGoals.overallCompletion")}</small>
             <strong>{reports.completionRate}%</strong>
           </article>
         </div>
@@ -478,7 +486,7 @@ function ManageSavingGoalsPage() {
 
       <section className={`${styles.listSection} ui-card`}>
         <div className={styles.listHeader}>
-          <h3>All goals ({goals.length})</h3>
+          <h3>{t("savingGoals.allGoals", { count: goals.length })}</h3>
           <button
             className="ui-btn"
             type="button"
@@ -488,16 +496,16 @@ function ManageSavingGoalsPage() {
               setIsFormOpen(true);
             }}
           >
-            Create goal
+            {t("savingGoals.createGoal")}
           </button>
         </div>
 
         {isFormOpen && (
           <section className={styles.formSection}>
-            <h3>{editingId ? "Edit saving goal" : "New saving goal"}</h3>
+            <h3>{editingId ? t("savingGoals.editGoal") : t("savingGoals.newGoal")}</h3>
             <form className={styles.form} onSubmit={handleSubmit}>
               <label htmlFor="title">
-                Title
+                {t("common.title")}
                 <input
                   className="ui-control"
                   id="title"
@@ -509,7 +517,7 @@ function ManageSavingGoalsPage() {
               </label>
 
               <label htmlFor="targetAmount">
-                Target amount
+                {t("savingGoals.targetAmount")}
                 <input
                   className="ui-control"
                   id="targetAmount"
@@ -524,7 +532,7 @@ function ManageSavingGoalsPage() {
               </label>
 
               <label htmlFor="currentAmount">
-                Current amount
+                {t("savingGoals.currentAmount")}
                 <input
                   className="ui-control"
                   id="currentAmount"
@@ -539,7 +547,7 @@ function ManageSavingGoalsPage() {
               </label>
 
               <label htmlFor="deadline">
-                Deadline
+                {t("common.deadline")}
                 <input
                   className="ui-control"
                   id="deadline"
@@ -551,7 +559,7 @@ function ManageSavingGoalsPage() {
               </label>
 
               <label className={styles.fieldWide} htmlFor="notes">
-                Notes
+                {t("common.notes")}
                 <textarea
                   className="ui-control"
                   id="notes"
@@ -566,11 +574,11 @@ function ManageSavingGoalsPage() {
                 <button className="ui-btn" type="submit" disabled={isSaving}>
                   {isSaving
                     ? editingId
-                      ? "Updating..."
-                      : "Creating..."
+                      ? t("transactionsPage.updating")
+                      : t("transactionsPage.creating")
                     : editingId
-                      ? "Update"
-                      : "Create"}
+                      ? t("common.update")
+                      : t("common.create")}
                 </button>
                 <button
                   className={`${styles.secondaryBtn} ui-btn`}
@@ -578,7 +586,7 @@ function ManageSavingGoalsPage() {
                   disabled={isSaving}
                   onClick={clearForm}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </form>
@@ -586,9 +594,9 @@ function ManageSavingGoalsPage() {
         )}
 
         {isLoadingGoals ? (
-          <p>Loading saving goals...</p>
+          <p>{t("savingGoals.loadingGoals")}</p>
         ) : goals.length === 0 ? (
-          <p>No saving goals registered yet.</p>
+          <p>{t("savingGoals.noGoals")}</p>
         ) : (
           <div className={styles.list}>
             {goals.map((goal) => (
@@ -600,7 +608,7 @@ function ManageSavingGoalsPage() {
                     type="number"
                     min="0.01"
                     step="0.01"
-                    placeholder="Amount"
+                    placeholder={t("savingGoals.inputAmount")}
                     value={movementAmounts[goal.id] ?? ""}
                     onChange={(event) =>
                       setMovementAmounts((prev) => ({
@@ -619,7 +627,7 @@ function ManageSavingGoalsPage() {
                     }
                     onClick={() => handleMoveMoney(goal, "ADD")}
                   >
-                    {isMovingGoalId === goal.id ? "Moving..." : "Add money"}
+                    {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.addMoney")}
                   </button>
                   <button
                     className={`${styles.secondaryBtn} ui-btn`}
@@ -627,7 +635,7 @@ function ManageSavingGoalsPage() {
                     disabled={isMovingGoalId === goal.id || isClosingGoalId === goal.id}
                     onClick={() => handleMoveMoney(goal, "REMOVE")}
                   >
-                    {isMovingGoalId === goal.id ? "Moving..." : "Remove money"}
+                    {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.removeMoney")}
                   </button>
                 </div>
                 <div className={styles.itemActions}>
@@ -655,7 +663,7 @@ function ManageSavingGoalsPage() {
                       setIsFormOpen(true);
                     }}
                   >
-                    Edit
+                    {t("common.edit")}
                   </button>
                   <button
                     className={`${styles.dangerBtn} ui-btn`}
@@ -663,7 +671,7 @@ function ManageSavingGoalsPage() {
                     disabled={deletingId === goal.id}
                     onClick={() => handleDelete(goal.id)}
                   >
-                    {deletingId === goal.id ? "Deleting..." : "Delete"}
+                    {deletingId === goal.id ? t("savingGoals.deleting") : t("common.delete")}
                   </button>
                   {Number(goal.currentAmount) >= Number(goal.targetAmount) &&
                     Number(goal.targetAmount) > 0 && (
@@ -678,8 +686,8 @@ function ManageSavingGoalsPage() {
                         onClick={() => handleCloseGoal(goal)}
                       >
                         {isClosingGoalId === goal.id
-                          ? "Closing..."
-                          : "Close goal"}
+                          ? t("savingGoals.closing")
+                          : t("savingGoals.closeGoal")}
                       </button>
                     )}
                 </div>

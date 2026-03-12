@@ -1,5 +1,10 @@
 import { Line } from "react-chartjs-2";
 import { useTranslation } from "react-i18next";
+import type { Currency } from "../../types/account.types";
+import {
+  formatCompactCurrencyValue,
+  formatCurrencyValue,
+} from "./chartFormatters";
 import "./chartSetup";
 
 type BalanceHistoryItem = {
@@ -9,10 +14,16 @@ type BalanceHistoryItem = {
 
 type BalanceHistoryChartProps = {
   items: BalanceHistoryItem[];
+  currency?: Currency;
 };
 
-function BalanceHistoryChart({ items }: BalanceHistoryChartProps) {
-  const { t } = useTranslation();
+function BalanceHistoryChart({
+  items,
+  currency = "EUR",
+}: BalanceHistoryChartProps) {
+  const { i18n, t } = useTranslation();
+  const formatAmount = (value: number) =>
+    formatCurrencyValue(value, i18n.resolvedLanguage, currency);
   const data = {
     labels: items.map((item) => item.date),
     datasets: [
@@ -30,6 +41,26 @@ function BalanceHistoryChart({ items }: BalanceHistoryChartProps) {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (context: { raw?: unknown }) =>
+            formatAmount(Number(context.raw ?? 0) || 0),
+        },
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          callback: (value: string | number) =>
+            formatCompactCurrencyValue(
+              Number(value) || 0,
+              i18n.resolvedLanguage,
+              currency,
+            ),
+        },
+      },
+    },
   };
 
   return <Line data={data} options={options} />;

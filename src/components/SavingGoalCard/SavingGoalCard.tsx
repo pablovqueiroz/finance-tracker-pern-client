@@ -24,8 +24,10 @@ function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
   const safeTargetAmountDisplay = Number.isFinite(targetAmountValue)
     ? targetAmountValue
     : 0;
-  const progress = Math.min((safeCurrentAmount / safeTargetAmount) * 100, 100)
-    .toFixed(0);
+  const progress = Math.min(
+    (safeCurrentAmount / safeTargetAmount) * 100,
+    100,
+  ).toFixed(0);
 
   const formatAmount = (amount: number) =>
     new Intl.NumberFormat(locale, {
@@ -42,7 +44,7 @@ function SavingGoalCard({ goal, currency }: SavingGoalCardProps) {
     : null;
 
   return (
-    <div className={styles.savigGoalCardContainer}>
+    <div className={styles.savingGoalCardContainer}>
       <article className={styles.info}>
         <p className={styles.title}>{title}</p>
         {notes ? <small className={styles.notes}>{notes}</small> : null}
