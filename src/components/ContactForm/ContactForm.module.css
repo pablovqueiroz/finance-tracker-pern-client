@@ -29,19 +29,6 @@
   width: 100%;
 }
 
-.status {
-  margin: 0;
-  font-size: 0.92rem;
-}
-
-.success {
-  color: #15803d;
-}
-
-.error {
-  color: #b91c1c;
-}
-
 @media (min-width: 640px) {
   .actions {
     display: flex;

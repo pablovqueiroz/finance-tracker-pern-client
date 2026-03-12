@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { useTranslation } from "react-i18next";
+import Message from "../Message/Message";
 import styles from "./ContactForm.module.css";
 
 const SERVICE_ID = "service_dis8jk9";
@@ -18,8 +19,8 @@ function ContactForm({
   const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -101,15 +102,14 @@ function ContactForm({
         <button className="ui-btn" type="submit" disabled={isSubmitting}>
           {isSubmitting ? t("contact.sending") : t("contact.sendMessage")}
         </button>
-
-        {successMessage ? (
-          <p className={`${styles.status} ${styles.success}`}>{successMessage}</p>
-        ) : null}
-
-        {errorMessage ? (
-          <p className={`${styles.status} ${styles.error}`}>{errorMessage}</p>
-        ) : null}
       </div>
+
+      <Message
+        type="success"
+        text={successMessage}
+        clearMessage={setSuccessMessage}
+      />
+      <Message type="error" text={errorMessage} clearMessage={setErrorMessage} />
     </form>
   );
 }
