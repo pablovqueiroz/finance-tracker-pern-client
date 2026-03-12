@@ -11,7 +11,6 @@ import ProfileForm from "../../components/Profile/ProfileForm";
 import SkeletonText from "../../components/Skeleton/SkeletonText";
 import Message from "../../components/Message/Message";
 import DangerZone from "../../components/Profile/DangerZone";
-import LanguageSwitcher from "../../components/LanguageSwitcher/LanguageSwitcher";
 
 type UserProfile = {
   name: string;
@@ -262,21 +261,6 @@ function ProfilePage() {
       <section className={styles.profileCard}>
         <ProfileHeader />
 
-        <div className={styles.headerActions}>
-          <button
-            type="button"
-            className={styles.logoutButton}
-            onClick={handleLogout}
-          >
-            {t("profile.logout")}
-          </button>
-        </div>
-
-        <section className={styles.preferenceSection}>
-          <h2>{t("language.label")}</h2>
-          <LanguageSwitcher className={styles.profileLanguageSwitcher} />
-        </section>
-
         <div className={styles.profileForm}>
           <article className={styles.firstBlock}>
             <AvatarUploader
@@ -313,9 +297,13 @@ function ProfilePage() {
                   <option value="FEMALE">{t("genders.FEMALE")}</option>
                   <option value="NON_BINARY">{t("genders.NON_BINARY")}</option>
                   <option value="TRANS_MAN">{t("genders.TRANS_MAN")}</option>
-                  <option value="TRANS_WOMAN">{t("genders.TRANS_WOMAN")}</option>
+                  <option value="TRANS_WOMAN">
+                    {t("genders.TRANS_WOMAN")}
+                  </option>
                   <option value="AGENDER">{t("genders.AGENDER")}</option>
-                  <option value="GENDERFLUID">{t("genders.GENDERFLUID")}</option>
+                  <option value="GENDERFLUID">
+                    {t("genders.GENDERFLUID")}
+                  </option>
                   <option value="PREFER_NOT_TO_SAY">
                     {t("genders.PREFER_NOT_TO_SAY")}
                   </option>

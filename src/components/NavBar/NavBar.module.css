@@ -29,6 +29,7 @@
 .profileWrap {
   margin-left: auto;
   position: relative;
+  z-index: 30;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -80,6 +81,7 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
+  z-index: 31;
   min-width: 220px;
   border: 1px solid var(--border);
   background: var(--bg-primary);

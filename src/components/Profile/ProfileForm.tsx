@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import styles from "../../pages/ProfilePage/ProfilePage.module.css";
 
 type ProfileFormProps = {
@@ -10,12 +11,14 @@ type ProfileFormProps = {
 };
 
 function ProfileForm({ children, onSubmit, submitLabel }: ProfileFormProps) {
+  const { t } = useTranslation();
+
   return (
     <form className={styles.profileForm} onSubmit={onSubmit}>
       {children}
 
       <section className={styles.saveButton}>
-        <button type="submit">{submitLabel || "Save profile"}</button>
+        <button type="submit">{submitLabel || t("profile.saveProfile")}</button>
       </section>
     </form>
   );
