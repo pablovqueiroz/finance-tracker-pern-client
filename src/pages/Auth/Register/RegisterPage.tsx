@@ -7,6 +7,7 @@ import styles from "./RegisterPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
 import { useAuth } from "../../../hooks/useAuth";
+import PasswordField from "../../../components/PasswordField/PasswordField";
 
 function RegisterPage() {
   const { t } = useTranslation();
@@ -143,8 +144,7 @@ function RegisterPage() {
         <article className={styles.registerField}>
           <label>
             {t("auth.register.password")}:
-            <input
-              type="password"
+            <PasswordField
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("auth.register.passwordPlaceholder")}
@@ -155,8 +155,7 @@ function RegisterPage() {
         <article className={styles.registerField}>
           <label>
             {t("auth.register.confirmPassword")}:
-            <input
-              type="password"
+            <PasswordField
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder={t("auth.register.confirmPasswordPlaceholder")}

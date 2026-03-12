@@ -7,6 +7,7 @@ import styles from "./LoginPage.module.css";
 import api from "../../../services/api";
 import { useAuth } from "../../../hooks/useAuth";
 import Message from "../../../components/Message/Message";
+import PasswordField from "../../../components/PasswordField/PasswordField";
 
 function LoginPage() {
   const { t } = useTranslation();
@@ -70,8 +71,7 @@ function LoginPage() {
 
         <article className={styles.loginField}>
           <label>{t("auth.login.password")}</label>
-          <input
-            type="password"
+          <PasswordField
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder={t("auth.login.passwordPlaceholder")}

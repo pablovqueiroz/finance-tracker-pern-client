@@ -38,6 +38,8 @@
     "myRole": "A minha função",
     "noDescription": "Sem descrição",
     "noEmail": "Sem email",
+    "showPassword": "Mostrar palavra-passe",
+    "hidePassword": "Ocultar palavra-passe",
     "accountNotFound": "Conta não encontrada."
   },
   "language": {

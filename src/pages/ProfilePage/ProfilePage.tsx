@@ -11,6 +11,7 @@ import ProfileForm from "../../components/Profile/ProfileForm";
 import SkeletonText from "../../components/Skeleton/SkeletonText";
 import Message from "../../components/Message/Message";
 import DangerZone from "../../components/Profile/DangerZone";
+import PasswordField from "../../components/PasswordField/PasswordField";
 
 type UserProfile = {
   name: string;
@@ -322,8 +323,7 @@ function ProfilePage() {
         >
           <label>
             {t("profile.currentPassword")}
-            <input
-              type="password"
+            <PasswordField
               value={passwordForm.currentPassword}
               onChange={(event) =>
                 setPasswordForm({
@@ -336,8 +336,7 @@ function ProfilePage() {
 
           <label>
             {t("profile.newPassword")}
-            <input
-              type="password"
+            <PasswordField
               value={passwordForm.newPassword}
               onChange={(event) =>
                 setPasswordForm({
@@ -350,8 +349,7 @@ function ProfilePage() {
 
           <label>
             {t("profile.confirmNewPassword")}
-            <input
-              type="password"
+            <PasswordField
               value={passwordForm.confirmNewPassword}
               onChange={(event) =>
                 setPasswordForm({

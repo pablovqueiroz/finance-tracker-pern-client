@@ -38,6 +38,8 @@
     "myRole": "Mi rol",
     "noDescription": "Sin descripcion",
     "noEmail": "Sin correo",
+    "showPassword": "Mostrar contrasena",
+    "hidePassword": "Ocultar contrasena",
     "accountNotFound": "Cuenta no encontrada."
   },
   "language": {

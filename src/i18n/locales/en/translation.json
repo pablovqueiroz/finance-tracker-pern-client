@@ -38,6 +38,8 @@
     "myRole": "My role",
     "noDescription": "No description",
     "noEmail": "No email",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "accountNotFound": "Account not found."
   },
   "language": {
