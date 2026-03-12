@@ -8,7 +8,7 @@ import HomePage from "./pages/HomePage/HomePage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import CreateAccountPage from "./pages/Accounts/CreateAccountPage/CreateAccountPage";
-// import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 import ManageAccountsPage from "./pages/Accounts/ManageAccountsPage/ManageAccountsPage";
 import AccountDetailsPage from "./pages/Accounts/AccountDetailsPage/AccountDetailsPage";
 import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
@@ -31,35 +31,38 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<NotFoundPage />} />
-
           {/* protected routes */}
-          {/* <Route element={<ProtectedRoute />}> */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/create-account" element={<CreateAccountPage />} />
-          <Route path="/accounts" element={<ManageAccountsPage />} />
-          <Route path="/accounts/:accountId" element={<AccountDetailsPage />} />
-          <Route
-            path="/accounts/:accountId/members"
-            element={<AccountMembersPage />}
-          />
-          <Route path="/invites" element={<InvitesPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route
-            path="/accounts/:accountId/transactions"
-            element={<CreateTransactionPage />}
-          />
-          <Route path="/savings" element={<ManageSavingGoalsPage />} />
-          <Route
-            path="/accounts/:accountId/savings"
-            element={<ManageSavingGoalsPage />}
-          />
-          <Route
-            path="/accounts/:accountId/saving-goals"
-            element={<ManageSavingGoalsPage />}
-          />
-          {/* </Route> protected routes*/}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/create-account" element={<CreateAccountPage />} />
+            <Route path="/accounts" element={<ManageAccountsPage />} />
+            <Route
+              path="/accounts/:accountId"
+              element={<AccountDetailsPage />}
+            />
+            <Route
+              path="/accounts/:accountId/members"
+              element={<AccountMembersPage />}
+            />
+            <Route path="/invites" element={<InvitesPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route
+              path="/accounts/:accountId/transactions"
+              element={<CreateTransactionPage />}
+            />
+            <Route path="/savings" element={<ManageSavingGoalsPage />} />
+            <Route
+              path="/accounts/:accountId/savings"
+              element={<ManageSavingGoalsPage />}
+            />
+            <Route
+              path="/accounts/:accountId/saving-goals"
+              element={<ManageSavingGoalsPage />}
+            />
+          </Route>{" "}
+          protected routes
         </Routes>
       </main>
       <footer>
