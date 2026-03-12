@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   z-index: 1;
 }
 
@@ -148,6 +148,31 @@
   gap: 12px;
   width: min(100%, 320px);
   margin: 0 auto;
+}
+
+.utilityActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.utilityActions .primaryBtn,
+.utilityActions .secondaryBtn {
+  width: auto;
+  min-width: 0;
+  padding: 8px 10px;
+  min-height: 34px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.utilityThemeToggle {
+  transform: scale(0.88);
+  transform-origin: center;
+  margin-left: -2px;
 }
 
 .primaryBtn {
@@ -296,6 +321,37 @@
   .utilityControls {
     position: static;
     margin-bottom: 24px;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .utilityControls::-webkit-scrollbar {
+    display: none;
+  }
+
+  .utilityActions {
+    flex: 0 0 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
+
+  .utilityActions .primaryBtn,
+  .utilityActions .secondaryBtn {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    min-height: 34px;
+    font-size: 0.9rem;
+  }
+
+  .utilityThemeToggle {
+    transform: scale(0.8);
+    margin-left: -6px;
   }
 
   .hero {

@@ -68,8 +68,18 @@ function HomePage() {
     <div className={styles.page}>
       {!isLoggedIn ? (
         <nav className={styles.utilityControls}>
+          {!isLoggedIn ? (
+            <div className={styles.utilityActions}>
+              <Link to="/register" className={styles.primaryBtn}>
+                {t("home.primaryAction")}
+              </Link>
+              <Link to="/login" className={styles.secondaryBtn}>
+                {t("home.secondaryAction")}
+              </Link>
+            </div>
+          ) : null}
           <LanguageSwitcher />
-          <ThemeToggle />
+          <ThemeToggle className={styles.utilityThemeToggle} />
         </nav>
       ) : null}
 
@@ -94,19 +104,25 @@ function HomePage() {
 
         <div className={styles.heroHighlights}>
           <article className={styles.highlightCard}>
-            <span className={styles.highlightLabel}>{t("home.highlights.accounts.label")}</span>
+            <span className={styles.highlightLabel}>
+              {t("home.highlights.accounts.label")}
+            </span>
             <strong>{t("home.highlights.accounts.value")}</strong>
             <p>{t("home.highlights.accounts.copy")}</p>
           </article>
 
           <article className={styles.highlightCard}>
-            <span className={styles.highlightLabel}>{t("home.highlights.insights.label")}</span>
+            <span className={styles.highlightLabel}>
+              {t("home.highlights.insights.label")}
+            </span>
             <strong>{t("home.highlights.insights.value")}</strong>
             <p>{t("home.highlights.insights.copy")}</p>
           </article>
 
           <article className={styles.highlightCard}>
-            <span className={styles.highlightLabel}>{t("home.highlights.goals.label")}</span>
+            <span className={styles.highlightLabel}>
+              {t("home.highlights.goals.label")}
+            </span>
             <strong>{t("home.highlights.goals.value")}</strong>
             <p>{t("home.highlights.goals.copy")}</p>
           </article>
@@ -115,7 +131,9 @@ function HomePage() {
 
       <section className={styles.features}>
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionEyebrow}>{t("home.featuresIntro.eyebrow")}</span>
+          <span className={styles.sectionEyebrow}>
+            {t("home.featuresIntro.eyebrow")}
+          </span>
           <h2>{t("home.featuresIntro.title")}</h2>
           <p>{t("home.featuresIntro.subtitle")}</p>
         </div>
@@ -135,7 +153,9 @@ function HomePage() {
 
       <section className={styles.howItWorks}>
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionEyebrow}>{t("home.howItWorks.eyebrow")}</span>
+          <span className={styles.sectionEyebrow}>
+            {t("home.howItWorks.eyebrow")}
+          </span>
           <h2>{t("home.howItWorks.title")}</h2>
           <p>{t("home.howItWorks.subtitle")}</p>
         </div>
@@ -153,7 +173,9 @@ function HomePage() {
 
       <section className={styles.benefits}>
         <div className={styles.sectionHeader}>
-          <span className={styles.sectionEyebrow}>{t("home.benefits.eyebrow")}</span>
+          <span className={styles.sectionEyebrow}>
+            {t("home.benefits.eyebrow")}
+          </span>
           <h2>{t("home.benefits.title")}</h2>
           <p>{t("home.benefits.subtitle")}</p>
         </div>
