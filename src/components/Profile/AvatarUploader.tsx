@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { IoCameraOutline } from "react-icons/io5";
 import api from "../../services/api";
 import SkeletonText from "../Skeleton/SkeletonText";
 import Message from "../Message/Message";
@@ -81,21 +82,29 @@ function AvatarUploader({
 
   return (
     <div className={styles.avatarUploader}>
-      {imageUrl && !hasImageError ? (
-        <img
-          src={imageUrl}
-          alt={t("profile.avatarAlt")}
-          className={styles.avatarImage}
-          onError={() => setHasImageError(true)}
-        />
-      ) : (
-        <div className={styles.avatarFallback} aria-label={t("profile.avatarAlt")}>
-          {getInitials(userName)}
-        </div>
-      )}
-
-      <label className={styles.changeButton}>
-        {t("profile.changePhoto")}
+      <label
+        className={styles.avatarTrigger}
+        aria-label={t("profile.changePhoto")}
+        title={t("profile.changePhoto")}
+      >
+        {imageUrl && !hasImageError ? (
+          <img
+            src={imageUrl}
+            alt={t("profile.avatarAlt")}
+            className={styles.avatarImage}
+            onError={() => setHasImageError(true)}
+          />
+        ) : (
+          <div
+            className={styles.avatarFallback}
+            aria-label={t("profile.avatarAlt")}
+          >
+            {getInitials(userName)}
+          </div>
+        )}
+        <span className={styles.avatarOverlay} aria-hidden="true">
+          <IoCameraOutline />
+        </span>
         <input type="file" accept="image/*" hidden onChange={handleFileSelect} />
       </label>
 
