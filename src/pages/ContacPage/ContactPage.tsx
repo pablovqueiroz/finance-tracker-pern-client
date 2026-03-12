@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import ContactForm from "../components/ContactForm/ContactForm";
+import ContactForm from "../../components/ContactForm/ContactForm";
 import styles from "./ContactPage.module.css";
 
 function ContactPage() {

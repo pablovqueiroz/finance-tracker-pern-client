@@ -1,4 +1,6 @@
 import type { AccountMember, AccountRole } from "../../types/account.types";
+import { useTranslation } from "react-i18next";
+import { getRoleLabel } from "../../utils/displayLabels";
 import RoleSelector from "./RoleSelector";
 import styles from "./Members.module.css";
 
@@ -32,6 +34,7 @@ function MemberRow({
   onRoleChange,
   onRemove,
 }: MemberRowProps) {
+  const { t } = useTranslation();
   const memberId = member.id ?? "";
   const isCurrentUser = member.userId === currentUserId;
   const canEditRole = canManageRoles && !isCurrentUser && Boolean(memberId);
@@ -54,11 +57,11 @@ function MemberRow({
 
         <div className={styles.textBlock}>
           <p className={styles.name}>{member.user.name}</p>
-          <p className={styles.email}>{member.user.email ?? "No email"}</p>
+          <p className={styles.email}>{member.user.email ?? t("common.noEmail")}</p>
         </div>
       </div>
 
-      <span className={styles.roleBadge}>{member.role}</span>
+      <span className={styles.roleBadge}>{getRoleLabel(t, member.role)}</span>
 
       <div className={styles.actions}>
         <RoleSelector
@@ -74,11 +77,11 @@ function MemberRow({
             disabled={isUpdating || isRemoving}
             onClick={() => onRemove(memberId, member.user.name)}
           >
-            {isRemoving ? "Removing..." : "Remove"}
+            {isRemoving ? t("members.removing") : t("common.remove")}
           </button>
         ) : (
           <button className="ui-btn" type="button" disabled>
-            {isCurrentUser ? "You" : "Locked"}
+            {isCurrentUser ? t("members.currentUser") : t("members.locked")}
           </button>
         )}
       </div>

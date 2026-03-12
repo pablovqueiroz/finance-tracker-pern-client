@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import InviteRow from "./InviteRow";
 import styles from "./Invites.module.css";
 import type { AccountInvite } from "../../types/invite.types";
+import { getRoleLabel } from "../../utils/displayLabels";
 
 type SentInvitesListProps = {
   invites: AccountInvite[];
@@ -30,8 +32,10 @@ function SentInvitesList({
   onCancel,
   onExpire,
 }: SentInvitesListProps) {
+  const { t } = useTranslation();
+
   if (invites.length === 0) {
-    return <p className={styles.emptyState}>No sent invites yet.</p>;
+    return <p className={styles.emptyState}>{t("invites.noSent")}</p>;
   }
 
   return (
@@ -47,12 +51,15 @@ function SentInvitesList({
           <InviteRow
             key={invite.id}
             title={invite.email}
-            subtitle={invite.account?.name ?? "Account unavailable"}
+            subtitle={invite.account?.name ?? t("invites.accountUnavailable")}
             status={invite.status}
             meta={[
-              { label: "Role", value: invite.role },
-              { label: "Expires", value: formatDate(invite.expiresAt) },
-              { label: "Created", value: formatDate(invite.createdAt) },
+              {
+                label: t("invites.meta.role"),
+                value: getRoleLabel(t, invite.role),
+              },
+              { label: t("invites.meta.expires"), value: formatDate(invite.expiresAt) },
+              { label: t("invites.meta.created"), value: formatDate(invite.createdAt) },
             ]}
             actions={
               <>
@@ -62,7 +69,7 @@ function SentInvitesList({
                   disabled={!isPending || activeInviteId !== null}
                   onClick={() => onCancel(invite.id)}
                 >
-                  {isCancelling ? "Cancelling..." : "Cancel invite"}
+                  {isCancelling ? t("invites.cancelling") : t("invites.cancelInvite")}
                 </button>
                 <button
                   className="ui-btn"
@@ -70,7 +77,7 @@ function SentInvitesList({
                   disabled={!isPending || activeInviteId !== null}
                   onClick={() => onExpire(invite.id)}
                 >
-                  {isExpiring ? "Expiring..." : "Expire invite"}
+                  {isExpiring ? t("invites.expiring") : t("invites.expireInvite")}
                 </button>
               </>
             }

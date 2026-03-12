@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./AccountDetailsPage.module.css";
 import api from "../../../services/api";
 import axios from "axios";
@@ -15,8 +16,11 @@ import { useAuth } from "../../../hooks/useAuth";
 import TransactionCard from "../../../components/TransactionCard/TransactionCard";
 import SavingGoalCard from "../../../components/SavingGoalCard/SavingGoalCard";
 import Message from "../../../components/Message/Message";
+import { getCurrencyLabel, getRoleLabel } from "../../../utils/displayLabels";
+import { getLocale } from "../../../i18n/getLocale";
 
 function AccountDetailsPage() {
+  const { t, i18n } = useTranslation();
   const { accountId } = useParams<{ accountId: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -71,7 +75,7 @@ function AccountDetailsPage() {
         setErrorMessage(null);
       } catch (error: unknown) {
         console.error("Failed to load account", error);
-        setErrorMessage("Failed to load account");
+        setErrorMessage(t("accounts.details.loadFailed"));
       } finally {
         setIsLoading(false);
       }
@@ -143,17 +147,17 @@ function AccountDetailsPage() {
       setAccount((prev) => (prev ? { ...prev, ...res.data } : prev));
       setIsEditing(false);
       setErrorMessage(null);
-      setSuccessMessage("Updates saved.");
+      setSuccessMessage(t("accounts.details.updatesSaved"));
     } catch (error: unknown) {
       console.error("Failed to updae account", error);
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Update account failed",
+            t("accounts.details.updateFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -164,13 +168,13 @@ function AccountDetailsPage() {
   async function handleDelete() {
     if (!account) return;
     const confirmation = window.confirm(
-      "This action is irreversible. Are you sure you want to delete this account?",
+      t("accounts.details.deleteConfirm"),
     );
     if (!confirmation) return;
 
     try {
       await api.delete(`/accounts/${accountId}`);
-      setSuccessMessage("Account successfully deleted");
+      setSuccessMessage(t("accounts.details.deleteSuccess"));
       setTimeout(() => {
         navigate("/accounts");
       }, 3000);
@@ -185,7 +189,7 @@ function AccountDetailsPage() {
 
     const normalizedEmail = inviteEmail.trim().toLowerCase();
     if (!normalizedEmail) {
-      setErrorMessage("Please provide an email.");
+      setErrorMessage(t("accounts.details.emailRequired"));
       return;
     }
 
@@ -198,17 +202,17 @@ function AccountDetailsPage() {
       });
       setInviteEmail("");
       setErrorMessage(null);
-      setSuccessMessage("Invite sent successfully.");
+      setSuccessMessage(t("accounts.details.inviteSuccess"));
     } catch (error: unknown) {
       console.error("Failed to send invite", error);
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to send invite.",
+            t("accounts.details.inviteFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -219,7 +223,7 @@ function AccountDetailsPage() {
   async function handleRemoveMember(memberId: string, memberName: string) {
     if (!accountId || !account) return;
     const confirmation = window.confirm(
-      `Remove ${memberName} from this account?`,
+      t("accounts.details.removeMemberConfirm", { name: memberName }),
     );
     if (!confirmation) return;
 
@@ -235,17 +239,17 @@ function AccountDetailsPage() {
           : prev,
       );
       setErrorMessage(null);
-      setSuccessMessage("Member removed.");
+      setSuccessMessage(t("accounts.details.removeMemberSuccess"));
     } catch (error: unknown) {
       console.error("Failed to remove member", error);
       if (axios.isAxiosError(error)) {
         setErrorMessage(
           error.response?.data?.errorMessage ??
             error.response?.data?.message ??
-            "Failed to remove member.",
+            t("accounts.details.removeMemberFailed"),
         );
       } else {
-        setErrorMessage("An unexpected error occurred.");
+        setErrorMessage(t("accounts.details.unexpected"));
       }
       setSuccessMessage(null);
     } finally {
@@ -253,9 +257,9 @@ function AccountDetailsPage() {
     }
   }
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>{t("accounts.details.loading")}</p>;
   if (!account) return null;
-  const locale = navigator.language ?? "pt-PT";
+  const locale = getLocale(i18n.resolvedLanguage);
   const balance = account.transactions.reduce((acc, transaction) => {
     const amount = Number(transaction.amount);
     const safeAmount = Number.isFinite(amount) ? amount : 0;
@@ -288,21 +292,27 @@ function AccountDetailsPage() {
             {account.description && (
               <p className={styles.description}>{account.description}</p>
             )}
-            <p className={styles.currency}>{account.currency}</p>
-            <p className={styles.balance}>Balance: {formattedBalance}</p>
+            <p className={styles.currency}>{getCurrencyLabel(t, account.currency)}</p>
+            <p className={styles.balance}>
+              {t("accounts.details.balance", { amount: formattedBalance })}
+            </p>
             {currentMember && (
-              <p className={styles.myRole}>My role:{currentMember.role}</p>
+              <p className={styles.myRole}>
+                {t("accounts.details.myRole", {
+                  role: getRoleLabel(t, currentMember.role),
+                })}
+              </p>
             )}
             {(canEdit || canDelete) && (
               <div className={styles.accountActions}>
                 {canEdit && (
                   <button className="ui-btn" onClick={startEdit}>
-                    Edit
+                    {t("accounts.details.edit")}
                   </button>
                 )}
                 {canDelete && (
                   <button className="ui-btn" onClick={handleDelete}>
-                    Delete
+                    {t("accounts.details.delete")}
                   </button>
                 )}
               </div>
@@ -316,7 +326,7 @@ function AccountDetailsPage() {
               value={form.name}
               maxLength={20}
               onChange={handleChange}
-              placeholder="Account name"
+              placeholder={t("accounts.details.accountNamePlaceholder")}
             />
             <textarea
               className="ui-control"
@@ -324,7 +334,7 @@ function AccountDetailsPage() {
               maxLength={60}
               value={form.description}
               onChange={handleChange}
-              placeholder="Description"
+              placeholder={t("accounts.details.descriptionPlaceholder")}
             />
 
             <select
@@ -336,7 +346,7 @@ function AccountDetailsPage() {
             >
               {CURRENCIES.map((currency) => (
                 <option key={currency} value={currency}>
-                  {currency}
+                  {getCurrencyLabel(t, currency)}
                 </option>
               ))}
             </select>
@@ -346,14 +356,14 @@ function AccountDetailsPage() {
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                {isSaving ? "Saving..." : "Save"}
+                {isSaving ? t("accounts.details.saving") : t("accounts.details.save")}
               </button>
               <button
                 className="ui-btn"
                 onClick={() => setIsEditing(false)}
                 disabled={isSaving}
               >
-                Cancel
+                {t("accounts.details.cancel")}
               </button>
             </div>
           </>
@@ -362,21 +372,21 @@ function AccountDetailsPage() {
 
       <section className={`${styles.aMembersSection} ui-card`}>
         <div className={styles.sectionHeader}>
-          <h3 className={styles.membersTitle}>Members</h3>
+          <h3 className={styles.membersTitle}>{t("accounts.details.members")}</h3>
           <div className={styles.accountActions}>
             <button
               className="ui-btn"
               type="button"
               onClick={() => navigate(`/accounts/${accountId}/members`)}
             >
-              Manage members
+              {t("accounts.details.manageMembers")}
             </button>
             <button
               className="ui-btn"
               type="button"
               onClick={() => navigate(`/invites?accountId=${accountId}`)}
             >
-              Invites
+              {t("common.invites")}
             </button>
           </div>
         </div>
@@ -385,7 +395,7 @@ function AccountDetailsPage() {
             <input
               className="ui-control"
               type="email"
-              placeholder="Invite by email"
+              placeholder={t("accounts.details.invitePlaceholder")}
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               required
@@ -395,11 +405,11 @@ function AccountDetailsPage() {
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value as AccountRole)}
             >
-              <option value="MEMBER">Member</option>
-              <option value="ADMIN">Admin</option>
+              <option value="MEMBER">{getRoleLabel(t, "MEMBER")}</option>
+              <option value="ADMIN">{getRoleLabel(t, "ADMIN")}</option>
             </select>
             <button className="ui-btn" type="submit" disabled={isInviting}>
-              {isInviting ? "Sending..." : "Invite"}
+              {isInviting ? t("accounts.details.sending") : t("accounts.details.invite")}
             </button>
           </form>
         )}
@@ -407,7 +417,7 @@ function AccountDetailsPage() {
           <article className={styles.memberAvatar} key={member.userId}>
             <img src={member.user.image} alt={member.user.name} />
             <p className={styles.memberName}>{member.user.name}</p>
-            <p className={styles.memberRole}>{member.role}</p>
+            <p className={styles.memberRole}>{getRoleLabel(t, member.role)}</p>
             {canDelete &&
               member.userId !== currentUser?.id &&
               typeof member.id === "string" && (
@@ -418,7 +428,9 @@ function AccountDetailsPage() {
                   }
                   disabled={removingMemberId === member.id}
                 >
-                  {removingMemberId === member.id ? "Removing..." : "Remove"}
+                  {removingMemberId === member.id
+                    ? t("accounts.details.removing")
+                    : t("accounts.details.remove")}
                 </button>
               )}
           </article>
@@ -427,16 +439,16 @@ function AccountDetailsPage() {
 
       <section className={`${styles.transactionsSection} ui-card`}>
         <h3 className={styles.transactionsTitle}>
-          Transactions ({account._count.transactions})
+          {t("common.transactions")} ({account._count.transactions})
         </h3>
         <button
           className="ui-btn"
           onClick={() => navigate(`/accounts/${accountId}/transactions`)}
         >
-          Manage transactions
+          {t("accounts.details.manageTransactions")}
         </button>
         {account.transactions.length === 0 ? (
-          <p>No transactions yet</p>
+          <p>{t("accounts.details.noTransactions")}</p>
         ) : (
           account.transactions.map((transaction) => (
             <TransactionCard
@@ -452,16 +464,16 @@ function AccountDetailsPage() {
 
       <section className={`${styles.savingGoalsSection} ui-card`}>
         <h3 className={styles.savingGoalsTitle}>
-          Saving Goals ({account._count.savingGoals})
+          {t("savingGoals.title")} ({account._count.savingGoals})
         </h3>
         <button
           className="ui-btn"
           onClick={() => navigate(`/accounts/${accountId}/savings`)}
         >
-          Manage saving goals
+          {t("accounts.details.manageSavingGoals")}
         </button>
         {account.savingGoals.length === 0 ? (
-          <p>No saving goals yet</p>
+          <p>{t("accounts.details.noSavingGoals")}</p>
         ) : (
           account.savingGoals.map((goal) => (
             <SavingGoalCard

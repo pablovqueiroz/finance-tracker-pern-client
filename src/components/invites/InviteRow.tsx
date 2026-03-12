@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import type { InviteStatus } from "../../types/invite.types";
+import { getInviteStatusLabel } from "../../utils/displayLabels";
 import styles from "./Invites.module.css";
 
 type InviteMetaItem = {
@@ -29,6 +31,8 @@ function InviteRow({
   meta,
   actions,
 }: InviteRowProps) {
+  const { t } = useTranslation();
+
   return (
     <article className={styles.row}>
       <div className={styles.rowTop}>
@@ -39,7 +43,7 @@ function InviteRow({
 
         {status ? (
           <span className={`${styles.badge} ${getStatusClassName(status)}`}>
-            {status}
+            {getInviteStatusLabel(t, status)}
           </span>
         ) : null}
       </div>

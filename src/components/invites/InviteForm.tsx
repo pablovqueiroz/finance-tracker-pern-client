@@ -1,5 +1,7 @@
 import type { FormEventHandler } from "react";
+import { useTranslation } from "react-i18next";
 import type { AccountRole, AccountSummary } from "../../types/account.types";
+import { getRoleLabel } from "../../utils/displayLabels";
 import styles from "./Invites.module.css";
 
 type InviteFormProps = {
@@ -25,30 +27,28 @@ function InviteForm({
   onAccountChange,
   onSubmit,
 }: InviteFormProps) {
+  const { t } = useTranslation();
+
   if (accounts.length === 0) {
-    return (
-      <p className={styles.emptyState}>
-        Create an account first to start sending invites.
-      </p>
-    );
+    return <p className={styles.emptyState}>{t("invites.createAccountFirst")}</p>;
   }
 
   return (
     <form className={styles.form} onSubmit={onSubmit}>
       <label>
-        Email
+        {t("common.email")}
         <input
           className="ui-control"
           type="email"
           value={email}
           onChange={(event) => onEmailChange(event.target.value)}
-          placeholder="user@email.com"
+          placeholder={t("contact.emailPlaceholder")}
           required
         />
       </label>
 
       <label>
-        Role
+        {t("common.role")}
         <select
           className="ui-control"
           value={role}
@@ -56,13 +56,13 @@ function InviteForm({
             onRoleChange(event.target.value as Extract<AccountRole, "ADMIN" | "MEMBER">)
           }
         >
-          <option value="MEMBER">Member</option>
-          <option value="ADMIN">Admin</option>
+          <option value="MEMBER">{getRoleLabel(t, "MEMBER")}</option>
+          <option value="ADMIN">{getRoleLabel(t, "ADMIN")}</option>
         </select>
       </label>
 
       <label>
-        Account
+        {t("common.account")}
         <select
           className="ui-control"
           value={accountId}
@@ -77,7 +77,7 @@ function InviteForm({
       </label>
 
       <button className="ui-btn" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Sending..." : "Send invite"}
+        {isSubmitting ? t("invites.sending") : t("invites.sendInvite")}
       </button>
     </form>
   );

@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
-import Skeleton from "../components/Skeleton/Skeleton";
-import SkeletonButton from "../components/Skeleton/SkeletonButton";
-import SkeletonCard from "../components/Skeleton/SkeletonCard";
-import SkeletonText from "../components/Skeleton/SkeletonText";
-import InviteForm from "../components/invites/InviteForm";
-import SentInvitesList from "../components/invites/SentInvitesList";
-import ReceivedInvitesList from "../components/invites/ReceivedInvitesList";
-import ExpiredInvitesList from "../components/invites/ExpiredInvitesList";
-import Message from "../components/Message/Message";
-import api from "../services/api";
-import type { AccountRole, AccountSummary } from "../types/account.types";
-import type { AccountInvite } from "../types/invite.types";
+import { useTranslation } from "react-i18next";
+import Skeleton from "../../components/Skeleton/Skeleton";
+import SkeletonButton from "../../components/Skeleton/SkeletonButton";
+import SkeletonCard from "../../components/Skeleton/SkeletonCard";
+import SkeletonText from "../../components/Skeleton/SkeletonText";
+import InviteForm from "../../components/invites/InviteForm";
+import SentInvitesList from "../../components/invites/SentInvitesList";
+import ReceivedInvitesList from "../../components/invites/ReceivedInvitesList";
+import ExpiredInvitesList from "../../components/invites/ExpiredInvitesList";
+import Message from "../../components/Message/Message";
+import api from "../../services/api";
+import type { AccountRole, AccountSummary } from "../../types/account.types";
+import type { AccountInvite } from "../../types/invite.types";
 import styles from "./InvitesPage.module.css";
 
 type InviteFormRole = Extract<AccountRole, "ADMIN" | "MEMBER">;
@@ -30,6 +31,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function InvitesPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [sentInvites, setSentInvites] = useState<AccountInvite[]>([]);
@@ -48,7 +50,7 @@ function InvitesPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  async function loadAccounts() {
+  const loadAccounts = useCallback(async () => {
     try {
       setIsLoadingAccounts(true);
 
@@ -58,7 +60,10 @@ function InvitesPage() {
 
       setAccounts(accountList);
       setSelectedAccountId((currentValue) => {
-        if (currentValue && accountList.some((account) => account.id === currentValue)) {
+        if (
+          currentValue &&
+          accountList.some((account) => account.id === currentValue)
+        ) {
           return currentValue;
         }
 
@@ -73,23 +78,24 @@ function InvitesPage() {
       });
     } catch (error: unknown) {
       console.error("Failed to load accounts", error);
-      setErrorMessage(getErrorMessage(error, "Failed to load accounts."));
+      setErrorMessage(getErrorMessage(error, t("invites.loadAccountsFailed")));
       setAccounts([]);
       setSelectedAccountId("");
     } finally {
       setIsLoadingAccounts(false);
     }
-  }
+  }, [searchParams, t]);
 
-  async function loadInvites() {
+  const loadInvites = useCallback(async () => {
     try {
       setIsLoadingInvites(true);
 
-      const [sentResponse, receivedResponse, expiredResponse] = await Promise.all([
-        api.get<AccountInvite[]>("/invites/sent"),
-        api.get<AccountInvite[]>("/invites/received"),
-        api.get<AccountInvite[]>("/invites/expired"),
-      ]);
+      const [sentResponse, receivedResponse, expiredResponse] =
+        await Promise.all([
+          api.get<AccountInvite[]>("/invites/sent"),
+          api.get<AccountInvite[]>("/invites/received"),
+          api.get<AccountInvite[]>("/invites/expired"),
+        ]);
 
       setSentInvites(Array.isArray(sentResponse.data) ? sentResponse.data : []);
       setReceivedInvites(
@@ -101,18 +107,18 @@ function InvitesPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load invites", error);
-      setErrorMessage(getErrorMessage(error, "Failed to load invites."));
+      setErrorMessage(getErrorMessage(error, t("invites.loadInvitesFailed")));
       setSentInvites([]);
       setReceivedInvites([]);
       setExpiredInvites([]);
     } finally {
       setIsLoadingInvites(false);
     }
-  }
+  }, [t]);
 
   useEffect(() => {
     void Promise.all([loadAccounts(), loadInvites()]);
-  }, []);
+  }, [loadAccounts, loadInvites]);
 
   useEffect(() => {
     const preferredAccountId = searchParams.get("accountId");
@@ -130,7 +136,7 @@ function InvitesPage() {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !selectedAccountId) {
-      setErrorMessage("Email and account are required.");
+      setErrorMessage(t("invites.required"));
       return;
     }
 
@@ -142,12 +148,12 @@ function InvitesPage() {
         role,
       });
       setEmail("");
-      setSuccessMessage("Invite sent successfully.");
+      setSuccessMessage(t("invites.sendSuccess"));
       setErrorMessage(null);
       await loadInvites();
     } catch (error: unknown) {
       console.error("Failed to send invite", error);
-      setErrorMessage(getErrorMessage(error, "Failed to send invite."));
+      setErrorMessage(getErrorMessage(error, t("invites.sendFailed")));
       setSuccessMessage(null);
     } finally {
       setIsSendingInvite(false);
@@ -155,19 +161,19 @@ function InvitesPage() {
   }
 
   async function handleCancelInvite(inviteId: string) {
-    const confirmation = window.confirm("Cancel this invite?");
+    const confirmation = window.confirm(t("invites.cancelConfirm"));
     if (!confirmation) return;
 
     try {
       setActiveInviteId(inviteId);
       setActiveAction("cancel");
       await api.patch(`/invites/${inviteId}/cancel`);
-      setSuccessMessage("Invite cancelled.");
+      setSuccessMessage(t("invites.cancelSuccess"));
       setErrorMessage(null);
       await loadInvites();
     } catch (error: unknown) {
       console.error("Failed to cancel invite", error);
-      setErrorMessage(getErrorMessage(error, "Failed to cancel invite."));
+      setErrorMessage(getErrorMessage(error, t("invites.cancelFailed")));
       setSuccessMessage(null);
     } finally {
       setActiveInviteId(null);
@@ -176,19 +182,19 @@ function InvitesPage() {
   }
 
   async function handleExpireInvite(inviteId: string) {
-    const confirmation = window.confirm("Expire this invite now?");
+    const confirmation = window.confirm(t("invites.expireConfirm"));
     if (!confirmation) return;
 
     try {
       setActiveInviteId(inviteId);
       setActiveAction("expire");
       await api.patch(`/invites/${inviteId}/expire`);
-      setSuccessMessage("Invite expired.");
+      setSuccessMessage(t("invites.expireSuccess"));
       setErrorMessage(null);
       await loadInvites();
     } catch (error: unknown) {
       console.error("Failed to expire invite", error);
-      setErrorMessage(getErrorMessage(error, "Failed to expire invite."));
+      setErrorMessage(getErrorMessage(error, t("invites.expireFailed")));
       setSuccessMessage(null);
     } finally {
       setActiveInviteId(null);
@@ -201,12 +207,12 @@ function InvitesPage() {
       setActiveInviteId(inviteId);
       setActiveAction("accept");
       await api.post(`/invites/${token}/accept`);
-      setSuccessMessage("Invite accepted.");
+      setSuccessMessage(t("invites.acceptSuccess"));
       setErrorMessage(null);
       await Promise.all([loadInvites(), loadAccounts()]);
     } catch (error: unknown) {
       console.error("Failed to accept invite", error);
-      setErrorMessage(getErrorMessage(error, "Failed to accept invite."));
+      setErrorMessage(getErrorMessage(error, t("invites.acceptFailed")));
       setSuccessMessage(null);
     } finally {
       setActiveInviteId(null);
@@ -215,19 +221,19 @@ function InvitesPage() {
   }
 
   async function handleRejectInvite(inviteId: string, token: string) {
-    const confirmation = window.confirm("Reject this invite?");
+    const confirmation = window.confirm(t("invites.rejectConfirm"));
     if (!confirmation) return;
 
     try {
       setActiveInviteId(inviteId);
       setActiveAction("reject");
       await api.post(`/invites/${token}/reject`);
-      setSuccessMessage("Invite rejected.");
+      setSuccessMessage(t("invites.rejectSuccess"));
       setErrorMessage(null);
       await loadInvites();
     } catch (error: unknown) {
       console.error("Failed to reject invite", error);
-      setErrorMessage(getErrorMessage(error, "Failed to reject invite."));
+      setErrorMessage(getErrorMessage(error, t("invites.rejectFailed")));
       setSuccessMessage(null);
     } finally {
       setActiveInviteId(null);
@@ -235,7 +241,9 @@ function InvitesPage() {
     }
   }
 
-  const visibleSentInvites = sentInvites.filter((invite) => invite.status !== "EXPIRED");
+  const visibleSentInvites = sentInvites.filter(
+    (invite) => invite.status !== "EXPIRED",
+  );
 
   if (isLoadingAccounts && isLoadingInvites) {
     return (
@@ -290,17 +298,13 @@ function InvitesPage() {
       />
 
       <section className={`${styles.header} ui-card`}>
-        <h2 className={styles.title}>Invites</h2>
-        <p className={styles.subtitle}>
-          Send account invitations and manage sent or received requests.
-        </p>
+        <h2 className={styles.title}>{t("invites.title")}</h2>
+        <p className={styles.subtitle}>{t("invites.subtitle")}</p>
       </section>
 
       <section className={`${styles.section} ${styles.fullWidth} ui-card`}>
-        <h3 className={styles.sectionTitle}>Send invite</h3>
-        <p className={styles.sectionSubtitle}>
-          Choose an account, role and email to invite a new member.
-        </p>
+        <h3 className={styles.sectionTitle}>{t("invites.sendTitle")}</h3>
+        <p className={styles.sectionSubtitle}>{t("invites.sendSubtitle")}</p>
 
         {isLoadingAccounts ? (
           <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
@@ -326,10 +330,8 @@ function InvitesPage() {
 
       <div className={styles.grid}>
         <section className={`${styles.section} ui-card`}>
-          <h3 className={styles.sectionTitle}>Your sent invites</h3>
-          <p className={styles.sectionSubtitle}>
-            Review outgoing invitations and manage pending ones.
-          </p>
+          <h3 className={styles.sectionTitle}>{t("invites.sentTitle")}</h3>
+          <p className={styles.sectionSubtitle}>{t("invites.sentSubtitle")}</p>
 
           {isLoadingInvites ? (
             <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
@@ -348,9 +350,9 @@ function InvitesPage() {
         </section>
 
         <section className={`${styles.section} ui-card`}>
-          <h3 className={styles.sectionTitle}>Received invites</h3>
+          <h3 className={styles.sectionTitle}>{t("invites.receivedTitle")}</h3>
           <p className={styles.sectionSubtitle}>
-            Accept or reject invitations sent to your account email.
+            {t("invites.receivedSubtitle")}
           </p>
 
           {isLoadingInvites ? (
@@ -370,9 +372,9 @@ function InvitesPage() {
         </section>
 
         <section className={`${styles.section} ${styles.fullWidth} ui-card`}>
-          <h3 className={styles.sectionTitle}>Expired invites</h3>
+          <h3 className={styles.sectionTitle}>{t("invites.expiredTitle")}</h3>
           <p className={styles.sectionSubtitle}>
-            Invitations that expired before they were accepted.
+            {t("invites.expiredSubtitle")}
           </p>
 
           {isLoadingInvites ? (

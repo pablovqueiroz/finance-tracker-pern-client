@@ -1,4 +1,6 @@
 import type { AccountRole } from "../../types/account.types";
+import { useTranslation } from "react-i18next";
+import { getRoleLabel } from "../../utils/displayLabels";
 import styles from "./Members.module.css";
 
 type RoleSelectorProps = {
@@ -14,6 +16,8 @@ function RoleSelector({
   disabled = false,
   onChange,
 }: RoleSelectorProps) {
+  const { t } = useTranslation();
+
   return (
     <select
       className={`ui-control ${styles.roleSelect}`}
@@ -23,7 +27,7 @@ function RoleSelector({
     >
       {ROLE_OPTIONS.map((role) => (
         <option key={role} value={role}>
-          {role}
+          {getRoleLabel(t, role)}
         </option>
       ))}
     </select>

@@ -1,18 +1,27 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
-import Skeleton from "../components/Skeleton/Skeleton";
-import SkeletonButton from "../components/Skeleton/SkeletonButton";
-import SkeletonCard from "../components/Skeleton/SkeletonCard";
-import SkeletonText from "../components/Skeleton/SkeletonText";
-import MemberList from "../components/members/MemberList";
-import Message from "../components/Message/Message";
-import { useAuth } from "../hooks/useAuth";
-import api from "../services/api";
-import type { AccountDetail, AccountMember, AccountRole } from "../types/account.types";
+import { useTranslation } from "react-i18next";
+import Skeleton from "../../components/Skeleton/Skeleton";
+import SkeletonButton from "../../components/Skeleton/SkeletonButton";
+import SkeletonCard from "../../components/Skeleton/SkeletonCard";
+import SkeletonText from "../../components/Skeleton/SkeletonText";
+import MemberList from "../../components/members/MemberList";
+import Message from "../../components/Message/Message";
+import { useAuth } from "../../hooks/useAuth";
+import api from "../../services/api";
+import type {
+  AccountDetail,
+  AccountMember,
+  AccountRole,
+} from "../../types/account.types";
+import { getCurrencyLabel, getRoleLabel } from "../../utils/displayLabels";
 import styles from "./AccountMembersPage.module.css";
 
-type AccountInfo = Omit<AccountDetail, "transactions" | "savingGoals" | "_count">;
+type AccountInfo = Omit<
+  AccountDetail,
+  "transactions" | "savingGoals" | "_count"
+>;
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (axios.isAxiosError(error)) {
@@ -27,6 +36,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function AccountMembersPage() {
+  const { t } = useTranslation();
   const { accountId } = useParams<{ accountId: string }>();
   const { currentUser } = useAuth();
   const [account, setAccount] = useState<AccountInfo | null>(null);
@@ -49,11 +59,13 @@ function AccountMembersPage() {
       ]);
 
       setAccount(accountResponse.data);
-      setMembers(Array.isArray(membersResponse.data) ? membersResponse.data : []);
+      setMembers(
+        Array.isArray(membersResponse.data) ? membersResponse.data : [],
+      );
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load account members", error);
-      setErrorMessage(getErrorMessage(error, "Failed to load account members."));
+      setErrorMessage(getErrorMessage(error, t("members.loadFailed")));
       setAccount(null);
       setMembers([]);
     } finally {
@@ -65,7 +77,9 @@ function AccountMembersPage() {
     void loadPageData();
   }, [accountId]);
 
-  const currentMember = members.find((member) => member.userId === currentUser?.id);
+  const currentMember = members.find(
+    (member) => member.userId === currentUser?.id,
+  );
   const canManageRoles = currentMember?.role === "OWNER";
   const canRemoveMembers = currentMember?.role === "OWNER";
 
@@ -78,12 +92,12 @@ function AccountMembersPage() {
     try {
       setUpdatingMemberId(memberId);
       await api.patch(`/accounts/${accountId}/members/${memberId}`, { role });
-      setSuccessMessage("Member role updated.");
+      setSuccessMessage(t("members.updateSuccess"));
       setErrorMessage(null);
       await loadPageData();
     } catch (error: unknown) {
       console.error("Failed to update member role", error);
-      setErrorMessage(getErrorMessage(error, "Failed to update member role."));
+      setErrorMessage(getErrorMessage(error, t("members.updateFailed")));
       setSuccessMessage(null);
     } finally {
       setUpdatingMemberId(null);
@@ -94,7 +108,7 @@ function AccountMembersPage() {
     if (!accountId || !memberId) return;
 
     const confirmation = window.confirm(
-      `Are you sure you want to remove ${memberName} from this account?`,
+      t("members.removeConfirm", { name: memberName }),
     );
 
     if (!confirmation) return;
@@ -102,12 +116,12 @@ function AccountMembersPage() {
     try {
       setRemovingMemberId(memberId);
       await api.delete(`/accounts/${accountId}/members/${memberId}`);
-      setSuccessMessage("Member removed.");
+      setSuccessMessage(t("members.removeSuccess"));
       setErrorMessage(null);
       await loadPageData();
     } catch (error: unknown) {
       console.error("Failed to remove member", error);
-      setErrorMessage(getErrorMessage(error, "Failed to remove member."));
+      setErrorMessage(getErrorMessage(error, t("members.removeFailed")));
       setSuccessMessage(null);
     } finally {
       setRemovingMemberId(null);
@@ -155,10 +169,10 @@ function AccountMembersPage() {
     return (
       <div className={styles.pageContainer}>
         <section className="ui-card">
-          <h2 className={styles.title}>Members</h2>
-          <p className={styles.sectionSubtitle}>Account not found.</p>
+          <h2 className={styles.title}>{t("members.title")}</h2>
+          <p className={styles.sectionSubtitle}>{t("members.notFound")}</p>
           <Link className="ui-btn" to="/accounts">
-            Back to accounts
+            {t("common.backToAccounts")}
           </Link>
         </section>
       </div>
@@ -183,35 +197,39 @@ function AccountMembersPage() {
       <section className={`${styles.header} ui-card`}>
         <div className={styles.headerTop}>
           <div>
-            <h2 className={styles.title}>Members</h2>
+            <h2 className={styles.title}>{t("members.title")}</h2>
             <p className={styles.subtitle}>
-              Manage roles and membership for {account.name}.
+              {t("members.subtitle", { account: account.name })}
             </p>
           </div>
 
           <div className={styles.headerActions}>
             <Link className="ui-btn" to={`/accounts/${accountId}`}>
-              Back to account
+              {t("common.backToAccount")}
             </Link>
             <Link className="ui-btn" to={`/invites?accountId=${accountId}`}>
-              Open invites
+              {t("members.openInvites")}
             </Link>
           </div>
         </div>
 
         <div className={styles.infoRow}>
-          <span className={styles.badge}>{account.currency}</span>
+          <span className={styles.badge}>
+            {getCurrencyLabel(t, account.currency)}
+          </span>
           {currentMember ? (
-            <span className={styles.badge}>My role: {currentMember.role}</span>
+            <span className={styles.badge}>
+              {t("members.myRole", {
+                role: getRoleLabel(t, currentMember.role),
+              })}
+            </span>
           ) : null}
         </div>
       </section>
 
       <section className={`${styles.section} ui-card`}>
-        <h3 className={styles.sectionTitle}>Account members</h3>
-        <p className={styles.sectionSubtitle}>
-          Owners can update roles and remove members.
-        </p>
+        <h3 className={styles.sectionTitle}>{t("members.sectionTitle")}</h3>
+        <p className={styles.sectionSubtitle}>{t("members.sectionSubtitle")}</p>
 
         <MemberList
           members={members}

@@ -64,14 +64,7 @@ function NavBar() {
         >
           {t("nav.accounts")}
         </NavLink>
-        <NavLink
-          to="/create-account"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.newAccount")}
-        </NavLink>
+
         <NavLink
           to="/savings"
           className={({ isActive }) =>
@@ -79,6 +72,23 @@ function NavBar() {
           }
         >
           {t("nav.savings")}
+        </NavLink>
+        <NavLink
+          to="/reports"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          {t("nav.reports")}
+        </NavLink>
+
+        <NavLink
+          to="/create-account"
+          className={({ isActive }) =>
+            `${styles.link} ${isActive ? styles.active : ""}`
+          }
+        >
+          {t("nav.newAccount")}
         </NavLink>
         <NavLink
           to="/invites"

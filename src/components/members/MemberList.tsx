@@ -1,4 +1,5 @@
 import type { AccountMember, AccountRole } from "../../types/account.types";
+import { useTranslation } from "react-i18next";
 import MemberRow from "./MemberRow";
 import styles from "./Members.module.css";
 
@@ -23,16 +24,18 @@ function MemberList({
   onRoleChange,
   onRemove,
 }: MemberListProps) {
+  const { t } = useTranslation();
+
   if (members.length === 0) {
-    return <p className={styles.emptyState}>No members found for this account.</p>;
+    return <p className={styles.emptyState}>{t("members.empty")}</p>;
   }
 
   return (
     <div className={styles.list}>
       <div className={styles.header}>
-        <span>Member</span>
-        <span>Role</span>
-        <span>Actions</span>
+        <span>{t("members.table.member")}</span>
+        <span>{t("members.table.role")}</span>
+        <span>{t("members.table.actions")}</span>
       </div>
 
       {members.map((member) => (
