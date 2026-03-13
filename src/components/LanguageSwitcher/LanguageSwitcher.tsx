@@ -6,6 +6,7 @@ import styles from "./LanguageSwitcher.module.css";
 type LanguageSwitcherProps = {
   className?: string;
   showLabel?: boolean;
+  inlineMenu?: boolean;
 };
 
 const LANGUAGE_OPTIONS = [
@@ -21,6 +22,7 @@ const LANGUAGE_OPTIONS = [
 function LanguageSwitcher({
   className = "",
   showLabel = false,
+  inlineMenu = false,
 }: LanguageSwitcherProps) {
   const { i18n, t } = useTranslation();
   const currentLanguage = (i18n.resolvedLanguage ?? "en").slice(0, 2);
@@ -67,11 +69,13 @@ function LanguageSwitcher({
           <HiLanguage className={styles.icon} aria-hidden="true" />
           <span className={styles.currentLabel}>{t(currentOption.shortKey)}</span>
         </span>
-        <span className={styles.currentName}>{t(currentOption.labelKey)}</span>
       </button>
 
       {isOpen ? (
-        <div className={`${styles.menu} language-switcher__menu`} role="menu">
+        <div
+          className={`${styles.menu} ${inlineMenu ? styles.menuInline : ""} language-switcher__menu`.trim()}
+          role="menu"
+        >
           {orderedOptions.map((option) => {
             const isActive = currentLanguage === option.code;
 
@@ -82,14 +86,14 @@ function LanguageSwitcher({
                 type="button"
                 role="menuitemradio"
                 aria-checked={isActive}
+                aria-label={t(option.labelKey)}
                 onClick={() => {
                   setIsOpen(false);
                   void i18n.changeLanguage(option.code);
                 }}
               >
                 <span className={styles.optionText}>
-                  <span className={styles.optionLabel}>{t(option.labelKey)}</span>
-                  <span className={styles.optionHint}>{t(option.shortKey)}</span>
+                  <span className={styles.optionLabel}>{t(option.shortKey)}</span>
                 </span>
                 {isActive ? (
                   <span className={styles.optionState} aria-hidden="true" />

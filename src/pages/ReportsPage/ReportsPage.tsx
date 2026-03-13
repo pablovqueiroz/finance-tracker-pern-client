@@ -240,6 +240,7 @@ function ReportsPage() {
   const [incomeCategories, setIncomeCategories] = useState<CategoryTotal[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoalReport[]>([]);
   const [selectedSavingsGoalId, setSelectedSavingsGoalId] = useState("");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [balanceHistory, setBalanceHistory] = useState<BalanceHistoryPoint[]>(
     [],
   );
@@ -303,8 +304,35 @@ function ReportsPage() {
       100,
     );
   }, [selectedSavingsGoal]);
+  const selectedSavingsGoalHue = useMemo(
+    () => Math.round((selectedSavingsGoalProgress / 100) * 120),
+    [selectedSavingsGoalProgress],
+  );
 
   const currencyNumberFormat = `"${reportCurrency}" #,##0.00`;
+  const formatDateTime = (value: string | Date | null | undefined) => {
+    if (!value) return "-";
+
+    const parsedValue = new Date(value);
+    if (Number.isNaN(parsedValue.getTime())) return "-";
+
+    return new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(parsedValue);
+  };
+  const getTransactionCreatorName = (transaction: Transaction) => {
+    if (typeof transaction.createdBy === "string") return transaction.createdBy;
+    if (transaction.createdBy?.name) return transaction.createdBy.name;
+    return "-";
+  };
+  const getTransactionUpdaterName = (transaction: Transaction) => {
+    if (transaction.updatedBy?.name) return transaction.updatedBy.name;
+    return transaction.updatedById ? t("reportsPage.unknownEditor") : "-";
+  };
 
   useEffect(() => {
     async function fetchAccounts() {
@@ -373,6 +401,7 @@ function ReportsPage() {
         });
         setExpenseCategories(normalizeCategoryTotals(expenseCategoriesData));
         setIncomeCategories(buildIncomeCategories(accountTransactions));
+        setTransactions(accountTransactions);
         setSavingsGoals(
           Array.isArray(savingsGoalsResponse.data)
             ? buildSavingsGoalReports(
@@ -398,6 +427,7 @@ function ReportsPage() {
         setExpenseCategories([]);
         setIncomeCategories([]);
         setSavingsGoals([]);
+        setTransactions([]);
         setBalanceHistory([]);
       } finally {
         setIsLoadingCharts(false);
@@ -409,6 +439,7 @@ function ReportsPage() {
       setExpenseCategories([]);
       setIncomeCategories([]);
       setSavingsGoals([]);
+      setTransactions([]);
       setBalanceHistory([]);
       return;
     }
@@ -629,6 +660,34 @@ function ReportsPage() {
         })),
       ),
       currencyColumns: ["deposits", "withdrawals", "cumulative"],
+    });
+
+    addTableSheet({
+      name: t("reportsPage.transactionsSheet"),
+      title: t("reportsPage.transactionsSheet"),
+      columns: [
+        { header: t("common.title"), key: "title", width: 28 },
+        { header: t("transactionsPage.amount"), key: "amount", width: 18 },
+        { header: t("transactionsPage.type"), key: "type", width: 18 },
+        { header: t("transactionsPage.category"), key: "category", width: 28 },
+        { header: t("reportsPage.transactionDate"), key: "date", width: 22 },
+        { header: t("reportsPage.createdBy"), key: "createdBy", width: 22 },
+        { header: t("reportsPage.editedAt"), key: "updatedAt", width: 22 },
+        { header: t("reportsPage.editedBy"), key: "updatedBy", width: 22 },
+        { header: t("transactionsPage.notes"), key: "notes", width: 30 },
+      ],
+      rows: transactions.map((transaction) => ({
+        title: transaction.title,
+        amount: toNumber(transaction.amount),
+        type: transaction.type,
+        category: getCategoryLabel(t, transaction.category),
+        date: formatDateTime(transaction.date),
+        createdBy: getTransactionCreatorName(transaction),
+        updatedAt: formatDateTime(transaction.updatedAt),
+        updatedBy: getTransactionUpdaterName(transaction),
+        notes: transaction.notes ?? "-",
+      })),
+      currencyColumns: ["amount"],
     });
 
     addTableSheet({
@@ -896,17 +955,38 @@ function ReportsPage() {
             </label>
           ) : null}
           {selectedSavingsGoal ? (
-            <article className={styles.goalProgress}>
-              <div className={styles.goalProgressBar}>
-                <div
-                  className={styles.goalProgressFill}
-                  style={{ width: `${selectedSavingsGoalProgress}%` }}
-                />
+            <article
+              className={styles.goalProgress}
+              style={
+                {
+                  "--goal-progress-color": `hsl(${selectedSavingsGoalHue} 76% 42%)`,
+                } as React.CSSProperties
+              }
+            >
+              <div className={styles.goalProgressHeader}>
+                <strong className={styles.goalProgressValue}>
+                  {selectedSavingsGoalProgress.toFixed(0)}%
+                </strong>
+                <span className={styles.goalProgressLabel}>
+                  {selectedSavingsGoal.name}
+                </span>
               </div>
-              <small>{selectedSavingsGoalProgress.toFixed(0)}%</small>
+              <div className={styles.goalProgressTrack}>
+                <div className={styles.goalProgressBar}>
+                  <div
+                    className={styles.goalProgressFill}
+                    style={{ width: `${selectedSavingsGoalProgress}%` }}
+                  />
+                </div>
+                <small className={styles.goalProgressAmounts}>
+                  {formatCurrency(selectedSavingsGoal.currentAmount)}
+                  {" / "}
+                  {formatCurrency(selectedSavingsGoal.targetAmount)}
+                </small>
+              </div>
             </article>
           ) : null}
-          <div className={styles.chartWrap}>
+          <div className={`${styles.chartWrap} ${styles.goalChartWrap}`}>
             {isLoadingCharts ? (
               <Skeleton height="100%" style={{ minHeight: 280 }} />
             ) : savingsGoals.length === 0 ? (

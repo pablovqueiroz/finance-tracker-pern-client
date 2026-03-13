@@ -11,6 +11,7 @@
     "update": "Actualizar",
     "backToAccount": "Volver a la cuenta",
     "backToAccounts": "Volver a las cuentas",
+    "backHome": "Volver al inicio",
     "createAccount": "Crear cuenta",
     "account": "Cuenta",
     "accounts": "Cuentas",
@@ -40,6 +41,7 @@
     "noEmail": "Sin correo",
     "showPassword": "Mostrar contrasena",
     "hidePassword": "Ocultar contrasena",
+    "continueWithGoogle": "Continuar con Google",
     "accountNotFound": "Cuenta no encontrada."
   },
   "language": {
@@ -136,6 +138,7 @@
   "nav": {
     "dashboard": "Panel",
     "accounts": "Cuentas",
+    "transactions": "Transacciones",
     "newAccount": "Nueva cuenta",
     "savings": "Ahorros",
     "reports": "Reportes",
@@ -255,6 +258,9 @@
     "dangerCopy": "Esta accion es irreversible. Tu cuenta y todos los datos relacionados se eliminaran permanentemente."
   },
   "dashboard": {
+    "emptyTitle": "Crear una nueva cuenta",
+    "emptyDescription": "Todavia no tienes cuentas. Crea una para empezar a seguir tus finanzas.",
+    "createAccount": "Crear cuenta",
     "loadingAccounts": "Cargando cuentas...",
     "loadingTransactions": "Cargando transacciones..."
   },
@@ -265,7 +271,10 @@
     "next": "Siguiente",
     "updated": "Actualizado: {{date}}",
     "transactions": "Transacciones: {{count}}",
-    "selectAccount": "Seleccionar cuenta {{index}}"
+    "selectAccount": "Seleccionar cuenta {{index}}",
+    "openDetails": "Abrir detalles de la cuenta {{name}}",
+    "seeMembers": "Ver miembros",
+    "editMember": "Editar miembro {{name}}"
   },
   "accountCard": {
     "balance": "Saldo: {{amount}}",
@@ -356,6 +365,7 @@
     "viewCodes": "Ver codigos",
     "categoryCodesHint": "Pasa el cursor o toca para ver los codigos de categoria.",
     "fillSample": "Rellenar lineas de ejemplo",
+    "bulkDownloadTemplate": "Download template",
     "createBulkSubmit": "Crear en bloque",
     "noTransactions": "Todavia no hay transacciones registradas.",
     "noFilteredTransactions": "Ninguna transaccion coincide con los filtros actuales.",
@@ -371,13 +381,21 @@
     "bulkGuideTitle": "Como completar transacciones en bloque",
     "bulkGuideFormat": "Usa una linea por transaccion con este orden:",
     "bulkGuideHint": "Pasa el cursor por las etiquetas o tocalas en movil para ver las opciones aceptadas.",
+    "bulkTemplateTitle": "Plantilla de transacciones en bloque",
+    "bulkTemplateIntro": "Copia y pega las lineas de ejemplo de abajo en el campo de bloque. Mantén el orden de los campos exactamente como se muestra.",
+    "bulkTemplateEnumsHint": "Las explicaciones se muestran en tu idioma, pero los valores de type y category deben usar los codigos aceptados por el backend.",
+    "bulkTemplateOptionalFields": "Campos opcionales",
+    "bulkTemplateDecimalHint": "Formato del importe",
+    "bulkTemplateIncomeCategories": "Categorias de ingreso",
+    "bulkTemplateExpenseCategories": "Categorias de gasto",
+    "bulkTemplateReadyExamples": "Ejemplos listos para pegar",
     "bulkRequiredFields": "Campos obligatorios",
     "bulkRequiredValues": "title, amount, type, category",
     "bulkTypeOptions": "Opciones de tipo",
     "bulkDateFormat": "Formato de fecha",
     "bulkDateExample": "Usa YYYY-MM-DD\nEjemplo: 2026-03-06",
     "bulkCategoryOptions": "Opciones de categoria",
-    "example": "Salario,1500,Ingreso,Salario,2026-03-01,Salario mensual\nSupermercado,120.50,Gasto,Supermercado,2026-03-02,Compra semanal",
+    "example": "Salario,1500,INCOME,SALARY,2026-03-01,Salario mensual\nSupermercado,120.50,EXPENSE,GROCERIES,2026-03-02,Compra semanal",
     "bulkLineRequired": "Linea {{row}}: usa el formato \"title,amount,type,category,date,notes\".",
     "bulkAmountInvalid": "Linea {{row}}: el importe debe ser mayor que cero.",
     "bulkTypeInvalid": "Linea {{row}}: el tipo debe ser Ingreso o Gasto.",
@@ -458,7 +476,13 @@
     "incomeByCategorySheet": "Ingresos por Categoria",
     "savingGoalsSheet": "Objetivos de Ahorro",
     "savingGoalMovementsSheet": "Movimientos de Objetivos",
+    "transactionsSheet": "Transacciones",
     "balanceHistorySheet": "Historial de Saldo",
+    "transactionDate": "Fecha de la transaccion",
+    "createdBy": "Creado por",
+    "editedAt": "Editado en",
+    "editedBy": "Editado por",
+    "unknownEditor": "Editor desconocido",
     "totalIncome": "Total de ingresos",
     "totalExpenses": "Total de gastos",
     "netBalance": "Saldo neto",
@@ -575,7 +599,7 @@
   "roles": {
     "OWNER": "Propietario",
     "ADMIN": "Administrador",
-    "MEMBER": "Miembro"
+    "MEMBER": "Viewer"
   },
   "currencies": {
     "EUR": "Euro (EUR)",

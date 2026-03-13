@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { FaWindowClose } from "react-icons/fa";
+import { IoCloudDownloadOutline } from "react-icons/io5";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -24,93 +26,13 @@ import {
   getCurrencyLabel,
   getTransactionTypeLabel,
 } from "../../utils/displayLabels";
-
-const INCOME_CATEGORIES: Category[] = [
-  "SALARY",
-  "BONUS",
-  "FREELANCE",
-  "BUSINESS_REVENUE",
-  "RENTAL_INCOME",
-  "DIVIDENDS",
-  "INTEREST",
-  "REFUNDS",
-  "GIFTS_RECEIVED",
-  "OTHERS",
-];
-
-const EXPENSE_CATEGORIES: Category[] = [
-  "HOUSING",
-  "ELECTRICITY",
-  "WATER",
-  "GAS",
-  "HOME_INTERNET",
-  "MOBILE_PHONE",
-  "GROCERIES",
-  "RESTAURANTS_DELIVERY",
-  "TRANSPORT_FUEL",
-  "HEALTH_PHARMACY",
-  "LEISURE_HOBBIES",
-  "SUBSCRIPTIONS_STREAMING",
-  "SHOPPING",
-  "EDUCATION",
-  "PERSONAL_CARE",
-  "INVESTMENTS",
-  "DEBT_INSTALLMENTS",
-  "OTHERS",
-];
-
-const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES] as const;
-
-const CATEGORY_LABELS: Record<Category, string> = {
-  SALARY: "Salary",
-  BONUS: "Bonus",
-  FREELANCE: "Freelance",
-  BUSINESS_REVENUE: "Business Revenue",
-  RENTAL_INCOME: "Rental Income",
-  DIVIDENDS: "Dividends",
-  INTEREST: "Interest",
-  REFUNDS: "Refunds",
-  GIFTS_RECEIVED: "Gifts Received",
-  HOUSING: "Housing",
-  ELECTRICITY: "Electricity",
-  WATER: "Water",
-  GAS: "Gas",
-  HOME_INTERNET: "Home Internet",
-  MOBILE_PHONE: "Mobile Phone",
-  GROCERIES: "Groceries",
-  RESTAURANTS_DELIVERY: "Restaurants and Delivery",
-  TRANSPORT_FUEL: "Transport and Fuel",
-  HEALTH_PHARMACY: "Health and Pharmacy",
-  LEISURE_HOBBIES: "Leisure and Hobbies",
-  SUBSCRIPTIONS_STREAMING: "Subscriptions and Streaming",
-  SHOPPING: "Shopping",
-  EDUCATION: "Education",
-  PERSONAL_CARE: "Personal Care",
-  INVESTMENTS: "Investments",
-  DEBT_INSTALLMENTS: "Debt Installments",
-  OTHERS: "Others",
-};
-
-const BULK_TYPE_ALIASES: Record<string, TransactionType> = {
-  income: "INCOME",
-  receita: "INCOME",
-  entry: "INCOME",
-  expense: "EXPENSE",
-  despesa: "EXPENSE",
-  outflow: "EXPENSE",
-};
-
-const BULK_CATEGORY_ALIASES: Record<string, Category> = Object.entries(
-  CATEGORY_LABELS,
-).reduce(
-  (accumulator, [key, label]) => {
-    const category = key as Category;
-    accumulator[category.toLowerCase()] = category;
-    accumulator[label.toLowerCase()] = category;
-    return accumulator;
-  },
-  {} as Record<string, Category>,
-);
+import {
+  ALL_CATEGORIES,
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+  normalizeCategoryInput,
+  normalizeTransactionTypeInput,
+} from "../../utils/transactionInput";
 
 type TransactionForm = {
   title: string;
@@ -223,6 +145,21 @@ function CreateTransactionPage() {
       (member) => member.userId === transaction.updatedById,
     )?.user.name;
   };
+  const isModalBusy = isSubmitting || isBulkSubmitting;
+  const modalTitle = editingId
+    ? t("transactionsPage.editTransaction")
+    : isBulkMode
+      ? t("transactionsPage.newTransactionsBulk")
+      : t("transactionsPage.newTransaction");
+  const bulkTypeMappings = (["INCOME", "EXPENSE"] as const)
+    .map((type) => `${getTransactionTypeLabel(t, type)} -> ${type}`)
+    .join("\n");
+  const incomeCategoryMappings = INCOME_CATEGORIES.map(
+    (category) => `${getCategoryLabel(t, category)} -> ${category}`,
+  ).join("\n");
+  const expenseCategoryMappings = EXPENSE_CATEGORIES.map(
+    (category) => `${getCategoryLabel(t, category)} -> ${category}`,
+  ).join("\n");
 
   async function loadData() {
     if (!accountId) return;
@@ -298,6 +235,25 @@ function CreateTransactionPage() {
     });
   }, [editingId, transactions]);
 
+  useEffect(() => {
+    if (!isFormOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isModalBusy) {
+        clearForm();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFormOpen, isModalBusy, searchParams]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -363,13 +319,11 @@ function CreateTransactionPage() {
       const notesValue = notesRaw.join(",").trim();
       const title = titleRaw?.trim();
       const amount = Number(amountRaw?.trim());
-      const typeToken = typeRaw?.trim().toLowerCase();
-      const categoryToken = categoryRaw?.trim().toLowerCase();
       const type =
-        BULK_TYPE_ALIASES[typeToken] ??
+        normalizeTransactionTypeInput(typeRaw?.trim() ?? "", t) ??
         (typeRaw?.trim().toUpperCase() as TransactionType);
       const category =
-        BULK_CATEGORY_ALIASES[categoryToken] ??
+        normalizeCategoryInput(categoryRaw?.trim() ?? "", t) ??
         (categoryRaw?.trim().toUpperCase() as Category);
       const date = dateRaw.trim();
 
@@ -422,6 +376,47 @@ function CreateTransactionPage() {
         ...(notesValue && { notes: notesValue }),
       };
     });
+  };
+
+  const handleDownloadBulkTemplate = () => {
+    const templateSections = [
+      t("transactionsPage.bulkTemplateTitle"),
+      "",
+      t("transactionsPage.bulkTemplateIntro"),
+      t("transactionsPage.bulkTemplateEnumsHint"),
+      "",
+      `${t("transactionsPage.bulkGuideFormat")} title,amount,type,category,date,notes`,
+      `${t("transactionsPage.bulkRequiredFields")}: ${t("transactionsPage.bulkRequiredValues")}`,
+      `${t("transactionsPage.bulkTemplateOptionalFields")}: date, notes`,
+      `${t("transactionsPage.bulkDateFormat")}: YYYY-MM-DD`,
+      `${t("transactionsPage.bulkTemplateDecimalHint")}: 1500 or 120.50`,
+      "",
+      `${t("transactionsPage.bulkTypeOptions")}:`,
+      bulkTypeMappings,
+      "",
+      `${t("transactionsPage.bulkTemplateIncomeCategories")}:`,
+      incomeCategoryMappings,
+      "",
+      `${t("transactionsPage.bulkTemplateExpenseCategories")}:`,
+      expenseCategoryMappings,
+      "",
+      `${t("transactionsPage.bulkTemplateReadyExamples")}:`,
+      bulkExample,
+    ];
+
+    const blob = new Blob([templateSections.join("\n")], {
+      type: "text/plain;charset=utf-8",
+    });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const languageCode = (i18n.resolvedLanguage ?? "en").slice(0, 2);
+
+    link.href = objectUrl;
+    link.download = `transactions-bulk-template-${languageCode}.txt`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -661,286 +656,308 @@ function CreateTransactionPage() {
         </div>
 
         {isFormOpen && (
-          <section className={styles.formSection}>
-            <h3>
-              {editingId
-                ? t("transactionsPage.editTransaction")
-                : isBulkMode
-                  ? t("transactionsPage.newTransactionsBulk")
-                  : t("transactionsPage.newTransaction")}
-            </h3>
-            {!editingId && (
-              <div className={styles.modeSwitch}>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => {
+              if (!isModalBusy) {
+                clearForm();
+              }
+            }}
+            role="presentation"
+          >
+            <section
+              className={styles.formSection}
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label={modalTitle}
+            >
+              <div className={styles.modalHeader}>
+                <h3>{modalTitle}</h3>
                 <button
-                  className={`${!isBulkMode ? "ui-btn" : `${styles.secondaryBtn} ui-btn`}`}
+                  className={styles.modalClose}
                   type="button"
-                  onClick={() => setIsBulkMode(false)}
+                  onClick={clearForm}
+                  disabled={isModalBusy}
+                  aria-label={t("common.close")}
                 >
-                  {t("transactionsPage.single")}
-                </button>
-                <button
-                  className={`${isBulkMode ? "ui-btn" : `${styles.secondaryBtn} ui-btn`}`}
-                  type="button"
-                  onClick={() => setIsBulkMode(true)}
-                >
-                  {t("transactionsPage.bulk")}
+                  <FaWindowClose aria-hidden="true" />
                 </button>
               </div>
-            )}
-            {!isBulkMode ? (
-              <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="title">
-                  {t("transactionsPage.title")}
-                  <input
-                    className="ui-control"
-                    id="title"
-                    name="title"
-                    value={form.title}
-                    onChange={handleChange}
-                  />
-                </label>
-
-                <label htmlFor="amount">
-                  {t("transactionsPage.amount")}
-                  <input
-                    className="ui-control"
-                    id="amount"
-                    name="amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={form.amount}
-                    onChange={handleChange}
-                    required
-                  />
-                </label>
-
-                <label htmlFor="type">
-                  {t("transactionsPage.type")}
-                  <select
-                    className="ui-control"
-                    id="type"
-                    name="type"
-                    value={form.type}
-                    onChange={handleChange}
+              {!editingId && (
+                <div className={styles.modeSwitch}>
+                  <button
+                    className={`${!isBulkMode ? "ui-btn" : `${styles.secondaryBtn} ui-btn`}`}
+                    type="button"
+                    onClick={() => setIsBulkMode(false)}
                   >
-                    <option value="EXPENSE">
-                      {getTransactionTypeLabel(t, "EXPENSE")}
-                    </option>
-                    <option value="INCOME">
-                      {getTransactionTypeLabel(t, "INCOME")}
-                    </option>
-                  </select>
-                  <span className={styles.enumAssist}>
-                    <span className={styles.enumAssistText}>
-                      {t("transactionsPage.typeFriendlyLabels")}
-                    </span>
-                    <span className={styles.tooltipWrap}>
-                      <button
-                        className={styles.tooltipTrigger}
-                        type="button"
-                        aria-label={t("transactionsPage.viewCodes")}
-                      >
-                        {t("transactionsPage.viewCodes")}
-                      </button>
-                      <span className={styles.tooltipBox} role="tooltip">
-                        {getTransactionTypeLabel(t, "INCOME")}
-                        {"\n"}
-                        {getTransactionTypeLabel(t, "EXPENSE")}
-                      </span>
-                    </span>
-                  </span>
-                </label>
-
-                <label htmlFor="category">
-                  {t("transactionsPage.category")}
-                  <select
-                    className="ui-control"
-                    id="category"
-                    name="category"
-                    value={form.category}
-                    onChange={handleChange}
+                    {t("transactionsPage.single")}
+                  </button>
+                  <button
+                    className={`${isBulkMode ? "ui-btn" : `${styles.secondaryBtn} ui-btn`}`}
+                    type="button"
+                    onClick={() => setIsBulkMode(true)}
                   >
-                    {availableCategories.map((category) => (
-                      <option key={category} value={category}>
-                        {getCategoryLabel(t, category)}
-                      </option>
-                    ))}
-                  </select>
-                  <span className={styles.enumAssist}>
-                    <span className={styles.enumAssistText}>
-                      {t("transactionsPage.categoryCodesHint")}
-                    </span>
-                    <span className={styles.tooltipWrap}>
-                      <button
-                        className={styles.tooltipTrigger}
-                        type="button"
-                        aria-label={t("transactionsPage.viewCodes")}
-                      >
-                        {t("transactionsPage.viewCodes")}
-                      </button>
-                      <span className={styles.tooltipBox} role="tooltip">
-                        {availableCategories
-                          .map((category) => `${getCategoryLabel(t, category)}`)
-                          .join("\n")}
-                      </span>
-                    </span>
-                  </span>
-                </label>
-
-                <label htmlFor="date">
-                  {t("transactionsPage.date")}
-                  <div className={styles.dateInputRow}>
+                    {t("transactionsPage.bulk")}
+                  </button>
+                </div>
+              )}
+              {!isBulkMode ? (
+                <form className={styles.form} onSubmit={handleSubmit}>
+                  <label htmlFor="title">
+                    {t("transactionsPage.title")}
                     <input
                       className="ui-control"
-                      id="date"
-                      name="date"
-                      type="date"
-                      value={form.date}
+                      id="title"
+                      name="title"
+                      value={form.title}
                       onChange={handleChange}
                     />
-                    {/* <button
-                      className={`${styles.secondaryBtn} ${styles.todayButton} ui-btn`}
-                      type="button"
-                      onClick={handleSetToday}
+                  </label>
+
+                  <label htmlFor="amount">
+                    {t("transactionsPage.amount")}
+                    <input
+                      className="ui-control"
+                      id="amount"
+                      name="amount"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={form.amount}
+                      onChange={handleChange}
+                      required
+                    />
+                  </label>
+
+                  <label htmlFor="type">
+                    {t("transactionsPage.type")}
+                    <select
+                      className="ui-control"
+                      id="type"
+                      name="type"
+                      value={form.type}
+                      onChange={handleChange}
                     >
-                      {t("common.today")}
-                    </button> */}
-                  </div>
-                </label>
-
-                <label htmlFor="notes" className={styles.fieldWide}>
-                  {t("transactionsPage.notes")}
-                  <textarea
-                    className="ui-control"
-                    id="notes"
-                    name="notes"
-                    maxLength={60}
-                    value={form.notes}
-                    onChange={handleChange}
-                  />
-                </label>
-
-                <div className={styles.formActions}>
-                  <button
-                    className="ui-btn"
-                    type="submit"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? editingId
-                        ? t("transactionsPage.updating")
-                        : t("transactionsPage.creating")
-                      : editingId
-                        ? t("transactionsPage.update")
-                        : t("transactionsPage.create")}
-                  </button>
-                  <button
-                    className={`${styles.secondaryBtn} ui-btn`}
-                    type="button"
-                    onClick={clearForm}
-                    disabled={isSubmitting}
-                  >
-                    {t("common.cancel")}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form className={styles.bulkForm} onSubmit={handleBulkSubmit}>
-                <details className={styles.bulkGuide}>
-                  <summary className={styles.bulkGuideSummary}>
-                    {t("transactionsPage.bulkGuideTitle")}
-                  </summary>
-                  <div className={styles.bulkGuideContent}>
-                    <p className={styles.bulkHint}>
-                      {t("transactionsPage.bulkGuideFormat")}{" "}
-                      <code>title,amount,type,category,date,notes</code>
-                    </p>
-                    <p className={styles.bulkHint}>
-                      {t("transactionsPage.bulkGuideHint")}
-                    </p>
-                    <div className={styles.bulkAssistRow}>
-                      <span className={styles.tooltipWrap}>
-                        <button className={styles.tooltipTrigger} type="button">
-                          {t("transactionsPage.bulkRequiredFields")}
-                        </button>
-                        <span className={styles.tooltipBox} role="tooltip">
-                          {t("transactionsPage.bulkRequiredValues")}
-                        </span>
+                      <option value="EXPENSE">
+                        {getTransactionTypeLabel(t, "EXPENSE")}
+                      </option>
+                      <option value="INCOME">
+                        {getTransactionTypeLabel(t, "INCOME")}
+                      </option>
+                    </select>
+                    <span className={styles.enumAssist}>
+                      <span className={styles.enumAssistText}>
+                        {t("transactionsPage.typeFriendlyLabels")}
                       </span>
                       <span className={styles.tooltipWrap}>
-                        <button className={styles.tooltipTrigger} type="button">
-                          {t("transactionsPage.bulkTypeOptions")}
+                        <button
+                          className={styles.tooltipTrigger}
+                          type="button"
+                          aria-label={t("transactionsPage.viewCodes")}
+                        >
+                          {t("transactionsPage.viewCodes")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          {t("transactionTypes.incomeSimple")}
+                          {getTransactionTypeLabel(t, "INCOME")}
                           {"\n"}
-                          {t("transactionTypes.expenseSimple")}
+                          {getTransactionTypeLabel(t, "EXPENSE")}
                         </span>
+                      </span>
+                    </span>
+                  </label>
+
+                  <label htmlFor="category">
+                    {t("transactionsPage.category")}
+                    <select
+                      className="ui-control"
+                      id="category"
+                      name="category"
+                      value={form.category}
+                      onChange={handleChange}
+                    >
+                      {availableCategories.map((category) => (
+                        <option key={category} value={category}>
+                          {getCategoryLabel(t, category)}
+                        </option>
+                      ))}
+                    </select>
+                    <span className={styles.enumAssist}>
+                      <span className={styles.enumAssistText}>
+                        {t("transactionsPage.categoryCodesHint")}
                       </span>
                       <span className={styles.tooltipWrap}>
-                        <button className={styles.tooltipTrigger} type="button">
-                          {t("transactionsPage.bulkDateFormat")}
+                        <button
+                          className={styles.tooltipTrigger}
+                          type="button"
+                          aria-label={t("transactionsPage.viewCodes")}
+                        >
+                          {t("transactionsPage.viewCodes")}
                         </button>
                         <span className={styles.tooltipBox} role="tooltip">
-                          {t("transactionsPage.bulkDateExample")}
+                          {availableCategories
+                            .map((category) => `${getCategoryLabel(t, category)}`)
+                            .join("\n")}
                         </span>
                       </span>
-                      <span className={styles.tooltipWrap}>
-                        <button className={styles.tooltipTrigger} type="button">
-                          {t("transactionsPage.bulkCategoryOptions")}
-                        </button>
-                        <span className={styles.tooltipBox} role="tooltip">
-                          {t("transactionTypes.incomeSimple")}:{"\n"}
-                          {INCOME_CATEGORIES.map((category) =>
-                            getCategoryLabel(t, category),
-                          ).join(", ")}
-                          {"\n\n"}
-                          {t("transactionTypes.expenseSimple")}:{"\n"}
-                          {EXPENSE_CATEGORIES.map((category) =>
-                            getCategoryLabel(t, category),
-                          ).join(", ")}
-                        </span>
-                      </span>
+                    </span>
+                  </label>
+
+                  <label htmlFor="date">
+                    {t("transactionsPage.date")}
+                    <div className={styles.dateInputRow}>
+                      <input
+                        className="ui-control"
+                        id="date"
+                        name="date"
+                        type="date"
+                        value={form.date}
+                        onChange={handleChange}
+                      />
                     </div>
+                  </label>
+
+                  <label htmlFor="notes" className={styles.fieldWide}>
+                    {t("transactionsPage.notes")}
+                    <textarea
+                      className="ui-control"
+                      id="notes"
+                      name="notes"
+                      maxLength={60}
+                      value={form.notes}
+                      onChange={handleChange}
+                    />
+                  </label>
+
+                  <div className={styles.formActions}>
+                    <button
+                      className="ui-btn"
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting
+                        ? editingId
+                          ? t("transactionsPage.updating")
+                          : t("transactionsPage.creating")
+                        : editingId
+                          ? t("transactionsPage.update")
+                          : t("transactionsPage.create")}
+                    </button>
+                    <button
+                      className={`${styles.secondaryBtn} ui-btn`}
+                      type="button"
+                      onClick={clearForm}
+                      disabled={isSubmitting}
+                    >
+                      {t("common.cancel")}
+                    </button>
                   </div>
-                </details>
-                <button
-                  className={`${styles.secondaryBtn} ui-btn`}
-                  type="button"
-                  onClick={() => setBulkText(bulkExample)}
-                >
-                  {t("transactionsPage.fillSample")}
-                </button>
-                <textarea
-                  className={`ui-control ${styles.bulkInput}`}
-                  value={bulkText}
-                  onChange={(event) => setBulkText(event.target.value)}
-                  placeholder={bulkExample}
-                  required
-                />
-                <div className={styles.formActions}>
+                </form>
+              ) : (
+                <form className={styles.bulkForm} onSubmit={handleBulkSubmit}>
+                  <details className={styles.bulkGuide}>
+                    <summary className={styles.bulkGuideSummary}>
+                      {t("transactionsPage.bulkGuideTitle")}
+                    </summary>
+                    <div className={styles.bulkGuideContent}>
+                      <p className={styles.bulkHint}>
+                        {t("transactionsPage.bulkGuideFormat")}{" "}
+                        <code>title,amount,type,category,date,notes</code>
+                      </p>
+                      <p className={styles.bulkHint}>
+                        {t("transactionsPage.bulkGuideHint")}
+                      </p>
+                      <div className={styles.bulkAssistRow}>
+                        <span className={styles.tooltipWrap}>
+                          <button className={styles.tooltipTrigger} type="button">
+                            {t("transactionsPage.bulkRequiredFields")}
+                          </button>
+                          <span className={styles.tooltipBox} role="tooltip">
+                            {t("transactionsPage.bulkRequiredValues")}
+                          </span>
+                        </span>
+                        <span className={styles.tooltipWrap}>
+                          <button className={styles.tooltipTrigger} type="button">
+                            {t("transactionsPage.bulkTypeOptions")}
+                          </button>
+                          <span className={styles.tooltipBox} role="tooltip">
+                            {t("transactionTypes.incomeSimple")}
+                            {"\n"}
+                            {t("transactionTypes.expenseSimple")}
+                          </span>
+                        </span>
+                        <span className={styles.tooltipWrap}>
+                          <button className={styles.tooltipTrigger} type="button">
+                            {t("transactionsPage.bulkDateFormat")}
+                          </button>
+                          <span className={styles.tooltipBox} role="tooltip">
+                            {t("transactionsPage.bulkDateExample")}
+                          </span>
+                        </span>
+                        <span className={styles.tooltipWrap}>
+                          <button className={styles.tooltipTrigger} type="button">
+                            {t("transactionsPage.bulkCategoryOptions")}
+                          </button>
+                          <span className={styles.tooltipBox} role="tooltip">
+                            {t("transactionTypes.incomeSimple")}:{"\n"}
+                            {INCOME_CATEGORIES.map((category) =>
+                              getCategoryLabel(t, category),
+                            ).join(", ")}
+                            {"\n\n"}
+                            {t("transactionTypes.expenseSimple")}:{"\n"}
+                            {EXPENSE_CATEGORIES.map((category) =>
+                              getCategoryLabel(t, category),
+                            ).join(", ")}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </details>
                   <button
-                    className="ui-btn"
-                    type="submit"
-                    disabled={isBulkSubmitting}
+                    className={styles.downloadTemplate}
+                    type="button"
+                    onClick={handleDownloadBulkTemplate}
                   >
-                    {isBulkSubmitting
-                      ? t("transactionsPage.creating")
-                      : t("transactionsPage.createBulkSubmit")}
+                    <IoCloudDownloadOutline aria-hidden="true" />
+                    <span>{t("transactionsPage.bulkDownloadTemplate")}</span>
                   </button>
                   <button
                     className={`${styles.secondaryBtn} ui-btn`}
                     type="button"
-                    onClick={clearForm}
-                    disabled={isBulkSubmitting}
+                    onClick={() => setBulkText(bulkExample)}
                   >
-                    {t("common.cancel")}
+                    {t("transactionsPage.fillSample")}
                   </button>
-                </div>
-              </form>
-            )}
-          </section>
+                  <textarea
+                    className={`ui-control ${styles.bulkInput}`}
+                    value={bulkText}
+                    onChange={(event) => setBulkText(event.target.value)}
+                    placeholder={bulkExample}
+                    required
+                  />
+                  <div className={styles.formActions}>
+                    <button
+                      className="ui-btn"
+                      type="submit"
+                      disabled={isBulkSubmitting}
+                    >
+                      {isBulkSubmitting
+                        ? t("transactionsPage.creating")
+                        : t("transactionsPage.createBulkSubmit")}
+                    </button>
+                    <button
+                      className={`${styles.secondaryBtn} ui-btn`}
+                      type="button"
+                      onClick={clearForm}
+                      disabled={isBulkSubmitting}
+                    >
+                      {t("common.cancel")}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </section>
+          </div>
         )}
 
         <div className={styles.filters}>

@@ -16,7 +16,7 @@
 
 .header {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .headerTop {
@@ -47,7 +47,7 @@
 
 .infoRow {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -55,11 +55,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border: 1px solid var(--border);
   background: var(--bg-secondary);
   color: var(--text-main);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 

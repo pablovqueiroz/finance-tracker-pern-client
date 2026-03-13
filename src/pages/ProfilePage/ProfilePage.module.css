@@ -357,6 +357,32 @@
   color: var(--text-muted);
 }
 
+.googleReauthButton {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  position: relative;
+  padding: 10px 14px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.googleReauthIcon {
+  position: absolute;
+  left: 14px;
+  font-size: 19px;
+}
+
 /* mobile first: enhancement for tablet */
 @media (min-width: 640px) {
   .profilePageContainer {

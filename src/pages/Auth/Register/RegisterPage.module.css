@@ -32,6 +32,23 @@
   border: 1px solid transparent;
 }
 
+.primaryBtn:disabled {
+  cursor: wait;
+  opacity: 0.92;
+}
+
+.primaryBtn:disabled:hover {
+  background: var(--accent-red);
+  transform: none;
+}
+
+.buttonContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .oauthButton {
   box-sizing: border-box;
   width: 100%;
@@ -71,12 +88,17 @@
 .googleLogin {
   display: flex;
   justify-content: center;
+  min-height: 44px;
 }
 
 .googleLogin > div {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+.googleTrigger {
+  font-weight: 500;
 }
 .oauthGoogleIcon {
   position: absolute;
@@ -114,5 +136,10 @@
 
   .googleLogin > div {
     width: auto;
+  }
+
+  .googleTrigger {
+    width: auto;
+    min-width: 220px;
   }
 }

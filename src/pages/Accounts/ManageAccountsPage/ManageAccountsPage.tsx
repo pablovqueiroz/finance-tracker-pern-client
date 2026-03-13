@@ -81,7 +81,16 @@ function ManageAccountsPage() {
 
   return (
     <div className={styles.ManageAccountsPage}>
-      <h2>{t("accounts.manage.title")}</h2>
+      <div className={styles.header}>
+        <h2>{t("accounts.manage.title")}</h2>
+        <button
+          className="ui-btn"
+          type="button"
+          onClick={() => nav("/create-account")}
+        >
+          {t("common.createAccount")}
+        </button>
+      </div>
       <section>
         {accounts.length === 0 ? (
           <p>{t("accounts.manage.empty")}</p>

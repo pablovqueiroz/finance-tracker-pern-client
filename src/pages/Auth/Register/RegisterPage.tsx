@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { FcGoogle } from "react-icons/fc";
 import styles from "./RegisterPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
 import { useAuth } from "../../../hooks/useAuth";
 import PasswordField from "../../../components/PasswordField/PasswordField";
+import Spinner from "../../../components/Spinner/Spinner";
+import AuthBackNav from "../../../components/AuthBackNav/AuthBackNav";
 
 function RegisterPage() {
   const { t } = useTranslation();
@@ -21,6 +24,31 @@ function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const nav = useNavigate();
   const { authenticateUser } = useAuth();
+  const loginWithGoogle = useGoogleLogin({
+    scope: "openid email profile",
+    onSuccess: async (tokenResponse) => {
+      try {
+        const { data } = await api.post("/auth/google", {
+          accessToken: tokenResponse.access_token,
+        });
+        localStorage.setItem("authToken", data.authToken);
+        await authenticateUser();
+        nav("/profile");
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          setErrorMessage(
+            error.response?.data?.errorMessage ??
+              error.response?.data?.message ??
+              t("auth.register.googleFailed"),
+          );
+        } else {
+          setErrorMessage(t("auth.register.googleFailed"));
+        }
+      }
+    },
+    onError: () => setErrorMessage(t("auth.register.googleFailed")),
+    onNonOAuthError: () => setErrorMessage(t("auth.register.googleFailed")),
+  });
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,6 +105,7 @@ function RegisterPage() {
 
   return (
     <div className={styles.registerContainer}>
+      <AuthBackNav />
       <form className={styles.registerForm} onSubmit={handleRegister}>
         <h2 className={styles.title}>{t("auth.register.title")}</h2>
 
@@ -173,9 +202,14 @@ function RegisterPage() {
             className={styles.primaryBtn}
             disabled={isSubmitting}
           >
-            {isSubmitting
-              ? t("auth.register.submitting")
-              : t("auth.register.submit")}
+            {isSubmitting ? (
+              <span className={styles.buttonContent}>
+                <Spinner loadingLabel={t("auth.register.submitting")} />
+                <span>{t("auth.register.submitting")}</span>
+              </span>
+            ) : (
+              t("auth.register.submit")
+            )}
           </button>
         </article>
         <Message
@@ -184,37 +218,15 @@ function RegisterPage() {
           clearMessage={setErrorMessage}
           duration={4000}
         />
-        <p className={styles.registerFooter}>{t("auth.register.or")}</p>
         <article className={styles.googleLogin}>
-          <GoogleLogin
-            text="signup_with"
-            onSuccess={async (credentialResponse) => {
-              const idToken = credentialResponse.credential;
-
-              if (!idToken) {
-                setErrorMessage(t("auth.register.invalidGoogleToken"));
-                return;
-              }
-
-              try {
-                const { data } = await api.post("/auth/google", { idToken });
-                localStorage.setItem("authToken", data.authToken);
-                await authenticateUser();
-                nav("/profile");
-              } catch (error: unknown) {
-                if (axios.isAxiosError(error)) {
-                  setErrorMessage(
-                    error.response?.data?.errorMessage ??
-                      error.response?.data?.message ??
-                      t("auth.register.googleFailed"),
-                  );
-                } else {
-                  setErrorMessage(t("auth.register.googleFailed"));
-                }
-              }
-            }}
-            onError={() => setErrorMessage(t("auth.register.googleFailed"))}
-          />
+          <button
+            type="button"
+            className={`${styles.googleTrigger} ${styles.oauthButton}`}
+            onClick={() => loginWithGoogle()}
+          >
+            <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
+            <span>{t("common.continueWithGoogle")}</span>
+          </button>
         </article>
         <p className={styles.registerFooter}>
           {t("auth.register.alreadyMember")}{" "}

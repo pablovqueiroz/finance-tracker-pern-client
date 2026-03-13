@@ -5,7 +5,11 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
+import { FaRegEdit } from "react-icons/fa";
+import { GiClick } from "react-icons/gi";
 import { IoIosArrowDropleft, IoIosArrowDropright } from "react-icons/io";
+import { Link } from "react-router-dom";
+import { IoEnterOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 import type { AccountSummary } from "../../types/account.types";
 import { getLocale } from "../../i18n/getLocale";
@@ -36,6 +40,9 @@ function BalanceCard({
   const dragStartScrollLeftRef = useRef(0);
   const hasDraggedRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [openMembersAccountId, setOpenMembersAccountId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     const activeSlide = slideRefs.current[activeIndex];
@@ -57,6 +64,19 @@ function BalanceCard({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!openMembersAccountId) return;
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenMembersAccountId(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [openMembersAccountId]);
 
   const syncActiveIndexFromScroll = () => {
     const carousel = carouselRef.current;
@@ -94,7 +114,10 @@ function BalanceCard({
       window.clearTimeout(scrollTimeoutRef.current);
     }
 
-    scrollTimeoutRef.current = window.setTimeout(syncActiveIndexFromScroll, 100);
+    scrollTimeoutRef.current = window.setTimeout(
+      syncActiveIndexFromScroll,
+      100,
+    );
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -237,20 +260,105 @@ function BalanceCard({
                     <p>{account.description || t("common.noDescription")}</p>
                   </section>
 
-                  <section className={styles.meta}>
-                    <span>{t("balanceCard.updated", { date: updatedAt })}</span>
-                    <span>
-                      {t("balanceCard.transactions", {
-                        count: account._count?.transactions ?? 0,
+                  <div className={styles.cardFooter}>
+                    <section className={styles.meta}>
+                      <span>
+                        {t("balanceCard.updated", { date: updatedAt })}
+                      </span>
+                      <span>
+                        {t("balanceCard.transactions", {
+                          count: account._count?.transactions ?? 0,
+                        })}
+                      </span>
+                      <div className={styles.membersPopoverWrap}>
+                        <button
+                          className={styles.membersToggle}
+                          type="button"
+                          onClick={() =>
+                            setOpenMembersAccountId((prev) =>
+                              prev === account.id ? null : account.id,
+                            )
+                          }
+                          aria-expanded={openMembersAccountId === account.id}
+                        >
+                          <GiClick className={styles.membersToggleIcon} aria-hidden="true" />
+                          {t("balanceCard.seeMembers")}
+                        </button>
+                      </div>
+                    </section>
+                    <Link
+                      className={styles.detailsLink}
+                      to={`/accounts/${account.id}`}
+                      aria-label={t("balanceCard.openDetails", {
+                        name: account.name,
                       })}
-                    </span>
-                  </section>
+                      title={t("balanceCard.openDetails", {
+                        name: account.name,
+                      })}
+                    >
+                      <IoEnterOutline aria-hidden="true" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             );
           })}
         </div>
       </div>
+
+      {openMembersAccountId ? (
+        <div
+          className={styles.membersModalOverlay}
+          onClick={() => setOpenMembersAccountId(null)}
+          role="presentation"
+        >
+          <div
+            className={styles.membersModal}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("common.members")}
+          >
+            <p className={styles.membersTitle}>{t("common.members")}</p>
+            {(
+              accounts.find((account) => account.id === openMembersAccountId)
+                ?.users ?? []
+            ).length > 0 ? (
+              <div className={styles.membersList}>
+                {(
+                  accounts.find(
+                    (account) => account.id === openMembersAccountId,
+                  )?.users ?? []
+                ).map((member) => (
+                  <div className={styles.memberItem} key={member.userId}>
+                    <span className={styles.memberLine}>
+                      {member.user.name}:{" "}
+                      {t(`roles.${member.role}`, {
+                        defaultValue: member.role,
+                      })}
+                    </span>
+                    <Link
+                      className={styles.editMemberLink}
+                      to={`/accounts/${openMembersAccountId}/members`}
+                      aria-label={t("balanceCard.editMember", {
+                        name: member.user.name,
+                      })}
+                      title={t("balanceCard.editMember", {
+                        name: member.user.name,
+                      })}
+                      onClick={() => setOpenMembersAccountId(null)}
+                    >
+                      <FaRegEdit aria-hidden="true" />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.membersEmpty}>{t("members.empty")}</p>
+            )}
+          </div>
+        </div>
+      ) : null}
 
       {accounts.length > 1 ? (
         <section className={styles.dots}>

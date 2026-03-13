@@ -12,6 +12,8 @@
   border-top: 1px solid #e2e8f0;
   box-shadow: none;
   color: #1a1a1b;
+  z-index: 40;
+  overflow: visible;
 }
 
 .mobileMenuContent {
@@ -20,6 +22,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
+  overflow: visible;
 }
 
 .mobileMenuContent > a,
@@ -34,6 +37,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .profileBtn {
@@ -52,11 +56,15 @@
   border: 1px solid var(--border);
   background: var(--bg-primary);
   display: grid;
+  z-index: 41;
+  overflow: visible;
 }
 
 .profileMenuLanguage {
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 10px;
 }
 
 .profileMenuItem,
@@ -86,15 +94,31 @@
   flex-shrink: 0;
 }
 
-.profileMenuLanguage :global(.language-switcher__control) {
-  width: 100%;
-  justify-content: space-between;
+.languageLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
-.profileMenuLanguage :global(.language-switcher__menu) {
-  left: 0;
-  right: 0;
-  min-width: 100%;
+.languageOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.languageButton {
+  min-height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.languageButtonActive {
+  border-color: var(--accent-red);
+  background: color-mix(in srgb, var(--accent-red) 12%, var(--bg-primary));
 }
 
 .createNew {

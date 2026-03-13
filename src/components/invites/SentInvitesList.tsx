@@ -7,9 +7,8 @@ import { getRoleLabel } from "../../utils/displayLabels";
 type SentInvitesListProps = {
   invites: AccountInvite[];
   activeInviteId: string | null;
-  activeAction: "cancel" | "expire" | "accept" | "reject" | null;
+  activeAction: "cancel" | "accept" | "reject" | null;
   onCancel: (inviteId: string) => void;
-  onExpire: (inviteId: string) => void;
 };
 
 function formatDate(value: string | Date) {
@@ -30,7 +29,6 @@ function SentInvitesList({
   activeInviteId,
   activeAction,
   onCancel,
-  onExpire,
 }: SentInvitesListProps) {
   const { t } = useTranslation();
 
@@ -44,8 +42,6 @@ function SentInvitesList({
         const isPending = invite.status === "PENDING";
         const isCancelling =
           activeInviteId === invite.id && activeAction === "cancel";
-        const isExpiring =
-          activeInviteId === invite.id && activeAction === "expire";
 
         return (
           <InviteRow
@@ -62,24 +58,14 @@ function SentInvitesList({
               { label: t("invites.meta.created"), value: formatDate(invite.createdAt) },
             ]}
             actions={
-              <>
-                <button
-                  className={`${styles.secondaryBtn} ui-btn`}
-                  type="button"
-                  disabled={!isPending || activeInviteId !== null}
-                  onClick={() => onCancel(invite.id)}
-                >
-                  {isCancelling ? t("invites.cancelling") : t("invites.cancelInvite")}
-                </button>
-                <button
-                  className="ui-btn"
-                  type="button"
-                  disabled={!isPending || activeInviteId !== null}
-                  onClick={() => onExpire(invite.id)}
-                >
-                  {isExpiring ? t("invites.expiring") : t("invites.expireInvite")}
-                </button>
-              </>
+              <button
+                className={`${styles.secondaryBtn} ui-btn`}
+                type="button"
+                disabled={!isPending || activeInviteId !== null}
+                onClick={() => onCancel(invite.id)}
+              >
+                {isCancelling ? t("invites.cancelling") : t("invites.cancelInvite")}
+              </button>
             }
           />
         );

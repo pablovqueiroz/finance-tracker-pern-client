@@ -1,0 +1,22 @@
+.nav {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 4px 0;
+  color: var(--accent-red);
+  font-weight: 700;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}

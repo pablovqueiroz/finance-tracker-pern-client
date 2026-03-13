@@ -6,10 +6,20 @@
   margin: 0 auto;
   max-width: 600px;
   padding: 24px;
+  position: relative;
 }
+
+.topNav {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
 .loginContainer form {
   display: grid;
   gap: 14px;
+  position: relative;
+  z-index: 1;
 }
 
 .loginField {
@@ -31,9 +41,26 @@
   border: 1px solid transparent;
 }
 
+.primaryBtn:disabled {
+  cursor: wait;
+  opacity: 0.92;
+}
+
 .primaryBtn:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
+}
+
+.primaryBtn:disabled:hover {
+  background: var(--accent-red);
+  transform: none;
+}
+
+.buttonContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .loginFooter {
@@ -93,12 +120,17 @@
 .googleLogin {
   display: flex;
   justify-content: center;
+  min-height: 44px;
 }
 
 .googleLogin > div {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+.googleTrigger {
+  font-weight: 500;
 }
 
 .oauthGoogleIcon {
@@ -119,5 +151,10 @@
 
   .googleLogin > div {
     width: auto;
+  }
+
+  .googleTrigger {
+    width: auto;
+    min-width: 220px;
   }
 }

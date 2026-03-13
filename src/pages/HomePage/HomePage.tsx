@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./HomePage.module.css";
-import ThemeToggle from "../../components/ThemeToggle/ThemeToggle";
-import LanguageSwitcher from "../../components/LanguageSwitcher/LanguageSwitcher";
 import { useAuth } from "../../hooks/useAuth";
+import HomeUtilityNav from "./components/HomeUtilityNav";
 
 function HomePage() {
   const { isLoggedIn } = useAuth();
@@ -66,22 +65,7 @@ function HomePage() {
 
   return (
     <div className={styles.page}>
-      {!isLoggedIn ? (
-        <nav className={styles.utilityControls}>
-          {!isLoggedIn ? (
-            <div className={styles.utilityActions}>
-              <Link to="/register" className={styles.primaryBtn}>
-                {t("home.primaryAction")}
-              </Link>
-              <Link to="/login" className={styles.secondaryBtn}>
-                {t("home.secondaryAction")}
-              </Link>
-            </div>
-          ) : null}
-          <LanguageSwitcher />
-          <ThemeToggle className={styles.utilityThemeToggle} />
-        </nav>
-      ) : null}
+      {!isLoggedIn ? <HomeUtilityNav /> : null}
 
       <section className={styles.hero}>
         <div className={styles.heroContent}>

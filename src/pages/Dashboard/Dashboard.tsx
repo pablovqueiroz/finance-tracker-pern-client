@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import BalanceCard from "../../components/BalanceCard/BalanceCard";
 import Hero from "../../components/Hero/Hero";
@@ -25,6 +27,7 @@ type AccountSummaryResponse = {
 };
 
 function Dashboard() {
+  const { t } = useTranslation();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currency, setCurrency] = useState<Currency>("EUR");
@@ -190,6 +193,24 @@ function Dashboard() {
             <SkeletonCard avatar lines={2} />
             <SkeletonCard avatar lines={2} />
           </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (accounts.length === 0) {
+    return (
+      <div className={styles.DashboardContainer}>
+        <section className={styles.welcome}>
+          <Hero />
+        </section>
+
+        <section className={`${styles.emptyState} ui-card`}>
+          <h2>{t("dashboard.emptyTitle")}</h2>
+          <p>{t("dashboard.emptyDescription")}</p>
+          <Link className="ui-btn" to="/create-account">
+            {t("dashboard.createAccount")}
+          </Link>
         </section>
       </div>
     );

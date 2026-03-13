@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { FcGoogle } from "react-icons/fc";
 import styles from "./LoginPage.module.css";
 import api from "../../../services/api";
 import { useAuth } from "../../../hooks/useAuth";
 import Message from "../../../components/Message/Message";
 import PasswordField from "../../../components/PasswordField/PasswordField";
+import Spinner from "../../../components/Spinner/Spinner";
+import AuthBackNav from "../../../components/AuthBackNav/AuthBackNav";
 
 function LoginPage() {
   const { t } = useTranslation();
@@ -18,6 +21,24 @@ function LoginPage() {
 
   const { authenticateUser } = useAuth();
   const nav = useNavigate();
+  const loginWithGoogle = useGoogleLogin({
+    scope: "openid email profile",
+    onSuccess: async (tokenResponse) => {
+      try {
+        const { data } = await api.post("/auth/google", {
+          accessToken: tokenResponse.access_token,
+        });
+
+        localStorage.setItem("authToken", data.authToken);
+        await authenticateUser();
+        nav("/profile");
+      } catch {
+        setErrorMessage(t("auth.login.googleFailed"));
+      }
+    },
+    onError: () => setErrorMessage(t("auth.login.googleFailed")),
+    onNonOAuthError: () => setErrorMessage(t("auth.login.googleFailed")),
+  });
 
   const handleLogin = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -56,6 +77,9 @@ function LoginPage() {
 
   return (
     <div className={styles.loginContainer}>
+      <div className={styles.topNav}>
+        <AuthBackNav />
+      </div>
       <form onSubmit={handleLogin}>
         <h2 className={styles.title}>{t("auth.login.title")}</h2>
 
@@ -84,7 +108,14 @@ function LoginPage() {
             className={styles.primaryBtn}
             disabled={isSubmitting}
           >
-            {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
+            {isSubmitting ? (
+              <span className={styles.buttonContent}>
+                <Spinner loadingLabel={t("auth.login.submitting")} />
+                <span>{t("auth.login.submitting")}</span>
+              </span>
+            ) : (
+              t("auth.login.submit")
+            )}
           </button>
         </article>
 
@@ -96,35 +127,18 @@ function LoginPage() {
         />
 
         <p className={styles.loginFooter}>
-          {t("auth.login.newHere")} <Link to="/register">{t("auth.login.signUp")}</Link>{" "}
-          <br />
-          {t("auth.login.or")}
+          {t("auth.login.newHere")} <Link to="/register">{t("auth.login.signUp")}</Link>
         </p>
 
         <article className={styles.googleLogin}>
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              const idToken = credentialResponse.credential;
-
-              if (!idToken) {
-                setErrorMessage(t("auth.login.invalidGoogleToken"));
-                return;
-              }
-
-              try {
-                const { data } = await api.post("/auth/google", { idToken });
-
-                localStorage.setItem("authToken", data.authToken);
-
-                await authenticateUser();
-
-                nav("/profile");
-              } catch {
-                setErrorMessage(t("auth.login.googleFailed"));
-              }
-            }}
-            onError={() => setErrorMessage(t("auth.login.googleFailed"))}
-          />
+          <button
+            type="button"
+            className={`${styles.googleTrigger} ${styles.oauthButton}`}
+            onClick={() => loginWithGoogle()}
+          >
+            <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
+            <span>{t("common.continueWithGoogle")}</span>
+          </button>
         </article>
       </form>
     </div>

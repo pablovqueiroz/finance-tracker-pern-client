@@ -15,7 +15,6 @@ import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
 import ManageSavingGoalsPage from "./pages/SavingGoals/ManageSavingGoalsPage";
 import ReportsPage from "./pages/ReportsPage/ReportsPage";
 import AccountMembersPage from "./pages/AccountMembersPage/AccountMembersPage";
-
 import ContactPage from "./pages/ContacPage/ContactPage";
 import InvitesPage from "./pages/InvitesPage/InvitesPage";
 
@@ -61,8 +60,8 @@ function App() {
               path="/accounts/:accountId/saving-goals"
               element={<ManageSavingGoalsPage />}
             />
-          </Route>{" "}
-          protected routes
+          </Route>
+          {/* ^protected routes^ */}
         </Routes>
       </main>
       <footer>

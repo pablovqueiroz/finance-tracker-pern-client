@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
+import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./ProfilePage.module.css";
 import api from "../../services/api";
@@ -53,6 +54,35 @@ function ProfilePage() {
   });
 
   const { name, gender, image } = profile;
+  const reauthenticateWithGoogle = useGoogleLogin({
+    scope: "openid email profile",
+    onSuccess: async (tokenResponse) => {
+      setIsDeletingAccount(true);
+      setSuccessMessage(null);
+      setErrorMessage(null);
+
+      try {
+        await api.delete("/users/me", {
+          data: { accessToken: tokenResponse.access_token },
+        });
+        handleLogout();
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          setErrorMessage(
+            error.response?.data?.errorMessage ??
+              error.response?.data?.message ??
+              t("profile.deleteFailed"),
+          );
+        } else {
+          setErrorMessage(t("profile.unexpected"));
+        }
+      } finally {
+        setIsDeletingAccount(false);
+      }
+    },
+    onError: () => setErrorMessage(t("profile.googleReauthFailed")),
+    onNonOAuthError: () => setErrorMessage(t("profile.googleReauthFailed")),
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -165,40 +195,6 @@ function ProfilePage() {
         }
 
         setErrorMessage(apiMessage || t("profile.deleteFailed"));
-      } else {
-        setErrorMessage(t("profile.unexpected"));
-      }
-    } finally {
-      setIsDeletingAccount(false);
-    }
-  };
-
-  const handleGoogleDeleteReauth = async (
-    credentialResponse: CredentialResponse,
-  ) => {
-    const googleIdToken = credentialResponse.credential;
-
-    if (!googleIdToken) {
-      setErrorMessage(t("profile.googleInvalidToken"));
-      return;
-    }
-
-    setIsDeletingAccount(true);
-    setSuccessMessage(null);
-    setErrorMessage(null);
-
-    try {
-      await api.delete("/users/me", {
-        data: { googleIdToken },
-      });
-      handleLogout();
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("profile.deleteFailed"),
-        );
       } else {
         setErrorMessage(t("profile.unexpected"));
       }
@@ -392,11 +388,15 @@ function ProfilePage() {
           >
             <h3>{t("profile.googleDialogTitle")}</h3>
             <p>{t("profile.googleDialogCopy")}</p>
-            <GoogleLogin
-              text="continue_with"
-              onSuccess={handleGoogleDeleteReauth}
-              onError={() => setErrorMessage(t("profile.googleReauthFailed"))}
-            />
+            <button
+              type="button"
+              className={styles.googleReauthButton}
+              disabled={isDeletingAccount}
+              onClick={() => reauthenticateWithGoogle()}
+            >
+              <FcGoogle className={styles.googleReauthIcon} aria-hidden="true" />
+              <span>{t("common.continueWithGoogle")}</span>
+            </button>
             {isDeletingAccount ? (
               <SkeletonText lines={1} widths={["132px"]} lineHeight={16} />
             ) : null}

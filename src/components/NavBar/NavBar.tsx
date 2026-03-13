@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { FiMessageSquare } from "react-icons/fi";
+import { IoHomeOutline, IoPersonAddOutline } from "react-icons/io5";
+import { HiOutlineWallet } from "react-icons/hi2";
+import { MdOutlineSavings } from "react-icons/md";
+import { FaChartSimple } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./NavBar.module.css";
@@ -28,6 +32,15 @@ function NavBar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [hasImageError, setHasImageError] = useState(false);
   const profileInitials = getInitials(currentUser?.name);
+  const primaryNavItems = [
+    { to: "/dashboard", label: t("nav.dashboard"), icon: IoHomeOutline },
+    { to: "/accounts", label: t("nav.accounts"), icon: HiOutlineWallet },
+    { to: "/reports", label: t("nav.reports"), icon: FaChartSimple },
+    { to: "/savings", label: t("nav.savings"), icon: MdOutlineSavings },
+  ];
+  const utilityNavItems = [
+    { to: "/invites", label: t("nav.invites"), icon: IoPersonAddOutline },
+  ];
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -44,59 +57,41 @@ function NavBar() {
 
   return (
     <nav className={styles.navBar}>
-      <div className={styles.content} key={`${location.pathname}-${currentUser?.image ?? ""}`}>
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.dashboard")}
-        </NavLink>
-        <NavLink
-          to="/accounts"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.accounts")}
-        </NavLink>
+      <div
+        className={styles.content}
+        key={`${location.pathname}-${currentUser?.image ?? ""}`}
+      >
+        <div className={styles.navGroup}>
+          {primaryNavItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `${styles.link} ${isActive ? styles.active : ""}`
+              }
+            >
+              <Icon className={styles.linkIcon} aria-hidden="true" />
+              <span className={styles.linkLabel}>{label}</span>
+            </NavLink>
+          ))}
+        </div>
 
-        <NavLink
-          to="/savings"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.savings")}
-        </NavLink>
-
-        <NavLink
-          to="/reports"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.reports")}
-        </NavLink>
-
-        <NavLink
-          to="/create-account"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.newAccount")}
-        </NavLink>
-
-        <NavLink
-          to="/invites"
-          className={({ isActive }) =>
-            `${styles.link} ${isActive ? styles.active : ""}`
-          }
-        >
-          {t("nav.invites")}
-        </NavLink>
+        <div className={styles.utilityGroup}>
+          {utilityNavItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `${styles.link} ${styles.utilityLink} ${
+                  isActive ? styles.active : ""
+                }`
+              }
+            >
+              <Icon className={styles.linkIcon} aria-hidden="true" />
+              <span className={styles.linkLabel}>{label}</span>
+            </NavLink>
+          ))}
+        </div>
 
         <div className={styles.profileWrap} ref={menuRef}>
           <button

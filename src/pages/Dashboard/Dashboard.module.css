@@ -42,6 +42,17 @@
   grid-area: transactions;
 }
 
+.emptyState {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.emptyState h2,
+.emptyState p {
+  margin: 0;
+}
+
 @media (max-width: 640px) {
   .DashboardContainer {
     padding: 16px 12px 24px;

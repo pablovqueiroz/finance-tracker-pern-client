@@ -17,7 +17,6 @@ import { getLocale } from "../../i18n/getLocale";
 type SavingGoalForm = {
   title: string;
   targetAmount: string;
-  currentAmount: string;
   deadline: string;
   notes: string;
 };
@@ -35,7 +34,6 @@ type AccountSummaryResponse = {
 const initialForm: SavingGoalForm = {
   title: "",
   targetAmount: "",
-  currentAmount: "0",
   deadline: "",
   notes: "",
 };
@@ -203,8 +201,6 @@ function ManageSavingGoalsPage() {
 
     const title = form.title.trim();
     const targetAmount = Number(form.targetAmount);
-    const currentAmount = Number(form.currentAmount);
-
     if (!title) {
       setErrorMessage(t("savingGoals.titleRequired"));
       return;
@@ -213,15 +209,9 @@ function ManageSavingGoalsPage() {
       setErrorMessage(t("savingGoals.targetAmountInvalid"));
       return;
     }
-    if (!Number.isFinite(currentAmount) || currentAmount < 0) {
-      setErrorMessage(t("savingGoals.currentAmountInvalid"));
-      return;
-    }
-
     const payload = {
       title,
       targetAmount,
-      currentAmount,
       accountId: selectedAccountId,
       ...(form.deadline && { deadline: form.deadline }),
       ...(form.notes.trim() && { notes: form.notes.trim() }),
@@ -531,21 +521,6 @@ function ManageSavingGoalsPage() {
                 />
               </label>
 
-              <label htmlFor="currentAmount">
-                {t("savingGoals.currentAmount")}
-                <input
-                  className="ui-control"
-                  id="currentAmount"
-                  name="currentAmount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.currentAmount}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-
               <label htmlFor="deadline">
                 {t("common.deadline")}
                 <input
@@ -644,7 +619,6 @@ function ManageSavingGoalsPage() {
                     type="button"
                     onClick={() => {
                       const targetAmountValue = Number(goal.targetAmount);
-                      const currentAmountValue = Number(goal.currentAmount);
                       const deadlineValue = goal.deadline
                         ? new Date(goal.deadline).toISOString().slice(0, 10)
                         : "";
@@ -654,9 +628,6 @@ function ManageSavingGoalsPage() {
                         targetAmount: Number.isFinite(targetAmountValue)
                           ? String(targetAmountValue)
                           : "",
-                        currentAmount: Number.isFinite(currentAmountValue)
-                          ? String(currentAmountValue)
-                          : "0",
                         deadline: deadlineValue,
                         notes: goal.notes ?? "",
                       });

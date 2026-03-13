@@ -11,6 +11,7 @@
     "update": "Atualizar",
     "backToAccount": "Voltar à conta",
     "backToAccounts": "Voltar às contas",
+    "backHome": "Voltar ao início",
     "createAccount": "Criar conta",
     "account": "Conta",
     "accounts": "Contas",
@@ -40,6 +41,7 @@
     "noEmail": "Sem email",
     "showPassword": "Mostrar palavra-passe",
     "hidePassword": "Ocultar palavra-passe",
+    "continueWithGoogle": "Continuar com Google",
     "accountNotFound": "Conta não encontrada."
   },
   "language": {
@@ -136,6 +138,7 @@
   "nav": {
     "dashboard": "Painel",
     "accounts": "Contas",
+    "transactions": "Transações",
     "newAccount": "Nova conta",
     "savings": "Poupanças",
     "reports": "Relatórios",
@@ -255,6 +258,9 @@
     "dangerCopy": "Esta ação é irreversível. A tua conta e todos os dados relacionados serão eliminados permanentemente."
   },
   "dashboard": {
+    "emptyTitle": "Criar nova conta",
+    "emptyDescription": "Ainda não tens contas. Cria uma para começar a acompanhar as tuas finanças.",
+    "createAccount": "Criar conta",
     "loadingAccounts": "A carregar contas...",
     "loadingTransactions": "A carregar transações..."
   },
@@ -265,7 +271,10 @@
     "next": "Seguinte",
     "updated": "Atualizado: {{date}}",
     "transactions": "Transações: {{count}}",
-    "selectAccount": "Selecionar conta {{index}}"
+    "selectAccount": "Selecionar conta {{index}}",
+    "openDetails": "Abrir detalhes da conta {{name}}",
+    "seeMembers": "Ver membros",
+    "editMember": "Editar membro {{name}}"
   },
   "accountCard": {
     "balance": "Saldo: {{amount}}",
@@ -356,6 +365,7 @@
     "viewCodes": "Ver códigos",
     "categoryCodesHint": "Passa o cursor/toque para ver os códigos das categorias.",
     "fillSample": "Preencher linhas de exemplo",
+    "bulkDownloadTemplate": "Download template",
     "createBulkSubmit": "Criar em massa",
     "noTransactions": "Ainda não existem transações registadas.",
     "noFilteredTransactions": "Nenhuma transação corresponde aos filtros atuais.",
@@ -371,13 +381,21 @@
     "bulkGuideTitle": "Como preencher transações em massa",
     "bulkGuideFormat": "Usa uma linha por transação com esta ordem:",
     "bulkGuideHint": "Passa o cursor nas etiquetas abaixo ou toca no telemóvel para ver as opções aceites.",
+    "bulkTemplateTitle": "Template de transações em massa",
+    "bulkTemplateIntro": "Copia e cola as linhas de exemplo abaixo no campo de bulk. Mantém a ordem dos campos exatamente como apresentada.",
+    "bulkTemplateEnumsHint": "Os textos explicativos estão no teu idioma, mas os valores de type e category devem usar os códigos aceites pelo backend.",
+    "bulkTemplateOptionalFields": "Campos opcionais",
+    "bulkTemplateDecimalHint": "Formato do valor",
+    "bulkTemplateIncomeCategories": "Categorias de receita",
+    "bulkTemplateExpenseCategories": "Categorias de despesa",
+    "bulkTemplateReadyExamples": "Exemplos prontos para colar",
     "bulkRequiredFields": "Campos obrigatórios",
     "bulkRequiredValues": "title, amount, type, category",
     "bulkTypeOptions": "Opções de tipo",
     "bulkDateFormat": "Formato da data",
     "bulkDateExample": "Usa YYYY-MM-DD\nExemplo: 2026-03-06",
     "bulkCategoryOptions": "Opções de categoria",
-    "example": "Salário,1500,Receita,Salário,2026-03-01,Salário mensal\nSupermercado,120.50,Despesa,Supermercado,2026-03-02,Compras da semana",
+    "example": "Salário,1500,INCOME,SALARY,2026-03-01,Salário mensal\nSupermercado,120.50,EXPENSE,GROCERIES,2026-03-02,Compras da semana",
     "bulkLineRequired": "Linha {{row}}: usa o formato \"title,amount,type,category,date,notes\".",
     "bulkAmountInvalid": "Linha {{row}}: o valor tem de ser superior a zero.",
     "bulkTypeInvalid": "Linha {{row}}: o tipo tem de ser Receita ou Despesa.",
@@ -458,7 +476,13 @@
     "incomeByCategorySheet": "Receitas por Categoria",
     "savingGoalsSheet": "Objetivos de Poupança",
     "savingGoalMovementsSheet": "Movimentos dos Objetivos",
+    "transactionsSheet": "Transações",
     "balanceHistorySheet": "Histórico de Saldo",
+    "transactionDate": "Data da transação",
+    "createdBy": "Criado por",
+    "editedAt": "Editado em",
+    "editedBy": "Editado por",
+    "unknownEditor": "Editor desconhecido",
     "totalIncome": "Total de receitas",
     "totalExpenses": "Total de despesas",
     "netBalance": "Saldo líquido",
@@ -575,7 +599,7 @@
   "roles": {
     "OWNER": "Proprietário",
     "ADMIN": "Administrador",
-    "MEMBER": "Membro"
+    "MEMBER": "Viewer"
   },
   "currencies": {
     "EUR": "Euro (EUR)",

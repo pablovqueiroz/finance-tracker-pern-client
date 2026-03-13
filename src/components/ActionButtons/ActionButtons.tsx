@@ -5,7 +5,7 @@ import styles from "./ActionButtons.module.css";
 import { FaChartSimple } from "react-icons/fa6";
 import { GiExpense, GiReceiveMoney } from "react-icons/gi";
 
-type ActionButtonsProps = {
+export type ActionButtonsProps = {
   accountId?: string;
 };
 

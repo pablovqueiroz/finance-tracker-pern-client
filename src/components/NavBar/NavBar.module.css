@@ -10,7 +10,25 @@
   padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.navGroup,
+.utilityGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.navGroup {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.utilityGroup {
+  flex: 0 1 auto;
 }
 
 .link {
@@ -19,11 +37,27 @@
   text-decoration: none;
   padding: 8px 10px;
   border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .active {
   border-color: var(--border);
   background: var(--bg-secondary);
+}
+
+.linkIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.linkLabel {
+  white-space: nowrap;
+}
+
+.utilityLink {
+  background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
 }
 
 .profileWrap {

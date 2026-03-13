@@ -31,7 +31,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function InvitesPage() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [sentInvites, setSentInvites] = useState<AccountInvite[]>([]);
@@ -45,7 +45,7 @@ function InvitesPage() {
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [activeInviteId, setActiveInviteId] = useState<string | null>(null);
   const [activeAction, setActiveAction] = useState<
-    "cancel" | "expire" | "accept" | "reject" | null
+    "cancel" | "accept" | "reject" | null
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -146,6 +146,7 @@ function InvitesPage() {
         email: normalizedEmail,
         accountId: selectedAccountId,
         role,
+        language: (i18n.resolvedLanguage ?? "en").slice(0, 2),
       });
       setEmail("");
       setSuccessMessage(t("invites.sendSuccess"));
@@ -174,27 +175,6 @@ function InvitesPage() {
     } catch (error: unknown) {
       console.error("Failed to cancel invite", error);
       setErrorMessage(getErrorMessage(error, t("invites.cancelFailed")));
-      setSuccessMessage(null);
-    } finally {
-      setActiveInviteId(null);
-      setActiveAction(null);
-    }
-  }
-
-  async function handleExpireInvite(inviteId: string) {
-    const confirmation = window.confirm(t("invites.expireConfirm"));
-    if (!confirmation) return;
-
-    try {
-      setActiveInviteId(inviteId);
-      setActiveAction("expire");
-      await api.patch(`/invites/${inviteId}/expire`);
-      setSuccessMessage(t("invites.expireSuccess"));
-      setErrorMessage(null);
-      await loadInvites();
-    } catch (error: unknown) {
-      console.error("Failed to expire invite", error);
-      setErrorMessage(getErrorMessage(error, t("invites.expireFailed")));
       setSuccessMessage(null);
     } finally {
       setActiveInviteId(null);
@@ -344,7 +324,6 @@ function InvitesPage() {
               activeInviteId={activeInviteId}
               activeAction={activeAction}
               onCancel={handleCancelInvite}
-              onExpire={handleExpireInvite}
             />
           )}
         </section>

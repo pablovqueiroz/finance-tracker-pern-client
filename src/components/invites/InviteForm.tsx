@@ -2,6 +2,7 @@ import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 import type { AccountRole, AccountSummary } from "../../types/account.types";
 import { getRoleLabel } from "../../utils/displayLabels";
+import Spinner from "../Spinner/Spinner";
 import styles from "./Invites.module.css";
 
 type InviteFormProps = {
@@ -77,7 +78,21 @@ function InviteForm({
       </label>
 
       <button className="ui-btn" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? t("invites.sending") : t("invites.sendInvite")}
+        {isSubmitting ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+            }}
+          >
+            <Spinner loadingLabel={t("invites.sending")} />
+            <span>{t("invites.sending")}</span>
+          </span>
+        ) : (
+          t("invites.sendInvite")
+        )}
       </button>
     </form>
   );

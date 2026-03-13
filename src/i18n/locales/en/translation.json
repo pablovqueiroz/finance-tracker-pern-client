@@ -11,6 +11,7 @@
     "update": "Update",
     "backToAccount": "Back to account",
     "backToAccounts": "Back to accounts",
+    "backHome": "Back to home",
     "createAccount": "Create account",
     "account": "Account",
     "accounts": "Accounts",
@@ -40,6 +41,7 @@
     "noEmail": "No email",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
+    "continueWithGoogle": "Continue with Google",
     "accountNotFound": "Account not found."
   },
   "language": {
@@ -136,6 +138,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Accounts",
+    "transactions": "Transactions",
     "newAccount": "New account",
     "savings": "Savings",
     "reports": "Reports",
@@ -255,6 +258,9 @@
     "dangerCopy": "This action is irreversible. Your account and all related data will be permanently deleted."
   },
   "dashboard": {
+    "emptyTitle": "Create a new account",
+    "emptyDescription": "You do not have any accounts yet. Create one to start tracking your finances.",
+    "createAccount": "Create account",
     "loadingAccounts": "Loading accounts...",
     "loadingTransactions": "Loading transactions..."
   },
@@ -265,7 +271,10 @@
     "next": "Next",
     "updated": "Updated: {{date}}",
     "transactions": "Transactions: {{count}}",
-    "selectAccount": "Select account {{index}}"
+    "selectAccount": "Select account {{index}}",
+    "openDetails": "Open account details for {{name}}",
+    "seeMembers": "See members",
+    "editMember": "Edit member {{name}}"
   },
   "accountCard": {
     "balance": "Balance: {{amount}}",
@@ -356,6 +365,7 @@
     "viewCodes": "View codes",
     "categoryCodesHint": "Hover/touch to see category codes.",
     "fillSample": "Fill sample lines",
+    "bulkDownloadTemplate": "Download template",
     "createBulkSubmit": "Create in bulk",
     "noTransactions": "No transactions registered yet.",
     "noFilteredTransactions": "No transactions match the current filters.",
@@ -371,13 +381,21 @@
     "bulkGuideTitle": "How to fill bulk transactions",
     "bulkGuideFormat": "Use one line per transaction with this order:",
     "bulkGuideHint": "Hover the labels below or tap them on mobile to view accepted options.",
+    "bulkTemplateTitle": "Bulk transactions template",
+    "bulkTemplateIntro": "Copy and paste the example lines below into the bulk field. Keep the field order exactly as shown.",
+    "bulkTemplateEnumsHint": "The explanations are shown in your language, but type and category values should use the backend codes listed below.",
+    "bulkTemplateOptionalFields": "Optional fields",
+    "bulkTemplateDecimalHint": "Amount format",
+    "bulkTemplateIncomeCategories": "Income categories",
+    "bulkTemplateExpenseCategories": "Expense categories",
+    "bulkTemplateReadyExamples": "Ready-to-paste examples",
     "bulkRequiredFields": "Required fields",
     "bulkRequiredValues": "title, amount, type, category",
     "bulkTypeOptions": "Type options",
     "bulkDateFormat": "Date format",
     "bulkDateExample": "Use YYYY-MM-DD\nExample: 2026-03-06",
     "bulkCategoryOptions": "Category options",
-    "example": "Salary,1500,Income,Salary,2026-03-01,Monthly salary\nGroceries,120.50,Expense,Groceries,2026-03-02,Weekly supermarket",
+    "example": "Salary,1500,INCOME,SALARY,2026-03-01,Monthly salary\nGroceries,120.50,EXPENSE,GROCERIES,2026-03-02,Weekly supermarket",
     "bulkLineRequired": "Line {{row}}: use format \"title,amount,type,category,date,notes\".",
     "bulkAmountInvalid": "Line {{row}}: amount must be greater than zero.",
     "bulkTypeInvalid": "Line {{row}}: type must be Income or Expense.",
@@ -458,7 +476,13 @@
     "incomeByCategorySheet": "Income by Category",
     "savingGoalsSheet": "Saving Goals",
     "savingGoalMovementsSheet": "Saving Goal Movements",
+    "transactionsSheet": "Transactions",
     "balanceHistorySheet": "Balance History",
+    "transactionDate": "Transaction date",
+    "createdBy": "Created by",
+    "editedAt": "Edited at",
+    "editedBy": "Edited by",
+    "unknownEditor": "Unknown editor",
     "totalIncome": "Total Income",
     "totalExpenses": "Total Expenses",
     "netBalance": "Net Balance",
@@ -575,7 +599,7 @@
   "roles": {
     "OWNER": "Owner",
     "ADMIN": "Admin",
-    "MEMBER": "Member"
+    "MEMBER": "Viewer"
   },
   "currencies": {
     "EUR": "Euro (EUR)",
