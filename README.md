@@ -1,41 +1,143 @@
-# Finance Tracker Client
+# Budgetivo Frontend
 
-React + TypeScript frontend for the Finance Tracker PERN application.
-
-## Overview
-
-This client covers the full user-facing flow of the project: authentication, account management, transactions, saving goals, reports, invitations, profile management, and contact form integration.
+Frontend application for Budgetivo, a collaborative personal finance platform for account management, transactions, saving goals, reports, invitations, and profile management.
 
 ## Live Demo
 
-A live version of the client will be available here soon:
+- Live demo: [https://budgetivo.vercel.app/](https://budgetivo.vercel.app/)
 
-- `CLIENT_LIVE_DEMO_URL`
+## Related Repositories
 
-## Tech Stack
+- Frontend: [https://github.com/pablovqueiroz/finance-tracker-pern-client](https://github.com/pablovqueiroz/finance-tracker-pern-client)
+- Backend: [https://github.com/pablovqueiroz/finance-tracker-pern-server](https://github.com/pablovqueiroz/finance-tracker-pern-server)
+
+## Overview
+
+This frontend delivers the full user-facing experience of the platform:
+
+- authentication with email/password and Google OAuth
+- dashboard with account carousel and quick actions
+- account creation, account details, and collaborative membership
+- transaction management, including bulk input and editing modal flows
+- saving goals creation, movement tracking, and progress analytics
+- reports with charts and Excel export
+- invitations inbox plus sent and expired invite management
+- profile editing, password changes, avatar upload, and account deletion
+- multilingual UX in English, Portuguese, and Spanish
+- responsive desktop and mobile navigation
+
+## Why This Project Matters
+
+This project showcases practical frontend engineering skills that are relevant to product teams and hiring managers:
+
+- building a complete React application with real business flows instead of isolated demo components
+- integrating external services such as Google OAuth and EmailJS
+- designing authenticated and role-aware user experiences
+- handling charts, data export, internationalization, and responsive UI in one product
+- structuring a scalable codebase with reusable components, typed APIs, and modular utilities
+- shipping a production deployment with a live demo
+
+## Frontend Stack
+
+### Core
 
 - React 19
 - TypeScript
 - Vite
-- React Router
+- React Router DOM
+
+### Data, Auth, and Integrations
+
 - Axios
+- Google OAuth via `@react-oauth/google`
+- EmailJS contact integration via `@emailjs/browser`
+
+### Charts, Export, and UI Helpers
+
 - Chart.js
+- `react-chartjs-2`
 - ExcelJS
+- `react-icons`
+- `react-spinners`
+
+### Internationalization
+
 - i18next
-- CSS Modules
+- `react-i18next`
+- `i18next-browser-languagedetector`
+
+### Tooling
+
+- ESLint
+- `typescript-eslint`
+- `@vitejs/plugin-react-swc`
+
+## Main Frontend Libraries
+
+- `react`
+- `react-dom`
+- `react-router-dom`
+- `axios`
+- `i18next`
+- `react-i18next`
+- `i18next-browser-languagedetector`
+- `chart.js`
+- `react-chartjs-2`
+- `exceljs`
+- `react-icons`
+- `react-spinners`
+- `@react-oauth/google`
+- `@emailjs/browser`
+- `vite`
+- `typescript`
+- `eslint`
 
 ## Features
 
-- Email/password authentication
-- Google OAuth sign-in
-- Profile editing, password update, avatar upload, and account deletion
-- Multi-account workspace with member roles
-- Transaction creation, editing, deletion, and bulk import
-- Saving goals with balance movement tracking
-- Reports with charts and Excel export
-- Invitation inbox and sent/expired invite management
-- Internationalization in English, Portuguese, and Spanish
-- Responsive layout with desktop navigation and mobile menu
+### Authentication and User Profile
+
+- email/password register and login
+- Google sign-in with OAuth
+- profile update flow
+- password update flow
+- avatar upload
+- account deletion with reauthentication support
+
+### Accounts and Collaboration
+
+- multi-account support
+- account balances and summary metrics
+- member roles: Owner, Admin, Viewer
+- member management page
+- invite flows for collaboration
+
+### Transactions
+
+- create, edit, and delete transactions
+- bulk transaction input
+- downloadable bulk template
+- localized labels with backend-safe enum codes
+- category filtering and search
+
+### Saving Goals and Reports
+
+- create and edit saving goals
+- move money in and out of goals
+- progress indicators and analytics
+- income vs expense charts
+- category breakdown charts
+- saving goal charts and progress tracking
+- balance history chart
+- Excel export with summary, goals, movements, balance history, and transactions
+
+### UX
+
+- responsive layout
+- modal-based editing flows
+- mobile menu
+- loading states with skeletons/spinners
+- translated UI
+- integrated contact flow with EmailJS
 
 ## Routes
 
@@ -61,7 +163,7 @@ A live version of the client will be available here soon:
 ```txt
 src/
   components/   reusable UI components
-  config/       runtime config such as API base URL
+  config/       runtime config and environment helpers
   context/      auth and theme providers
   hooks/        custom hooks
   i18n/         i18n bootstrap and locale files
@@ -69,23 +171,12 @@ src/
   services/     API client setup
   styles/       global CSS, reset, and variables
   types/        shared frontend types
-  utils/        view helpers
-```
-
-## Prerequisites
-
-- Node.js 18+
-- npm 9+
-
-## Installation
-
-```bash
-npm install
+  utils/        formatters, labels, and transaction helpers
 ```
 
 ## Environment Variables
 
-Create a `.env` file in the project root.
+Create a `.env` file in the project root:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
@@ -93,76 +184,48 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id
 VITE_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
 ```
 
-Notes:
+### Notes
 
-- `VITE_API_URL` should point to the server API base path.
-- If `VITE_API_URL` is not set, the app currently falls back to `http://localhost:5005/api` in `src/config/config.ts`, so setting it explicitly is recommended for local development.
+- `VITE_API_URL` should point to the backend API base URL.
 - `VITE_GOOGLE_CLIENT_ID` is required for Google sign-in.
 - `VITE_EMAILJS_PUBLIC_KEY` is required for the contact form.
 
-## Available Scripts
+## Scripts
 
 ```bash
+npm install
 npm run dev
 npm run build
-npm run preview
 npm run lint
+npm run preview
 ```
 
 ## Local Development
-
-Start the Vite dev server:
-
-```bash
-npm run dev
-```
 
 Default local URL:
 
 - `http://localhost:5173`
 
-Make sure the backend is running and CORS allows the frontend origin.
+Make sure the backend is running and configured to allow the frontend origin.
 
-## Build
+## Deployment
 
-```bash
-npm run build
-```
+This project is deployed as a Vite frontend.
 
-The production bundle is generated in `dist/`.
+- Production URL: [https://budgetivo.vercel.app/](https://budgetivo.vercel.app/)
+- Suggested platform: Vercel
 
-## Backend Integration
+## Recruiter Notes
 
-The client expects a backend exposing routes under `/api`, including:
+If you are reviewing this project as part of a hiring process, this frontend demonstrates:
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/google`
-- `GET /api/users/me`
-- `PUT /api/users/me`
-- `DELETE /api/users/me`
-- `GET /api/accounts`
-- `POST /api/accounts`
-- `GET /api/accounts/:accountId`
-- `GET /api/accounts/:accountId/members`
-- `PATCH /api/accounts/:accountId/members/:memberId`
-- `GET /api/transactions/account/:accountId`
-- `POST /api/transactions`
-- `POST /api/transactions/bulk`
-- `PUT /api/transactions/:id`
-- `DELETE /api/transactions/:id`
-- `GET /api/transactions/summary/:accountId`
-- `GET /api/transactions/analytics/:accountId`
-- `GET /api/saving-goals/account/:accountId`
-- `POST /api/saving-goals`
-- `POST /api/saving-goals/:id/move-money`
-- `GET /api/invites/received`
-- `GET /api/invites/sent`
-- `GET /api/invites/expired`
-
-## Deployment Notes
-
-The project can be deployed as a static Vite application on platforms such as Vercel.
+- production-oriented React + TypeScript development
+- API integration with an external backend
+- third-party integrations including Google OAuth and EmailJS
+- data visualization with Chart.js
+- spreadsheet export with ExcelJS
+- multilingual UX and responsive design
+- collaboration features, permissions, and role-aware flows
 
 Required production environment variables:
 
