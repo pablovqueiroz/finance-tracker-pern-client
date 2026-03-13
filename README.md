@@ -4,7 +4,9 @@ Frontend application for Budgetivo, a collaborative personal finance platform fo
 
 ## Live Demo
 
-- Live demo: [https://budgetivo.vercel.app/](https://budgetivo.vercel.app/)
+### Try It Live
+
+[Open Budgetivo Live Demo](https://budgetivo.vercel.app/)
 
 ## Related Repositories
 
