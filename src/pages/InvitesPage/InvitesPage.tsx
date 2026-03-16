@@ -154,6 +154,11 @@ function InvitesPage() {
 
   async function handleSendInvite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!canSendInvites) {
+      setErrorMessage(t("invites.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !selectedAccountId) {
@@ -287,6 +292,13 @@ function InvitesPage() {
   const filteredReceivedInvites = receivedInvites.filter(
     (invite) => invite.status === receivedStatusFilter,
   );
+  const selectedAccount = accounts.find((account) => account.id === selectedAccountId);
+  const selectedAccountMember = selectedAccount?.users?.find(
+    (member) => member.userId === currentUser?.id,
+  );
+  const canSendInvites =
+    selectedAccountMember?.role === "OWNER" ||
+    selectedAccountMember?.role === "ADMIN";
 
   if (isLoadingAccounts && isLoadingInvites) {
     return (
@@ -354,17 +366,21 @@ function InvitesPage() {
           </div>
         ) : (
           <>
-            <InviteForm
-              accounts={accounts}
-              email={email}
-              role={role}
-              accountId={selectedAccountId}
-              isSubmitting={isSendingInvite}
-              onEmailChange={setEmail}
-              onRoleChange={setRole}
-              onAccountChange={setSelectedAccountId}
-              onSubmit={handleSendInvite}
-            />
+            {canSendInvites ? (
+              <InviteForm
+                accounts={accounts}
+                email={email}
+                role={role}
+                accountId={selectedAccountId}
+                isSubmitting={isSendingInvite}
+                onEmailChange={setEmail}
+                onRoleChange={setRole}
+                onAccountChange={setSelectedAccountId}
+                onSubmit={handleSendInvite}
+              />
+            ) : (
+              <p>{t("invites.readOnly")}</p>
+            )}
             {sharePayload ? (
               <InviteSharePanel
                 payload={sharePayload}

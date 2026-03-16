@@ -11,6 +11,7 @@ import type {
 } from "../../types/account.types";
 import Message from "../../components/Message/Message";
 import SavingGoalCard from "../../components/SavingGoalCard/SavingGoalCard";
+import { useAuth } from "../../hooks/useAuth";
 import { getCurrencyLabel } from "../../utils/displayLabels";
 import { getLocale } from "../../i18n/getLocale";
 
@@ -44,6 +45,7 @@ function ManageSavingGoalsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locale = getLocale(i18n.resolvedLanguage);
+  const { currentUser } = useAuth();
 
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
@@ -108,6 +110,11 @@ function ManageSavingGoalsPage() {
       completionRate: completionRate.toFixed(0),
     };
   }, [goals]);
+  const currentMember = account?.users.find(
+    (member) => member.userId === currentUser?.id,
+  );
+  const canManageGoals =
+    currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
 
   useEffect(() => {
     async function fetchAccounts() {
@@ -197,6 +204,11 @@ function ManageSavingGoalsPage() {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    if (!canManageGoals) {
+      setErrorMessage(t("savingGoals.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     if (!selectedAccountId || isSaving) return;
 
     const title = form.title.trim();
@@ -247,6 +259,11 @@ function ManageSavingGoalsPage() {
   };
 
   async function handleDelete(goalId: string) {
+    if (!canManageGoals) {
+      setErrorMessage(t("savingGoals.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     const confirmation = window.confirm(
       t("savingGoals.deleteConfirm"),
     );
@@ -277,6 +294,11 @@ function ManageSavingGoalsPage() {
   }
 
   async function handleMoveMoney(goal: savingGoal, type: MoveMoneyType) {
+    if (!canManageGoals) {
+      setErrorMessage(t("savingGoals.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     if (!selectedAccountId || isMovingGoalId || isClosingGoalId) return;
     const amountRaw = movementAmounts[goal.id] ?? "";
     const amount = Number(amountRaw);
@@ -329,6 +351,11 @@ function ManageSavingGoalsPage() {
   }
 
   async function handleCloseGoal(goal: savingGoal) {
+    if (!canManageGoals) {
+      setErrorMessage(t("savingGoals.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     if (!selectedAccountId || isMovingGoalId || isClosingGoalId) return;
 
     const targetAmount = Number(goal.targetAmount);
@@ -477,20 +504,24 @@ function ManageSavingGoalsPage() {
       <section className={`${styles.listSection} ui-card`}>
         <div className={styles.listHeader}>
           <h3>{t("savingGoals.allGoals", { count: goals.length })}</h3>
-          <button
-            className="ui-btn"
-            type="button"
-            onClick={() => {
-              setEditingId(null);
-              setForm(initialForm);
-              setIsFormOpen(true);
-            }}
-          >
-            {t("savingGoals.createGoal")}
-          </button>
+          {canManageGoals ? (
+            <button
+              className="ui-btn"
+              type="button"
+              onClick={() => {
+                setEditingId(null);
+                setForm(initialForm);
+                setIsFormOpen(true);
+              }}
+            >
+              {t("savingGoals.createGoal")}
+            </button>
+          ) : (
+            <p>{t("savingGoals.readOnly")}</p>
+          )}
         </div>
 
-        {isFormOpen && (
+        {isFormOpen && canManageGoals && (
           <section className={styles.formSection}>
             <h3>{editingId ? t("savingGoals.editGoal") : t("savingGoals.newGoal")}</h3>
             <form className={styles.form} onSubmit={handleSubmit}>
@@ -577,91 +608,95 @@ function ManageSavingGoalsPage() {
             {goals.map((goal) => (
               <article className={styles.item} key={goal.id}>
                 <SavingGoalCard goal={goal} currency={account?.currency ?? "EUR"} />
-                <div className={styles.moneyActions}>
-                  <input
-                    className={`ui-control ${styles.moneyInput}`}
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder={t("savingGoals.inputAmount")}
-                    value={movementAmounts[goal.id] ?? ""}
-                    onChange={(event) =>
-                      setMovementAmounts((prev) => ({
-                        ...prev,
-                        [goal.id]: event.target.value,
-                      }))
-                    }
-                  />
-                  <button
-                    className="ui-btn"
-                    type="button"
-                    disabled={
-                      isMovingGoalId === goal.id ||
-                      isClosingGoalId === goal.id ||
-                      (accountBalance !== null && accountBalance <= 0)
-                    }
-                    onClick={() => handleMoveMoney(goal, "ADD")}
-                  >
-                    {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.addMoney")}
-                  </button>
-                  <button
-                    className={`${styles.secondaryBtn} ui-btn`}
-                    type="button"
-                    disabled={isMovingGoalId === goal.id || isClosingGoalId === goal.id}
-                    onClick={() => handleMoveMoney(goal, "REMOVE")}
-                  >
-                    {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.removeMoney")}
-                  </button>
-                </div>
-                <div className={styles.itemActions}>
-                  <button
-                    className={`${styles.secondaryBtn} ui-btn`}
-                    type="button"
-                    onClick={() => {
-                      const targetAmountValue = Number(goal.targetAmount);
-                      const deadlineValue = goal.deadline
-                        ? new Date(goal.deadline).toISOString().slice(0, 10)
-                        : "";
-                      setEditingId(goal.id);
-                      setForm({
-                        title: goal.title,
-                        targetAmount: Number.isFinite(targetAmountValue)
-                          ? String(targetAmountValue)
-                          : "",
-                        deadline: deadlineValue,
-                        notes: goal.notes ?? "",
-                      });
-                      setIsFormOpen(true);
-                    }}
-                  >
-                    {t("common.edit")}
-                  </button>
-                  <button
-                    className={`${styles.dangerBtn} ui-btn`}
-                    type="button"
-                    disabled={deletingId === goal.id}
-                    onClick={() => handleDelete(goal.id)}
-                  >
-                    {deletingId === goal.id ? t("savingGoals.deleting") : t("common.delete")}
-                  </button>
-                  {Number(goal.currentAmount) >= Number(goal.targetAmount) &&
-                    Number(goal.targetAmount) > 0 && (
+                {canManageGoals ? (
+                  <>
+                    <div className={styles.moneyActions}>
+                      <input
+                        className={`ui-control ${styles.moneyInput}`}
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        placeholder={t("savingGoals.inputAmount")}
+                        value={movementAmounts[goal.id] ?? ""}
+                        onChange={(event) =>
+                          setMovementAmounts((prev) => ({
+                            ...prev,
+                            [goal.id]: event.target.value,
+                          }))
+                        }
+                      />
                       <button
                         className="ui-btn"
                         type="button"
                         disabled={
-                          isClosingGoalId === goal.id ||
                           isMovingGoalId === goal.id ||
-                          deletingId === goal.id
+                          isClosingGoalId === goal.id ||
+                          (accountBalance !== null && accountBalance <= 0)
                         }
-                        onClick={() => handleCloseGoal(goal)}
+                        onClick={() => handleMoveMoney(goal, "ADD")}
                       >
-                        {isClosingGoalId === goal.id
-                          ? t("savingGoals.closing")
-                          : t("savingGoals.closeGoal")}
+                        {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.addMoney")}
                       </button>
-                    )}
-                </div>
+                      <button
+                        className={`${styles.secondaryBtn} ui-btn`}
+                        type="button"
+                        disabled={isMovingGoalId === goal.id || isClosingGoalId === goal.id}
+                        onClick={() => handleMoveMoney(goal, "REMOVE")}
+                      >
+                        {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.removeMoney")}
+                      </button>
+                    </div>
+                    <div className={styles.itemActions}>
+                      <button
+                        className={`${styles.secondaryBtn} ui-btn`}
+                        type="button"
+                        onClick={() => {
+                          const targetAmountValue = Number(goal.targetAmount);
+                          const deadlineValue = goal.deadline
+                            ? new Date(goal.deadline).toISOString().slice(0, 10)
+                            : "";
+                          setEditingId(goal.id);
+                          setForm({
+                            title: goal.title,
+                            targetAmount: Number.isFinite(targetAmountValue)
+                              ? String(targetAmountValue)
+                              : "",
+                            deadline: deadlineValue,
+                            notes: goal.notes ?? "",
+                          });
+                          setIsFormOpen(true);
+                        }}
+                      >
+                        {t("common.edit")}
+                      </button>
+                      <button
+                        className={`${styles.dangerBtn} ui-btn`}
+                        type="button"
+                        disabled={deletingId === goal.id}
+                        onClick={() => handleDelete(goal.id)}
+                      >
+                        {deletingId === goal.id ? t("savingGoals.deleting") : t("common.delete")}
+                      </button>
+                      {Number(goal.currentAmount) >= Number(goal.targetAmount) &&
+                        Number(goal.targetAmount) > 0 && (
+                          <button
+                            className="ui-btn"
+                            type="button"
+                            disabled={
+                              isClosingGoalId === goal.id ||
+                              isMovingGoalId === goal.id ||
+                              deletingId === goal.id
+                            }
+                            onClick={() => handleCloseGoal(goal)}
+                          >
+                            {isClosingGoalId === goal.id
+                              ? t("savingGoals.closing")
+                              : t("savingGoals.closeGoal")}
+                          </button>
+                        )}
+                    </div>
+                  </>
+                ) : null}
               </article>
             ))}
           </div>
