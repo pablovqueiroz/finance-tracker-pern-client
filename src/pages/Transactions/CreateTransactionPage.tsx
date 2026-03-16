@@ -1,7 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaWindowClose } from "react-icons/fa";
 import { IoCloudDownloadOutline } from "react-icons/io5";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { IoArrowBackOutline } from "react-icons/io5";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import styles from "./CreateTransactionPage.module.css";
@@ -12,6 +19,7 @@ import SkeletonCard from "../../components/Skeleton/SkeletonCard";
 import SkeletonText from "../../components/Skeleton/SkeletonText";
 import type {
   AccountDetail,
+  AccountSummary,
   Category,
   CreateTransactionBody,
   Transaction,
@@ -58,15 +66,20 @@ const createInitialForm = (
 
 function CreateTransactionPage() {
   const { i18n, t } = useTranslation();
-  const { accountId } = useParams<{ accountId: string }>();
+  const { accountId: routeAccountId } = useParams<{ accountId: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { currentUser } = useAuth();
+  const [accounts, setAccounts] = useState<AccountSummary[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState("");
   const [account, setAccount] = useState<AccountDetail | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [form, setForm] = useState<TransactionForm>(() => createInitialForm());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -76,6 +89,8 @@ function CreateTransactionPage() {
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category | "">("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
 
   const currentMember = useMemo(
     () => account?.users.find((member) => member.userId === currentUser?.id),
@@ -89,17 +104,28 @@ function CreateTransactionPage() {
   const locale = getLocale(i18n.resolvedLanguage);
   const categoryOptions = useMemo(
     () =>
-      [...new Set(transactions.map((transaction) => transaction.category))].sort(
-        (left, right) =>
-          getCategoryLabel(t, left).localeCompare(getCategoryLabel(t, right)),
+      [...ALL_CATEGORIES].sort((left, right) =>
+        getCategoryLabel(t, left).localeCompare(getCategoryLabel(t, right)),
       ),
-    [t, transactions],
+    [t],
   );
   const filteredTransactions = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     return transactions.filter((transaction) => {
       if (selectedCategory && transaction.category !== selectedCategory) {
+        return false;
+      }
+
+      const transactionDate = transaction.date
+        ? new Date(transaction.date).toISOString().slice(0, 10)
+        : "";
+
+      if (startDateFilter && (!transactionDate || transactionDate < startDateFilter)) {
+        return false;
+      }
+
+      if (endDateFilter && (!transactionDate || transactionDate > endDateFilter)) {
         return false;
       }
 
@@ -121,7 +147,7 @@ function CreateTransactionPage() {
 
       return fields.includes(normalizedSearch);
     });
-  }, [searchTerm, selectedCategory, t, transactions]);
+  }, [endDateFilter, searchTerm, selectedCategory, startDateFilter, t, transactions]);
   const selectedCategoryTotal = useMemo(() => {
     if (!selectedCategory) return null;
 
@@ -161,16 +187,45 @@ function CreateTransactionPage() {
     (category) => `${getCategoryLabel(t, category)} -> ${category}`,
   ).join("\n");
 
-  async function loadData() {
-    if (!accountId) return;
+  const loadAccounts = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      const response = await api.get<AccountSummary[]>("/accounts");
+      const accountList = Array.isArray(response.data) ? response.data : [];
+      setAccounts(accountList);
+
+      if (accountList.length === 0) {
+        setSelectedAccountId("");
+        return;
+      }
+
+      const isRouteAccountValid = accountList.some(
+        (item) => item.id === routeAccountId,
+      );
+      setSelectedAccountId(
+        isRouteAccountValid ? routeAccountId || "" : accountList[0].id,
+      );
+      setErrorMessage(null);
+    } catch (error: unknown) {
+      console.error("Failed to load accounts", error);
+      setAccounts([]);
+      setSelectedAccountId("");
+      setErrorMessage(t("savingGoals.loadAccountsFailed"));
+    } finally {
+      setIsLoadingAccounts(false);
+    }
+  }, [routeAccountId, t]);
+
+  const loadData = useCallback(async (targetAccountId: string) => {
+    if (!targetAccountId) return;
 
     setIsLoading(true);
     try {
       const [accountResponse, transactionsResponse] = await Promise.all([
         api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
-          `/accounts/${accountId}`,
+          `/accounts/${targetAccountId}`,
         ),
-        api.get<Transaction[]>(`/transactions/account/${accountId}`),
+        api.get<Transaction[]>(`/transactions/account/${targetAccountId}`),
       ]);
 
       const accountData = accountResponse.data;
@@ -198,11 +253,16 @@ function CreateTransactionPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [t]);
 
   useEffect(() => {
-    loadData();
-  }, [accountId]);
+    void loadAccounts();
+  }, [loadAccounts]);
+
+  useEffect(() => {
+    if (!selectedAccountId) return;
+    void loadData(selectedAccountId);
+  }, [loadData, selectedAccountId]);
 
   useEffect(() => {
     const editFromQuery = searchParams.get("edit");
@@ -235,25 +295,6 @@ function CreateTransactionPage() {
     });
   }, [editingId, transactions]);
 
-  useEffect(() => {
-    if (!isFormOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isModalBusy) {
-        clearForm();
-      }
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isFormOpen, isModalBusy, searchParams]);
-
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -280,7 +321,7 @@ function CreateTransactionPage() {
     }));
   };
 
-  const clearForm = () => {
+  const clearForm = useCallback(() => {
     setForm(createInitialForm());
     setEditingId(null);
     setIsFormOpen(false);
@@ -291,7 +332,26 @@ function CreateTransactionPage() {
       next.delete("edit");
       setSearchParams(next);
     }
-  };
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!isFormOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isModalBusy) {
+        clearForm();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [clearForm, isFormOpen, isModalBusy]);
 
   const parseBulkTransactions = (
     rawText: string,
@@ -421,7 +481,7 @@ function CreateTransactionPage() {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    if (!accountId || isSubmitting) return;
+    if (!selectedAccountId || isSubmitting) return;
 
     const parsedAmount = Number(form.amount);
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
@@ -436,7 +496,7 @@ function CreateTransactionPage() {
       amount: parsedAmount,
       type: form.type,
       category: form.category,
-      accountId,
+      accountId: selectedAccountId,
       ...(form.date && { date: form.date }),
       ...(form.notes.trim() && { notes: form.notes.trim() }),
     };
@@ -453,7 +513,7 @@ function CreateTransactionPage() {
 
       setErrorMessage(null);
       clearForm();
-      await loadData();
+      await loadData(selectedAccountId);
     } catch (error: unknown) {
       console.error("Failed to save transaction", error);
       if (axios.isAxiosError(error)) {
@@ -475,11 +535,11 @@ function CreateTransactionPage() {
     e,
   ) => {
     e.preventDefault();
-    if (!accountId || isBulkSubmitting) return;
+    if (!selectedAccountId || isBulkSubmitting) return;
 
     let transactionsPayload: CreateTransactionBody[];
     try {
-      transactionsPayload = parseBulkTransactions(bulkText, accountId);
+      transactionsPayload = parseBulkTransactions(bulkText, selectedAccountId);
     } catch (error: unknown) {
       setSuccessMessage(null);
       setErrorMessage(
@@ -502,7 +562,7 @@ function CreateTransactionPage() {
       setBulkText("");
       setIsFormOpen(false);
       setIsBulkMode(false);
-      await loadData();
+      await loadData(selectedAccountId);
     } catch (error: unknown) {
       console.error("Failed to create bulk transactions", error);
       if (axios.isAxiosError(error)) {
@@ -551,7 +611,7 @@ function CreateTransactionPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoadingAccounts || isLoading) {
     return (
       <div className={styles.pageContainer} aria-busy="true">
         <section className={`${styles.header} ui-card`}>
@@ -577,7 +637,11 @@ function CreateTransactionPage() {
     );
   }
 
-  if (!account || !accountId) {
+  if (accounts.length === 0) {
+    return <p className={styles.pageState}>{t("savingGoals.emptyAccounts")}</p>;
+  }
+
+  if (!account || !selectedAccountId) {
     return <p className={styles.pageState}>{t("transactionsPage.notFound")}</p>;
   }
 
@@ -613,8 +677,33 @@ function CreateTransactionPage() {
             currency: getCurrencyLabel(t, account.currency),
           })}
         </p>
-        <Link className="ui-btn" to={`/accounts/${accountId}`}>
-          {t("common.backToAccount")}
+        <label className={styles.accountSelector} htmlFor="transaction-account">
+          <span className={styles.accountSelectorLabel}>{t("common.account")}</span>
+          <select
+            className={`ui-control ${styles.accountSelectorInput}`}
+            id="transaction-account"
+            value={selectedAccountId}
+            onChange={(event) => {
+              const nextAccountId = event.target.value;
+              setSelectedAccountId(nextAccountId);
+              if (location.pathname.startsWith("/accounts/")) {
+                navigate(`/accounts/${nextAccountId}/transactions`);
+              }
+            }}
+          >
+            {accounts.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Link
+          className={styles.backLink}
+          to={`/accounts/${selectedAccountId}`}
+        >
+          <IoArrowBackOutline aria-hidden="true" />
+          <span>{t("common.backToAccount")}</span>
         </Link>
       </section>
 
@@ -990,6 +1079,30 @@ function CreateTransactionPage() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className={styles.filterField} htmlFor="transaction-start-date">
+            {t("transactionsPage.startDate")}
+            <input
+              id="transaction-start-date"
+              className="ui-control"
+              type="date"
+              value={startDateFilter}
+              max={endDateFilter || undefined}
+              onChange={(event) => setStartDateFilter(event.target.value)}
+            />
+          </label>
+
+          <label className={styles.filterField} htmlFor="transaction-end-date">
+            {t("transactionsPage.endDate")}
+            <input
+              id="transaction-end-date"
+              className="ui-control"
+              type="date"
+              value={endDateFilter}
+              min={startDateFilter || undefined}
+              onChange={(event) => setEndDateFilter(event.target.value)}
+            />
           </label>
         </div>
 

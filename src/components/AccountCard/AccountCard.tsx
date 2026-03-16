@@ -11,7 +11,7 @@ type AccountCardProps = {
 
 function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
   const { i18n, t } = useTranslation();
-  const { id, name, description, currency, updatedAt, _count } = account;
+  const { name, description, currency, updatedAt, _count } = account;
   const users = account.users ?? [];
 
   const currentMember = users.find((user) => user.userId === currentUserId);
@@ -39,7 +39,6 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
       <section className={styles.top}>
         <article className={styles.title}>
           <h3>{name}</h3>
-          <small className={styles.accountId}>{id}</small>
           {description ? <p>{description}</p> : null}
         </article>
       </section>
@@ -64,7 +63,9 @@ function AccountCard({ account, currentUserId, onSelect }: AccountCardProps) {
             })}
           </p>
         ) : null}
-        {owner ? <p>{t("accountCard.owner", { name: owner.user.name })}</p> : null}
+        {owner ? (
+          <p>{t("accountCard.owner", { name: owner.user.name })}</p>
+        ) : null}
         {otherMembers.length > 0 ? (
           <article className={styles.membersAvatar}>
             {otherMembers.map((member) => (

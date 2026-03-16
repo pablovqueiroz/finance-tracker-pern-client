@@ -10,6 +10,7 @@ import { useAuth } from "../../hooks/useAuth";
 import styles from "./NavBar.module.css";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import { RxAvatar } from "react-icons/rx";
 
 function getInitials(name?: string) {
   if (!name) {
@@ -120,15 +121,17 @@ function NavBar() {
           {isProfileMenuOpen ? (
             <div className={styles.profileMenu}>
               <NavLink className={styles.menuItem} to="/profile">
+                {" "}
+                <RxAvatar className={styles.menuIcon} />
                 {t("nav.profileDetails")}
               </NavLink>
-              <div className={styles.menuLanguage}>
-                <LanguageSwitcher />
-              </div>
               <NavLink className={styles.menuItem} to="/contact#contact">
                 <FiMessageSquare className={styles.menuIcon} />
                 <span>{t("nav.sendFeedback")}</span>
               </NavLink>
+              <div className={styles.menuLanguage}>
+                <LanguageSwitcher />
+              </div>
               <button
                 className={styles.menuItemButton}
                 type="button"

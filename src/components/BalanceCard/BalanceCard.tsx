@@ -5,11 +5,8 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from "react";
-import { FaRegEdit } from "react-icons/fa";
-import { GiClick } from "react-icons/gi";
 import { IoIosArrowDropleft, IoIosArrowDropright } from "react-icons/io";
-import { Link } from "react-router-dom";
-import { IoEnterOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { AccountSummary } from "../../types/account.types";
 import { getLocale } from "../../i18n/getLocale";
@@ -40,9 +37,7 @@ function BalanceCard({
   const dragStartScrollLeftRef = useRef(0);
   const hasDraggedRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [openMembersAccountId, setOpenMembersAccountId] = useState<
-    string | null
-  >(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const activeSlide = slideRefs.current[activeIndex];
@@ -64,19 +59,6 @@ function BalanceCard({
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (!openMembersAccountId) return;
-
-    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenMembersAccountId(null);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [openMembersAccountId]);
 
   const syncActiveIndexFromScroll = () => {
     const carousel = carouselRef.current;
@@ -239,6 +221,11 @@ function BalanceCard({
               style: "currency",
               currency: account.currency,
             }).format(Number.isFinite(numericBalance) ? numericBalance : 0);
+            const visibleMembers = (account.users ?? []).slice(0, 2);
+            const remainingMembersCount = Math.max(
+              (account.users ?? []).length - visibleMembers.length,
+              0,
+            );
 
             return (
               <article
@@ -253,6 +240,15 @@ function BalanceCard({
                   className={`${styles.slideCard} ${
                     index === activeIndex ? styles.slideCardActive : ""
                   }`}
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => navigate(`/accounts/${account.id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      navigate(`/accounts/${account.id}`);
+                    }
+                  }}
                 >
                   <section className={styles.accountData}>
                     <h3>{account.name}</h3>
@@ -270,95 +266,49 @@ function BalanceCard({
                           count: account._count?.transactions ?? 0,
                         })}
                       </span>
-                      <div className={styles.membersPopoverWrap}>
-                        <button
-                          className={styles.membersToggle}
-                          type="button"
-                          onClick={() =>
-                            setOpenMembersAccountId((prev) =>
-                              prev === account.id ? null : account.id,
-                            )
-                          }
-                          aria-expanded={openMembersAccountId === account.id}
-                        >
-                          <GiClick className={styles.membersToggleIcon} aria-hidden="true" />
-                          {t("balanceCard.seeMembers")}
-                        </button>
-                      </div>
                     </section>
-                    <Link
-                      className={styles.detailsLink}
-                      to={`/accounts/${account.id}`}
-                      aria-label={t("balanceCard.openDetails", {
-                        name: account.name,
-                      })}
-                      title={t("balanceCard.openDetails", {
-                        name: account.name,
-                      })}
-                    >
-                      <IoEnterOutline aria-hidden="true" />
-                    </Link>
                   </div>
+
+                  {visibleMembers.length > 0 ? (
+                    <section className={styles.membersPreview}>
+                      {visibleMembers.map((member) => (
+                        <div className={styles.memberPreviewItem} key={member.userId}>
+                          {member.user.image ? (
+                            <img
+                              className={styles.memberAvatar}
+                              src={member.user.image}
+                              alt={member.user.name}
+                            />
+                          ) : (
+                            <span className={styles.memberAvatarFallback} aria-hidden="true">
+                              {member.user.name.slice(0, 1).toUpperCase()}
+                            </span>
+                          )}
+                          <span className={styles.memberPreviewText}>
+                            <span className={styles.memberPreviewName}>
+                              {member.user.name.trim().split(/\s+/)[0]}
+                            </span>
+                            <span className={styles.memberPreviewRole}>
+                              {t(`roles.${member.role}`, {
+                                defaultValue: member.role,
+                              })}
+                            </span>
+                          </span>
+                        </div>
+                      ))}
+                      {remainingMembersCount > 0 ? (
+                        <span className={styles.membersMore}>
+                          +{remainingMembersCount}
+                        </span>
+                      ) : null}
+                    </section>
+                  ) : null}
                 </div>
               </article>
             );
           })}
         </div>
       </div>
-
-      {openMembersAccountId ? (
-        <div
-          className={styles.membersModalOverlay}
-          onClick={() => setOpenMembersAccountId(null)}
-          role="presentation"
-        >
-          <div
-            className={styles.membersModal}
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("common.members")}
-          >
-            <p className={styles.membersTitle}>{t("common.members")}</p>
-            {(
-              accounts.find((account) => account.id === openMembersAccountId)
-                ?.users ?? []
-            ).length > 0 ? (
-              <div className={styles.membersList}>
-                {(
-                  accounts.find(
-                    (account) => account.id === openMembersAccountId,
-                  )?.users ?? []
-                ).map((member) => (
-                  <div className={styles.memberItem} key={member.userId}>
-                    <span className={styles.memberLine}>
-                      {member.user.name}:{" "}
-                      {t(`roles.${member.role}`, {
-                        defaultValue: member.role,
-                      })}
-                    </span>
-                    <Link
-                      className={styles.editMemberLink}
-                      to={`/accounts/${openMembersAccountId}/members`}
-                      aria-label={t("balanceCard.editMember", {
-                        name: member.user.name,
-                      })}
-                      title={t("balanceCard.editMember", {
-                        name: member.user.name,
-                      })}
-                      onClick={() => setOpenMembersAccountId(null)}
-                    >
-                      <FaRegEdit aria-hidden="true" />
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className={styles.membersEmpty}>{t("members.empty")}</p>
-            )}
-          </div>
-        </div>
-      ) : null}
 
       {accounts.length > 1 ? (
         <section className={styles.dots}>

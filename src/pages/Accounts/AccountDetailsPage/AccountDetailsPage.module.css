@@ -110,7 +110,6 @@
 
 .aMembersSection {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
 }
 
@@ -127,30 +126,17 @@
   flex-wrap: wrap;
 }
 
-.inviteForm {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) 140px auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.inviteForm > * {
-  min-width: 0;
-}
-
-.memberAvatar {
+.memberRow {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-
-  padding: 10px;
+  padding: 10px 12px;
   display: grid;
-  justify-items: center;
-  gap: 6px;
-  text-align: center;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
 }
 
-.memberAvatar img {
+.memberRow img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -163,17 +149,15 @@
   color: var(--text-main);
   font-size: 0.9rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .memberRole {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.8rem;
-}
-
-.memberActionBtn {
-  margin-top: 8px;
-  width: 100%;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .transactionsSection,
@@ -206,13 +190,24 @@
   .accountActions > button,
   .accountActions > a,
   .editActions > button,
-  .inviteForm > button,
   .transactionsSection :global(.ui-btn),
   .savingGoalsSection :global(.ui-btn) {
     width: 100%;
   }
 
-  .inviteForm {
-    grid-template-columns: 1fr;
+  .memberRow {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .memberRow img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .memberRole {
+    grid-column: 2;
+    text-align: left;
+    margin-top: -4px;
   }
 }

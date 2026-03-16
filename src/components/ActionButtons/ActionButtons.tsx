@@ -2,8 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { TbReport } from "react-icons/tb";
 import styles from "./ActionButtons.module.css";
-import { FaChartSimple } from "react-icons/fa6";
-import { GiExpense, GiReceiveMoney } from "react-icons/gi";
+import { FaChartSimple, FaCirclePlus } from "react-icons/fa6";
 
 export type ActionButtonsProps = {
   accountId?: string;
@@ -13,23 +12,18 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const hasAccount = Boolean(accountId);
-  const incomePath = hasAccount
-    ? `/accounts/${accountId}/transactions?type=INCOME`
-    : "";
-  const expensePath = hasAccount
-    ? `/accounts/${accountId}/transactions?type=EXPENSE`
-    : "";
+  const transactionPath = hasAccount ? `/accounts/${accountId}/transactions` : "";
   const disabledTitle = t("actions.selectAccountFirst");
 
   return (
     <div className={styles.actionButtonsContainer}>
       {hasAccount ? (
         <Link
-          to={incomePath}
+          to={transactionPath}
           className={styles.actionButton}
-          title={t("actions.newIncome")}
+          title={t("actions.newTransaction")}
         >
-          <GiReceiveMoney />
+          <FaCirclePlus />
         </Link>
       ) : (
         <button
@@ -38,26 +32,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           disabled
           title={disabledTitle}
         >
-          <GiReceiveMoney />
-        </button>
-      )}
-
-      {hasAccount ? (
-        <Link
-          to={expensePath}
-          className={styles.actionButton}
-          title={t("actions.newExpense")}
-        >
-          <GiExpense />
-        </Link>
-      ) : (
-        <button
-          className={`${styles.actionButton} ${styles.disabled}`}
-          type="button"
-          disabled
-          title={disabledTitle}
-        >
-          <GiExpense />
+          <FaCirclePlus />
         </button>
       )}
 

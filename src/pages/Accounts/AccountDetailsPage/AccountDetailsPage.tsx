@@ -6,7 +6,6 @@ import axios from "axios";
 import type {
   AccountCounts,
   AccountDetail,
-  AccountRole,
   Currency,
   Transaction,
   savingGoal,
@@ -30,10 +29,6 @@ function AccountDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<AccountRole>("MEMBER");
-  const [isInviting, setIsInviting] = useState(false);
-  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -81,7 +76,7 @@ function AccountDetailsPage() {
       }
     }
     if (accountId) fetchAccount();
-  }, [accountId]);
+  }, [accountId, t]);
 
   const currentMember = account?.users.find(
     (user) => user.userId === currentUser?.id,
@@ -180,80 +175,6 @@ function AccountDetailsPage() {
       }, 3000);
     } catch (error: unknown) {
       console.error("Failed to delete account", error);
-    }
-  }
-
-  async function handleInviteMember(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!accountId) return;
-
-    const normalizedEmail = inviteEmail.trim().toLowerCase();
-    if (!normalizedEmail) {
-      setErrorMessage(t("accounts.details.emailRequired"));
-      return;
-    }
-
-    try {
-      setIsInviting(true);
-      await api.post("/invites", {
-        email: normalizedEmail,
-        accountId,
-        role: inviteRole,
-      });
-      setInviteEmail("");
-      setErrorMessage(null);
-      setSuccessMessage(t("accounts.details.inviteSuccess"));
-    } catch (error: unknown) {
-      console.error("Failed to send invite", error);
-      if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("accounts.details.inviteFailed"),
-        );
-      } else {
-        setErrorMessage(t("accounts.details.unexpected"));
-      }
-      setSuccessMessage(null);
-    } finally {
-      setIsInviting(false);
-    }
-  }
-
-  async function handleRemoveMember(memberId: string, memberName: string) {
-    if (!accountId || !account) return;
-    const confirmation = window.confirm(
-      t("accounts.details.removeMemberConfirm", { name: memberName }),
-    );
-    if (!confirmation) return;
-
-    try {
-      setRemovingMemberId(memberId);
-      await api.delete(`/accounts/${accountId}/members/${memberId}`);
-      setAccount((prev) =>
-        prev
-          ? {
-              ...prev,
-              users: prev.users.filter((member) => member.id !== memberId),
-            }
-          : prev,
-      );
-      setErrorMessage(null);
-      setSuccessMessage(t("accounts.details.removeMemberSuccess"));
-    } catch (error: unknown) {
-      console.error("Failed to remove member", error);
-      if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("accounts.details.removeMemberFailed"),
-        );
-      } else {
-        setErrorMessage(t("accounts.details.unexpected"));
-      }
-      setSuccessMessage(null);
-    } finally {
-      setRemovingMemberId(null);
     }
   }
 
@@ -377,62 +298,17 @@ function AccountDetailsPage() {
             <button
               className="ui-btn"
               type="button"
-              onClick={() => navigate(`/accounts/${accountId}/members`)}
-            >
-              {t("accounts.details.manageMembers")}
-            </button>
-            <button
-              className="ui-btn"
-              type="button"
               onClick={() => navigate(`/invites?accountId=${accountId}`)}
             >
               {t("common.invites")}
             </button>
           </div>
         </div>
-        {canEdit && (
-          <form className={styles.inviteForm} onSubmit={handleInviteMember}>
-            <input
-              className="ui-control"
-              type="email"
-              placeholder={t("accounts.details.invitePlaceholder")}
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              required
-            />
-            <select
-              className="ui-control"
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as AccountRole)}
-            >
-              <option value="MEMBER">{getRoleLabel(t, "MEMBER")}</option>
-              <option value="ADMIN">{getRoleLabel(t, "ADMIN")}</option>
-            </select>
-            <button className="ui-btn" type="submit" disabled={isInviting}>
-              {isInviting ? t("accounts.details.sending") : t("accounts.details.invite")}
-            </button>
-          </form>
-        )}
         {account.users.map((member) => (
-          <article className={styles.memberAvatar} key={member.userId}>
+          <article className={styles.memberRow} key={member.userId}>
             <img src={member.user.image} alt={member.user.name} />
             <p className={styles.memberName}>{member.user.name}</p>
             <p className={styles.memberRole}>{getRoleLabel(t, member.role)}</p>
-            {canDelete &&
-              member.userId !== currentUser?.id &&
-              typeof member.id === "string" && (
-                <button
-                  className={`${styles.memberActionBtn} ui-btn`}
-                  onClick={() =>
-                    handleRemoveMember(member.id as string, member.user.name)
-                  }
-                  disabled={removingMemberId === member.id}
-                >
-                  {removingMemberId === member.id
-                    ? t("accounts.details.removing")
-                    : t("accounts.details.remove")}
-                </button>
-              )}
           </article>
         ))}
       </section>

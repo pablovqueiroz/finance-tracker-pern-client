@@ -17,8 +17,10 @@ import ReportsPage from "./pages/ReportsPage/ReportsPage";
 import AccountMembersPage from "./pages/AccountMembersPage/AccountMembersPage";
 import ContactPage from "./pages/ContacPage/ContactPage";
 import InvitesPage from "./pages/InvitesPage/InvitesPage";
+import { useState } from "react";
 
 function App() {
+  const [activeAccountId, setActiveAccountId] = useState("");
   return (
     <>
       <header>
@@ -32,7 +34,10 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           {/* protected routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard"
+              element={<Dashboard onActiveAccountChange={setActiveAccountId} />}
+            />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
             <Route path="/accounts" element={<ManageAccountsPage />} />
@@ -65,7 +70,7 @@ function App() {
         </Routes>
       </main>
       <footer>
-        <MobileMenu />
+        <MobileMenu activeAccountId={activeAccountId} />
       </footer>
     </>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -139,9 +139,9 @@ function ManageSavingGoalsPage() {
     }
 
     fetchAccounts();
-  }, [routeAccountId]);
+  }, [routeAccountId, t]);
 
-  async function loadGoals(targetAccountId: string) {
+  const loadGoals = useCallback(async (targetAccountId: string) => {
     if (!targetAccountId) return;
 
     try {
@@ -170,12 +170,12 @@ function ManageSavingGoalsPage() {
     } finally {
       setIsLoadingGoals(false);
     }
-  }
+  }, [t]);
 
   useEffect(() => {
     if (!selectedAccountId) return;
-    loadGoals(selectedAccountId);
-  }, [selectedAccountId]);
+    void loadGoals(selectedAccountId);
+  }, [loadGoals, selectedAccountId]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -412,9 +412,9 @@ function ManageSavingGoalsPage() {
         <p className={styles.subtitle}>{t("savingGoals.subtitle")}</p>
 
         <label className={styles.accountSelector} htmlFor="accountId">
-          {t("common.account")}
+          <span className={styles.accountSelectorLabel}>{t("common.account")}</span>
           <select
-            className="ui-control"
+            className={`ui-control ${styles.accountSelectorInput}`}
             id="accountId"
             value={selectedAccountId}
             onChange={(event) => {

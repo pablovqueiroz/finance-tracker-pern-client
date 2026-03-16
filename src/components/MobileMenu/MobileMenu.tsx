@@ -1,23 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, matchPath, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IoHomeOutline, IoHomeSharp } from "react-icons/io5";
-import { IoPersonAddOutline } from "react-icons/io5";
+import {
+  IoHomeOutline,
+  IoHomeSharp,
+  IoPersonAddOutline,
+  IoSettingsOutline,
+} from "react-icons/io5";
 import { HiOutlineWallet, HiWallet } from "react-icons/hi2";
 import { FaCirclePlus } from "react-icons/fa6";
 import { FiMessageSquare } from "react-icons/fi";
-import {
-  MdOutlineSavings,
-  MdSavings,
-  MdOutlineAccountCircle,
-} from "react-icons/md";
-import { TbReport } from "react-icons/tb";
+import { MdOutlineSavings, MdSavings } from "react-icons/md";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "./MobileMenu.module.css";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { RxAvatar } from "react-icons/rx";
 
-export default function MobileMenu() {
+type MobileMenuProps = {
+  activeAccountId: string;
+};
+
+export default function MobileMenu({ activeAccountId }: MobileMenuProps) {
   const { isLoggedIn, handleLogout } = useAuth();
   const { i18n, t } = useTranslation();
   const location = useLocation();
@@ -25,8 +28,9 @@ export default function MobileMenu() {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const currentLanguage = (i18n.resolvedLanguage ?? "en").slice(0, 2);
   const currentAccountId =
-    matchPath("/accounts/:accountId/*", location.pathname)?.params.accountId ??
-    matchPath("/accounts/:accountId", location.pathname)?.params.accountId ??
+    activeAccountId ||
+    matchPath("/accounts/:accountId/*", location.pathname)?.params.accountId ||
+    matchPath("/accounts/:accountId", location.pathname)?.params.accountId ||
     "";
   const languageOptions = [
     { code: "en", label: t("language.englishShort") },
@@ -57,14 +61,14 @@ export default function MobileMenu() {
         <NavLink to="/accounts" onClick={() => setIsProfileMenuOpen(false)}>
           {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
         </NavLink>
-
-        <NavLink
-          to="/create-account"
-          onClick={() => setIsProfileMenuOpen(false)}
-        >
-          <FaCirclePlus className={styles.createNew} />
-        </NavLink>
-
+        {currentAccountId ? (
+          <NavLink
+            to={`/accounts/${currentAccountId}/transactions`}
+            onClick={() => setIsProfileMenuOpen(false)}
+          >
+            <FaCirclePlus className={styles.createNew} />
+          </NavLink>
+        ) : null}
         <NavLink to="/savings" onClick={() => setIsProfileMenuOpen(false)}>
           {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
         </NavLink>
@@ -76,45 +80,11 @@ export default function MobileMenu() {
             onClick={() => setIsProfileMenuOpen((prev) => !prev)}
             aria-label={t("nav.openProfileMenu")}
           >
-            <MdOutlineAccountCircle />
+            <IoSettingsOutline />
           </button>
 
           {isProfileMenuOpen ? (
             <div className={styles.profileMenu}>
-              <NavLink
-                className={styles.profileMenuItem}
-                to="/profile"
-                onClick={() => setIsProfileMenuOpen(false)}
-              >
-                <RxAvatar className={styles.menuIcon} />{" "}
-                {t("nav.profileDetails")}
-              </NavLink>
-              <NavLink
-                className={styles.profileMenuItem}
-                to="/reports"
-                onClick={() => setIsProfileMenuOpen(false)}
-              >
-                <TbReport className={styles.menuIcon} />
-                <span>{t("nav.reports")}</span>
-              </NavLink>
-              {currentAccountId ? (
-                <NavLink
-                  className={styles.profileMenuItem}
-                  to={`/accounts/${currentAccountId}/transactions`}
-                  onClick={() => setIsProfileMenuOpen(false)}
-                >
-                  <TbReport className={styles.menuIcon} />
-                  <span>{t("nav.transactions")}</span>
-                </NavLink>
-              ) : null}
-              <NavLink
-                className={styles.profileMenuItem}
-                to="/invites"
-                onClick={() => setIsProfileMenuOpen(false)}
-              >
-                <IoPersonAddOutline className={styles.menuIcon} />
-                <span>{t("nav.invites")}</span>
-              </NavLink>
               <div className={styles.profileMenuLanguage}>
                 <span className={styles.languageLabel}>
                   {t("language.label")}
@@ -138,6 +108,24 @@ export default function MobileMenu() {
                   ))}
                 </div>
               </div>
+              <NavLink
+                className={styles.profileMenuItem}
+                to="/profile"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
+                <RxAvatar className={styles.menuIcon} />{" "}
+                {t("nav.profileDetails")}
+              </NavLink>
+
+              <NavLink
+                className={styles.profileMenuItem}
+                to="/invites"
+                onClick={() => setIsProfileMenuOpen(false)}
+              >
+                <IoPersonAddOutline className={styles.menuIcon} />
+                <span>{t("nav.invites")}</span>
+              </NavLink>
+
               <NavLink
                 className={styles.profileMenuItem}
                 to="/contact#contact"
