@@ -112,6 +112,8 @@ This project showcases practical frontend engineering skills that are relevant t
 - member roles: Owner, Admin, Viewer
 - member management page
 - invite flows for collaboration
+- localized invite share modal with copy, email, SMS, WhatsApp, and native share options
+- manual invite delivery flow that keeps backend invite creation unchanged
 
 ### Transactions
 
@@ -120,12 +122,14 @@ This project showcases practical frontend engineering skills that are relevant t
 - downloadable bulk template
 - localized labels with backend-safe enum codes
 - category filtering and search
+- connected date range filters and always-available category options, including Insurance
 
 ### Saving Goals and Reports
 
 - create and edit saving goals
 - move money in and out of goals
 - progress indicators and analytics
+- compact account switcher on savings and transaction management pages
 - income vs expense charts
 - category breakdown charts
 - saving goal charts and progress tracking
