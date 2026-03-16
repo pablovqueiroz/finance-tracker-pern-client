@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FaUserEdit } from "react-icons/fa";
 import styles from "./AccountDetailsPage.module.css";
 import api from "../../../services/api";
 import axios from "axios";
 import type {
   AccountCounts,
   AccountDetail,
+  AccountRole,
   Currency,
   Transaction,
   savingGoal,
@@ -15,6 +17,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import TransactionCard from "../../../components/TransactionCard/TransactionCard";
 import SavingGoalCard from "../../../components/SavingGoalCard/SavingGoalCard";
 import Message from "../../../components/Message/Message";
+import RoleSelector from "../../../components/members/RoleSelector";
 import { getCurrencyLabel, getRoleLabel } from "../../../utils/displayLabels";
 import { getLocale } from "../../../i18n/getLocale";
 
@@ -29,6 +32,9 @@ function AccountDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<AccountRole>("MEMBER");
+  const [updatingMemberId, setUpdatingMemberId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -178,6 +184,45 @@ function AccountDetailsPage() {
     }
   }
 
+  async function handleMemberRoleUpdate(memberId: string, role: AccountRole) {
+    if (!accountId || !account) return;
+
+    const targetMember = account.users.find((member) => member.id === memberId);
+    if (!targetMember || targetMember.role === role) return;
+
+    try {
+      setUpdatingMemberId(memberId);
+      await api.patch(`/accounts/${accountId}/members/${memberId}`, { role });
+      setAccount((prev) =>
+        prev
+          ? {
+              ...prev,
+              users: prev.users.map((member) =>
+                member.id === memberId ? { ...member, role } : member,
+              ),
+            }
+          : prev,
+      );
+      setSuccessMessage(t("members.updateSuccess"));
+      setErrorMessage(null);
+      setEditingMemberId(null);
+    } catch (error: unknown) {
+      console.error("Failed to update member role", error);
+      if (axios.isAxiosError(error)) {
+        setErrorMessage(
+          error.response?.data?.errorMessage ??
+            error.response?.data?.message ??
+            t("members.updateFailed"),
+        );
+      } else {
+        setErrorMessage(t("members.updateFailed"));
+      }
+      setSuccessMessage(null);
+    } finally {
+      setUpdatingMemberId(null);
+    }
+  }
+
   if (isLoading) return <p>{t("accounts.details.loading")}</p>;
   if (!account) return null;
   const locale = getLocale(i18n.resolvedLanguage);
@@ -304,13 +349,69 @@ function AccountDetailsPage() {
             </button>
           </div>
         </div>
-        {account.users.map((member) => (
-          <article className={styles.memberRow} key={member.userId}>
-            <img src={member.user.image} alt={member.user.name} />
-            <p className={styles.memberName}>{member.user.name}</p>
-            <p className={styles.memberRole}>{getRoleLabel(t, member.role)}</p>
-          </article>
-        ))}
+        {account.users.map((member) => {
+          const canManageMemberRole =
+            currentMember?.role === "OWNER" &&
+            member.role !== "OWNER" &&
+            Boolean(member.id);
+          const isEditingMember = editingMemberId === member.id;
+          const isUpdatingMember = updatingMemberId === member.id;
+
+          return (
+            <article className={styles.memberRow} key={member.userId}>
+              <img src={member.user.image} alt={member.user.name} />
+              <div className={styles.memberInfo}>
+                <p className={styles.memberName}>{member.user.name}</p>
+                <p className={styles.memberRole}>{getRoleLabel(t, member.role)}</p>
+              </div>
+
+              <div className={styles.memberActions}>
+                {canManageMemberRole ? (
+                  <>
+                    <button
+                      className={styles.memberEditButton}
+                      type="button"
+                      aria-label={t("members.editRole", { name: member.user.name })}
+                      aria-expanded={isEditingMember}
+                      disabled={isUpdatingMember}
+                      onClick={() => {
+                        setSelectedRole(member.role);
+                        setEditingMemberId((current) =>
+                          current === member.id ? null : (member.id ?? null),
+                        );
+                      }}
+                    >
+                      <FaUserEdit aria-hidden="true" />
+                    </button>
+
+                    {isEditingMember ? (
+                      <div className={styles.memberEditor}>
+                        <RoleSelector
+                          value={selectedRole}
+                          options={["MEMBER", "ADMIN"]}
+                          disabled={isUpdatingMember}
+                          onChange={setSelectedRole}
+                        />
+                        <button
+                          className="ui-btn"
+                          type="button"
+                          disabled={isUpdatingMember || selectedRole === member.role}
+                          onClick={() =>
+                            member.id
+                              ? void handleMemberRoleUpdate(member.id, selectedRole)
+                              : undefined
+                          }
+                        >
+                          {isUpdatingMember ? t("common.updating") : t("common.update")}
+                        </button>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
       </section>
 
       <section className={`${styles.transactionsSection} ui-card`}>

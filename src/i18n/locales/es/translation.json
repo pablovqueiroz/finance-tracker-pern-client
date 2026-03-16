@@ -625,7 +625,8 @@
     },
     "currentUser": "Tu",
     "locked": "Bloqueado",
-    "removing": "Quitando..."
+    "removing": "Quitando...",
+    "editRole": "Editar rol de {{name}}"
   },
   "roles": {
     "OWNER": "Propietario",

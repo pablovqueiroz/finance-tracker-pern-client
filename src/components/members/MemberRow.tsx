@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { AccountMember, AccountRole } from "../../types/account.types";
 import { useTranslation } from "react-i18next";
+import { FaUserEdit } from "react-icons/fa";
 import { getRoleLabel } from "../../utils/displayLabels";
 import RoleSelector from "./RoleSelector";
 import styles from "./Members.module.css";
@@ -37,8 +39,28 @@ function MemberRow({
   const { t } = useTranslation();
   const memberId = member.id ?? "";
   const isCurrentUser = member.userId === currentUserId;
-  const canEditRole = canManageRoles && !isCurrentUser && Boolean(memberId);
+  const [isEditingRole, setIsEditingRole] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<AccountRole>(member.role);
+  const canEditRole =
+    canManageRoles &&
+    member.role !== "OWNER" &&
+    Boolean(memberId);
   const canRemove = canRemoveMembers && !isCurrentUser && Boolean(memberId);
+  const isBusy = isUpdating || isRemoving;
+
+  function handleToggleRoleEditor() {
+    if (!canEditRole || isBusy) return;
+
+    setSelectedRole(member.role);
+    setIsEditingRole((current) => !current);
+  }
+
+  function handleUpdateRole() {
+    if (!memberId || selectedRole === member.role || isBusy) return;
+
+    onRoleChange(memberId, selectedRole);
+    setIsEditingRole(false);
+  }
 
   return (
     <article className={styles.row}>
@@ -64,17 +86,47 @@ function MemberRow({
       <span className={styles.roleBadge}>{getRoleLabel(t, member.role)}</span>
 
       <div className={styles.actions}>
-        <RoleSelector
-          value={member.role}
-          disabled={!canEditRole || isUpdating || isRemoving}
-          onChange={(role) => onRoleChange(memberId, role)}
-        />
+        <div className={styles.roleEditor}>
+          {canEditRole ? (
+            <>
+              <button
+                className={styles.editButton}
+                type="button"
+                aria-label={t("members.editRole", { name: member.user.name })}
+                aria-expanded={isEditingRole}
+                disabled={isBusy}
+                onClick={handleToggleRoleEditor}
+              >
+                <FaUserEdit aria-hidden="true" />
+              </button>
+
+              {isEditingRole ? (
+                <div className={styles.roleEditorPanel}>
+                  <RoleSelector
+                    value={selectedRole}
+                    options={["MEMBER", "ADMIN"]}
+                    disabled={isBusy}
+                    onChange={setSelectedRole}
+                  />
+                  <button
+                    className="ui-btn"
+                    type="button"
+                    disabled={isBusy || selectedRole === member.role}
+                    onClick={handleUpdateRole}
+                  >
+                    {isUpdating ? t("common.updating") : t("common.update")}
+                  </button>
+                </div>
+              ) : null}
+            </>
+          ) : null}
+        </div>
 
         {canRemove ? (
           <button
             className={`ui-btn ${styles.removeButton}`}
             type="button"
-            disabled={isUpdating || isRemoving}
+            disabled={isBusy}
             onClick={() => onRemove(memberId, member.user.name)}
           >
             {isRemoving ? t("members.removing") : t("common.remove")}

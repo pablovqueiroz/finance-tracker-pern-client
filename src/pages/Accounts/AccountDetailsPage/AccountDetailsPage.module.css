@@ -132,7 +132,7 @@
   padding: 10px 12px;
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   gap: 12px;
 }
 
@@ -144,6 +144,10 @@
   border: 1px solid var(--border);
 }
 
+.memberInfo {
+  min-width: 0;
+}
+
 .memberName {
   margin: 0;
   color: var(--text-main);
@@ -153,11 +157,50 @@
 }
 
 .memberRole {
-  margin: 0;
+  margin: 4px 0 0;
   color: var(--text-muted);
   font-size: 0.8rem;
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
+}
+
+.memberActions {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 40px;
+}
+
+.memberEditButton {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-main);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.memberEditButton:hover:not(:disabled) {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.memberEditButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.memberEditor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: min(100%, 280px);
 }
 
 .transactionsSection,
@@ -205,9 +248,18 @@
     height: 40px;
   }
 
-  .memberRole {
-    grid-column: 2;
-    text-align: left;
-    margin-top: -4px;
+  .memberActions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .memberEditButton,
+  .memberEditor,
+  .memberEditor :global(.ui-btn) {
+    width: 100%;
+  }
+
+  .memberEditor {
+    grid-template-columns: 1fr;
   }
 }

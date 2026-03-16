@@ -625,7 +625,8 @@
     },
     "currentUser": "You",
     "locked": "Locked",
-    "removing": "Removing..."
+    "removing": "Removing...",
+    "editRole": "Edit role for {{name}}"
   },
   "roles": {
     "OWNER": "Owner",
