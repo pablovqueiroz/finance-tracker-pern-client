@@ -106,6 +106,22 @@
   margin-bottom: 12px;
 }
 
+.listHeaderActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.readOnlyNotice {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-align: right;
+}
+
 .filters {
   display: grid;
   grid-template-columns: minmax(0, 2fr) repeat(3, minmax(180px, 1fr));
@@ -419,6 +435,16 @@
   .listHeader {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .listHeaderActions {
+    width: 100%;
+    justify-content: stretch;
+    margin-left: 0;
+  }
+
+  .readOnlyNotice {
+    text-align: left;
   }
 
   .filters {

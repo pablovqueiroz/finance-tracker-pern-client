@@ -360,6 +360,7 @@
     "headerTitle": "Transacciones - {{name}}",
     "headerSubtitle": "Moneda: {{currency}}",
     "allTransactions": "Todas las transacciones ({{count}})",
+    "readOnly": "Tu rol solo permite ver transacciones.",
     "createTransaction": "Crear transaccion",
     "createBulk": "Crear en bloque",
     "editTransaction": "Editar transaccion",

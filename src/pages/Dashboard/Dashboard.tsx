@@ -19,6 +19,7 @@ import styles from "./Dashboard.module.css";
 import api from "../../services/api";
 import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import { IoMailUnreadOutline } from "react-icons/io5";
+import { useAuth } from "../../hooks/useAuth";
 
 type AccountSummaryResponse = {
   totalIncome: number;
@@ -33,6 +34,7 @@ type DashboardProps = {
 
 function Dashboard({ onActiveAccountChange }: DashboardProps) {
   const { t } = useTranslation();
+  const { currentUser } = useAuth();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currency, setCurrency] = useState<Currency>("EUR");
@@ -42,6 +44,11 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
   const [pendingInvitesCount, setPendingInvitesCount] = useState(0);
   const activeAccount = accounts[activeAccountIndex] ?? null;
   const activeAccountId = activeAccount?.id ?? "";
+  const currentMember = activeAccount?.users?.find(
+    (member) => member.userId === currentUser?.id,
+  );
+  const canManageTransactions =
+    currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
 
   useEffect(() => {
     async function fetchAccounts() {
@@ -313,7 +320,10 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
       </section>
 
       <section className={styles.actions}>
-        <ActionButtons accountId={activeAccountId} />
+        <ActionButtons
+          accountId={activeAccountId}
+          canManageTransactions={canManageTransactions}
+        />
       </section>
 
       <section className={styles.transactions}>
@@ -332,6 +342,7 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
             currency={currency}
             accountId={activeAccountId}
             members={activeAccount?.users ?? []}
+            canManageTransactions={canManageTransactions}
           />
         )}
       </section>

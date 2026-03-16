@@ -40,7 +40,9 @@ export const EXPENSE_CATEGORIES: Category[] = [
   "OTHERS",
 ];
 
-export const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES] as const;
+export const ALL_CATEGORIES: readonly Category[] = Array.from(
+  new Set([...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES]),
+);
 
 const CATEGORY_LABELS: Record<Category, string> = {
   SALARY: "Salary",

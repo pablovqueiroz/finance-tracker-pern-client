@@ -96,7 +96,7 @@ function CreateTransactionPage() {
     () => account?.users.find((member) => member.userId === currentUser?.id),
     [account?.users, currentUser?.id],
   );
-  const canEditOrDelete =
+  const canManageTransactions =
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
   const availableCategories =
     form.type === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
@@ -267,11 +267,26 @@ function CreateTransactionPage() {
   useEffect(() => {
     const editFromQuery = searchParams.get("edit");
     if (!editFromQuery) return;
+    if (!canManageTransactions) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("edit");
+      setSearchParams(next, { replace: true });
+      setEditingId(null);
+      setIsFormOpen(false);
+      return;
+    }
     if (transactions.some((item) => item.id === editFromQuery)) {
       setEditingId(editFromQuery);
       setIsFormOpen(true);
     }
-  }, [searchParams, transactions]);
+  }, [canManageTransactions, searchParams, setSearchParams, transactions]);
+
+  useEffect(() => {
+    if (canManageTransactions) return;
+    setEditingId(null);
+    setIsBulkMode(false);
+    setIsFormOpen(false);
+  }, [canManageTransactions]);
 
   useEffect(() => {
     if (!editingId) return;
@@ -481,6 +496,11 @@ function CreateTransactionPage() {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    if (!canManageTransactions) {
+      setErrorMessage(t("transactionsPage.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     if (!selectedAccountId || isSubmitting) return;
 
     const parsedAmount = Number(form.amount);
@@ -535,6 +555,11 @@ function CreateTransactionPage() {
     e,
   ) => {
     e.preventDefault();
+    if (!canManageTransactions) {
+      setErrorMessage(t("transactionsPage.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     if (!selectedAccountId || isBulkSubmitting) return;
 
     let transactionsPayload: CreateTransactionBody[];
@@ -581,7 +606,11 @@ function CreateTransactionPage() {
   };
 
   async function handleDelete(transactionId: string) {
-    if (!canEditOrDelete) return;
+    if (!canManageTransactions) {
+      setErrorMessage(t("transactionsPage.readOnly"));
+      setSuccessMessage(null);
+      return;
+    }
     const confirmation = window.confirm(t("transactionsPage.deleteConfirm"));
     if (!confirmation) return;
 
@@ -714,34 +743,44 @@ function CreateTransactionPage() {
               count: filteredTransactions.length,
             })}
           </h3>
-          <button
-            className="ui-btn"
-            type="button"
-            onClick={() => {
-              const typeFromQuery = searchParams.get("type");
-              const nextType =
-                typeFromQuery === "INCOME" || typeFromQuery === "EXPENSE"
-                  ? typeFromQuery
-                  : "EXPENSE";
-              setForm(createInitialForm(nextType));
-              setEditingId(null);
-              setIsBulkMode(false);
-              setIsFormOpen(true);
-            }}
-          >
-            {t("transactionsPage.createTransaction")}
-          </button>
-          <button
-            className={`${styles.secondaryBtn} ui-btn`}
-            type="button"
-            onClick={() => {
-              setEditingId(null);
-              setIsBulkMode(true);
-              setIsFormOpen(true);
-            }}
-          >
-            {t("transactionsPage.createBulk")}
-          </button>
+          <div className={styles.listHeaderActions}>
+            {canManageTransactions ? (
+              <>
+              <button
+                className="ui-btn"
+                type="button"
+                onClick={() => {
+                  const typeFromQuery = searchParams.get("type");
+                  const nextType =
+                    typeFromQuery === "INCOME" || typeFromQuery === "EXPENSE"
+                      ? typeFromQuery
+                      : "EXPENSE";
+                  setForm(createInitialForm(nextType));
+                  setEditingId(null);
+                  setIsBulkMode(false);
+                  setIsFormOpen(true);
+                }}
+              >
+                {t("transactionsPage.createTransaction")}
+              </button>
+              <button
+                className={`${styles.secondaryBtn} ui-btn`}
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setIsBulkMode(true);
+                  setIsFormOpen(true);
+                }}
+              >
+                {t("transactionsPage.createBulk")}
+              </button>
+              </>
+            ) : (
+              <p className={styles.readOnlyNotice}>
+                {t("transactionsPage.readOnly")}
+              </p>
+            )}
+          </div>
         </div>
 
         {isFormOpen && (
@@ -1129,7 +1168,7 @@ function CreateTransactionPage() {
                   creatorName={getCreatorName(transaction)}
                   updaterName={getUpdaterName(transaction)}
                   onEdit={
-                    canEditOrDelete
+                    canManageTransactions
                       ? () => {
                           setEditingId(transaction.id);
                           const next = new URLSearchParams(searchParams);
@@ -1140,7 +1179,7 @@ function CreateTransactionPage() {
                       : undefined
                   }
                   onDelete={
-                    canEditOrDelete
+                    canManageTransactions
                       ? () => handleDelete(transaction.id)
                       : undefined
                   }

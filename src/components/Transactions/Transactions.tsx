@@ -13,6 +13,7 @@ type TransactionsProps = {
   currency: Currency;
   accountId: string;
   members?: AccountMember[];
+  canManageTransactions?: boolean;
 };
 
 function Transactions({
@@ -20,6 +21,7 @@ function Transactions({
   currency,
   accountId,
   members = [],
+  canManageTransactions = false,
 }: TransactionsProps) {
   const { t } = useTranslation();
   const latest = transactions.slice(0, 5);
@@ -45,20 +47,31 @@ function Transactions({
         <h4>{t("transactionsList.title")}</h4>
       </section>
       <section className={styles.cardsContainer}>
-        {latest.map((transaction) => (
-          <Link
-            key={transaction.id}
-            to={`/accounts/${accountId}/transactions?edit=${transaction.id}`}
-            className={styles.transactionCard}
-          >
-            <TransactionCard
-              transaction={transaction}
-              currency={currency}
-              creatorName={getCreatorName(transaction)}
-              updaterName={getUpdaterName(transaction)}
-            />
-          </Link>
-        ))}
+        {latest.map((transaction) =>
+          canManageTransactions ? (
+            <Link
+              key={transaction.id}
+              to={`/accounts/${accountId}/transactions?edit=${transaction.id}`}
+              className={styles.transactionCard}
+            >
+              <TransactionCard
+                transaction={transaction}
+                currency={currency}
+                creatorName={getCreatorName(transaction)}
+                updaterName={getUpdaterName(transaction)}
+              />
+            </Link>
+          ) : (
+            <div key={transaction.id} className={styles.transactionCard}>
+              <TransactionCard
+                transaction={transaction}
+                currency={currency}
+                creatorName={getCreatorName(transaction)}
+                updaterName={getUpdaterName(transaction)}
+              />
+            </div>
+          ),
+        )}
       </section>
       {transactions.length > 5 ? (
         <Link

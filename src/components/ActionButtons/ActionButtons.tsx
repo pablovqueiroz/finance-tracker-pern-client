@@ -6,9 +6,13 @@ import { FaChartSimple, FaCirclePlus } from "react-icons/fa6";
 
 export type ActionButtonsProps = {
   accountId?: string;
+  canManageTransactions?: boolean;
 };
 
-function ActionButtons({ accountId = "" }: ActionButtonsProps) {
+function ActionButtons({
+  accountId = "",
+  canManageTransactions = false,
+}: ActionButtonsProps) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const hasAccount = Boolean(accountId);
@@ -17,7 +21,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
 
   return (
     <div className={styles.actionButtonsContainer}>
-      {hasAccount ? (
+      {hasAccount && canManageTransactions ? (
         <Link
           to={transactionPath}
           className={styles.actionButton}
@@ -30,7 +34,7 @@ function ActionButtons({ accountId = "" }: ActionButtonsProps) {
           className={`${styles.actionButton} ${styles.disabled}`}
           type="button"
           disabled
-          title={disabledTitle}
+          title={hasAccount ? t("transactionsPage.readOnly") : disabledTitle}
         >
           <FaCirclePlus />
         </button>

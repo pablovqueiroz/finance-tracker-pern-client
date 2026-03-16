@@ -1,4 +1,8 @@
-# Budgetivo Frontend
+<h1 align="center">
+  <img src="./public/budgetivo.png" alt="Budgetivo" width="72" />
+  <br />
+  Budgetivo Frontend
+</h1>
 
 Frontend application for Budgetivo, a collaborative personal finance platform for account management, transactions, saving goals, reports, invitations, and profile management.
 
