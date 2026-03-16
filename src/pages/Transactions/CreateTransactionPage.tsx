@@ -96,8 +96,7 @@ function CreateTransactionPage() {
     () => account?.users.find((member) => member.userId === currentUser?.id),
     [account?.users, currentUser?.id],
   );
-  const canManageTransactions =
-    currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
+  const canManageTransactions = Boolean(currentMember);
   const availableCategories =
     form.type === "INCOME" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
   const bulkExample = t("transactionsPage.example");

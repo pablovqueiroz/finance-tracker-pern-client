@@ -47,8 +47,7 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
   const currentMember = activeAccount?.users?.find(
     (member) => member.userId === currentUser?.id,
   );
-  const canManageTransactions =
-    currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
+  const canManageTransactions = Boolean(currentMember);
 
   useEffect(() => {
     async function fetchAccounts() {
