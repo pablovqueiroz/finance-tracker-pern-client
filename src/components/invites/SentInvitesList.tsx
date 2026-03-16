@@ -9,6 +9,7 @@ type SentInvitesListProps = {
   activeInviteId: string | null;
   activeAction: "cancel" | "accept" | "reject" | null;
   onCancel: (inviteId: string) => void;
+  onReviewShare: (invite: AccountInvite) => void;
 };
 
 function formatDate(value: string | Date) {
@@ -29,6 +30,7 @@ function SentInvitesList({
   activeInviteId,
   activeAction,
   onCancel,
+  onReviewShare,
 }: SentInvitesListProps) {
   const { t } = useTranslation();
 
@@ -58,14 +60,25 @@ function SentInvitesList({
               { label: t("invites.meta.created"), value: formatDate(invite.createdAt) },
             ]}
             actions={
-              <button
-                className={`${styles.secondaryBtn} ui-btn`}
-                type="button"
-                disabled={!isPending || activeInviteId !== null}
-                onClick={() => onCancel(invite.id)}
-              >
-                {isCancelling ? t("invites.cancelling") : t("invites.cancelInvite")}
-              </button>
+              <>
+                <button
+                  className={`${styles.secondaryBtn} ui-btn`}
+                  type="button"
+                  onClick={() => onReviewShare(invite)}
+                >
+                  {t("invites.reviewShare")}
+                </button>
+                <button
+                  className={`${styles.secondaryBtn} ui-btn`}
+                  type="button"
+                  disabled={!isPending || activeInviteId !== null}
+                  onClick={() => onCancel(invite.id)}
+                >
+                  {isCancelling
+                    ? t("invites.cancelling")
+                    : t("invites.cancelInvite")}
+                </button>
+              </>
             }
           />
         );

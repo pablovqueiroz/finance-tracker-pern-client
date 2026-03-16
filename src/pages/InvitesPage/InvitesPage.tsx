@@ -9,12 +9,14 @@ import SkeletonText from "../../components/Skeleton/SkeletonText";
 import InviteForm from "../../components/invites/InviteForm";
 import SentInvitesList from "../../components/invites/SentInvitesList";
 import ReceivedInvitesList from "../../components/invites/ReceivedInvitesList";
-import ExpiredInvitesList from "../../components/invites/ExpiredInvitesList";
 import Message from "../../components/Message/Message";
 import api from "../../services/api";
 import type { AccountRole, AccountSummary } from "../../types/account.types";
-import type { AccountInvite } from "../../types/invite.types";
+import type { AccountInvite, InviteStatus } from "../../types/invite.types";
+import { useAuth } from "../../hooks/useAuth";
+import InviteSharePanel from "../../components/invites/InviteSharePanel";
 import styles from "./InvitesPage.module.css";
+import type { InviteSharePayload } from "../../utils/inviteShare";
 
 type InviteFormRole = Extract<AccountRole, "ADMIN" | "MEMBER">;
 
@@ -30,13 +32,31 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+function isExistingInviteError(error: unknown) {
+  if (!axios.isAxiosError(error)) return false;
+
+  if (error.response?.status === 409) return true;
+
+  const rawMessage =
+    error.response?.data?.errorMessage ?? error.response?.data?.message ?? "";
+  const message = String(rawMessage).toLowerCase();
+
+  return (
+    message.includes("already") ||
+    message.includes("existing") ||
+    message.includes("pending invite") ||
+    message.includes("invite already") ||
+    message.includes("active invite")
+  );
+}
+
 function InvitesPage() {
   const { i18n, t } = useTranslation();
+  const { currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [sentInvites, setSentInvites] = useState<AccountInvite[]>([]);
   const [receivedInvites, setReceivedInvites] = useState<AccountInvite[]>([]);
-  const [expiredInvites, setExpiredInvites] = useState<AccountInvite[]>([]);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteFormRole>("MEMBER");
   const [selectedAccountId, setSelectedAccountId] = useState("");
@@ -49,6 +69,13 @@ function InvitesPage() {
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [sharePayload, setSharePayload] = useState<InviteSharePayload | null>(
+    null,
+  );
+  const [sentStatusFilter, setSentStatusFilter] =
+    useState<InviteStatus>("PENDING");
+  const [receivedStatusFilter, setReceivedStatusFilter] =
+    useState<InviteStatus>("PENDING");
 
   const loadAccounts = useCallback(async () => {
     try {
@@ -90,19 +117,14 @@ function InvitesPage() {
     try {
       setIsLoadingInvites(true);
 
-      const [sentResponse, receivedResponse, expiredResponse] =
-        await Promise.all([
-          api.get<AccountInvite[]>("/invites/sent"),
-          api.get<AccountInvite[]>("/invites/received"),
-          api.get<AccountInvite[]>("/invites/expired"),
-        ]);
+      const [sentResponse, receivedResponse] = await Promise.all([
+        api.get<AccountInvite[]>("/invites/sent"),
+        api.get<AccountInvite[]>("/invites/received"),
+      ]);
 
       setSentInvites(Array.isArray(sentResponse.data) ? sentResponse.data : []);
       setReceivedInvites(
         Array.isArray(receivedResponse.data) ? receivedResponse.data : [],
-      );
-      setExpiredInvites(
-        Array.isArray(expiredResponse.data) ? expiredResponse.data : [],
       );
       setErrorMessage(null);
     } catch (error: unknown) {
@@ -110,7 +132,6 @@ function InvitesPage() {
       setErrorMessage(getErrorMessage(error, t("invites.loadInvitesFailed")));
       setSentInvites([]);
       setReceivedInvites([]);
-      setExpiredInvites([]);
     } finally {
       setIsLoadingInvites(false);
     }
@@ -148,14 +169,46 @@ function InvitesPage() {
         role,
         language: (i18n.resolvedLanguage ?? "en").slice(0, 2),
       });
+      const selectedAccount = accounts.find(
+        (account) => account.id === selectedAccountId,
+      );
+      const nextSharePayload = {
+        recipientEmail: normalizedEmail,
+        accountName: selectedAccount?.name ?? t("invites.accountUnavailable"),
+        inviterName: currentUser?.name ?? t("invites.unknownUser"),
+      };
       setEmail("");
       setSuccessMessage(t("invites.sendSuccess"));
       setErrorMessage(null);
+      setSharePayload(nextSharePayload);
       await loadInvites();
     } catch (error: unknown) {
       console.error("Failed to send invite", error);
-      setErrorMessage(getErrorMessage(error, t("invites.sendFailed")));
-      setSuccessMessage(null);
+      if (isExistingInviteError(error)) {
+        const existingInvite = sentInvites.find(
+          (invite) =>
+            invite.email.trim().toLowerCase() === normalizedEmail &&
+            invite.accountId === selectedAccountId &&
+            invite.status === "PENDING",
+        );
+        const selectedAccount = accounts.find(
+          (account) => account.id === selectedAccountId,
+        );
+        setErrorMessage(null);
+        setSuccessMessage(t("invites.existingInviteReady"));
+        setSharePayload({
+          recipientEmail: existingInvite?.email ?? normalizedEmail,
+          accountName:
+            existingInvite?.account?.name ??
+            selectedAccount?.name ??
+            t("invites.accountUnavailable"),
+          inviterName: currentUser?.name ?? t("invites.unknownUser"),
+        });
+      } else {
+        setErrorMessage(getErrorMessage(error, t("invites.sendFailed")));
+        setSuccessMessage(null);
+        setSharePayload(null);
+      }
     } finally {
       setIsSendingInvite(false);
     }
@@ -221,8 +274,18 @@ function InvitesPage() {
     }
   }
 
-  const visibleSentInvites = sentInvites.filter(
-    (invite) => invite.status !== "EXPIRED",
+  const statusOptions: InviteStatus[] = [
+    "PENDING",
+    "ACCEPTED",
+    "CANCELLED",
+    "EXPIRED",
+  ];
+
+  const filteredSentInvites = sentInvites.filter(
+    (invite) => invite.status === sentStatusFilter,
+  );
+  const filteredReceivedInvites = receivedInvites.filter(
+    (invite) => invite.status === receivedStatusFilter,
   );
 
   if (isLoadingAccounts && isLoadingInvites) {
@@ -253,10 +316,6 @@ function InvitesPage() {
             <SkeletonCard avatar lines={2} actionCount={2} />
             <SkeletonCard avatar lines={2} actionCount={2} />
           </section>
-          <section className={`${styles.section} ${styles.fullWidth} ui-card`}>
-            <SkeletonCard avatar lines={2} />
-            <SkeletonCard avatar lines={2} />
-          </section>
         </div>
       </div>
     );
@@ -274,7 +333,7 @@ function InvitesPage() {
         type="success"
         text={successMessage}
         clearMessage={setSuccessMessage}
-        duration={4000}
+        duration={8000}
       />
 
       <section className={`${styles.header} ui-card`}>
@@ -294,17 +353,25 @@ function InvitesPage() {
             <SkeletonButton width={160} />
           </div>
         ) : (
-          <InviteForm
-            accounts={accounts}
-            email={email}
-            role={role}
-            accountId={selectedAccountId}
-            isSubmitting={isSendingInvite}
-            onEmailChange={setEmail}
-            onRoleChange={setRole}
-            onAccountChange={setSelectedAccountId}
-            onSubmit={handleSendInvite}
-          />
+          <>
+            <InviteForm
+              accounts={accounts}
+              email={email}
+              role={role}
+              accountId={selectedAccountId}
+              isSubmitting={isSendingInvite}
+              onEmailChange={setEmail}
+              onRoleChange={setRole}
+              onAccountChange={setSelectedAccountId}
+              onSubmit={handleSendInvite}
+            />
+            {sharePayload ? (
+              <InviteSharePanel
+                payload={sharePayload}
+                onClose={() => setSharePayload(null)}
+              />
+            ) : null}
+          </>
         )}
       </section>
 
@@ -312,18 +379,54 @@ function InvitesPage() {
         <section className={`${styles.section} ui-card`}>
           <h3 className={styles.sectionTitle}>{t("invites.sentTitle")}</h3>
           <p className={styles.sectionSubtitle}>{t("invites.sentSubtitle")}</p>
+          {sentInvites.length > 0 ? (
+            <div className={styles.filterRow}>
+              {statusOptions.map((status) => (
+                <button
+                  key={status}
+                  className={`${styles.filterButton} ${
+                    sentStatusFilter === status ? styles.filterButtonActive : ""
+                  }`}
+                  type="button"
+                  aria-pressed={sentStatusFilter === status}
+                  onClick={() => setSentStatusFilter(status)}
+                >
+                  {t(`invites.status.${status}`)}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           {isLoadingInvites ? (
             <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
               <SkeletonCard avatar lines={2} actionCount={2} />
               <SkeletonCard avatar lines={2} actionCount={2} />
             </div>
+          ) : sentInvites.length === 0 ? (
+            <p>{t("invites.noSent")}</p>
+          ) : filteredSentInvites.length === 0 ? (
+            <p>
+              {t("invites.noSentForStatus", {
+                status: t(`invites.status.${sentStatusFilter}`),
+              })}
+            </p>
           ) : (
             <SentInvitesList
-              invites={visibleSentInvites}
+              invites={filteredSentInvites}
               activeInviteId={activeInviteId}
               activeAction={activeAction}
               onCancel={handleCancelInvite}
+              onReviewShare={(invite) =>
+                setSharePayload({
+                  recipientEmail: invite.email,
+                  accountName:
+                    invite.account?.name ?? t("invites.accountUnavailable"),
+                  inviterName:
+                    invite.invitedBy?.name ??
+                    currentUser?.name ??
+                    t("invites.unknownUser"),
+                })
+              }
             />
           )}
         </section>
@@ -333,36 +436,47 @@ function InvitesPage() {
           <p className={styles.sectionSubtitle}>
             {t("invites.receivedSubtitle")}
           </p>
+          {receivedInvites.length > 0 ? (
+            <div className={styles.filterRow}>
+              {statusOptions.map((status) => (
+                <button
+                  key={status}
+                  className={`${styles.filterButton} ${
+                    receivedStatusFilter === status
+                      ? styles.filterButtonActive
+                      : ""
+                  }`}
+                  type="button"
+                  aria-pressed={receivedStatusFilter === status}
+                  onClick={() => setReceivedStatusFilter(status)}
+                >
+                  {t(`invites.status.${status}`)}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           {isLoadingInvites ? (
             <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
               <SkeletonCard avatar lines={2} actionCount={2} />
               <SkeletonCard avatar lines={2} actionCount={2} />
             </div>
+          ) : receivedInvites.length === 0 ? (
+            <p>{t("invites.noReceived")}</p>
+          ) : filteredReceivedInvites.length === 0 ? (
+            <p>
+              {t("invites.noReceivedForStatus", {
+                status: t(`invites.status.${receivedStatusFilter}`),
+              })}
+            </p>
           ) : (
             <ReceivedInvitesList
-              invites={receivedInvites}
+              invites={filteredReceivedInvites}
               activeInviteId={activeInviteId}
               activeAction={activeAction}
               onAccept={handleAcceptInvite}
               onReject={handleRejectInvite}
             />
-          )}
-        </section>
-
-        <section className={`${styles.section} ${styles.fullWidth} ui-card`}>
-          <h3 className={styles.sectionTitle}>{t("invites.expiredTitle")}</h3>
-          <p className={styles.sectionSubtitle}>
-            {t("invites.expiredSubtitle")}
-          </p>
-
-          {isLoadingInvites ? (
-            <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
-              <SkeletonCard avatar lines={2} />
-              <SkeletonCard avatar lines={2} />
-            </div>
-          ) : (
-            <ExpiredInvitesList invites={expiredInvites} />
           )}
         </section>
       </div>

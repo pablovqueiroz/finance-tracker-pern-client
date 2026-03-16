@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import BalanceCard from "../../components/BalanceCard/BalanceCard";
 import Hero from "../../components/Hero/Hero";
 import Skeleton from "../../components/Skeleton/Skeleton";
@@ -15,8 +14,11 @@ import type {
   Currency,
   Transaction,
 } from "../../types/account.types";
+import type { AccountInvite } from "../../types/invite.types";
 import styles from "./Dashboard.module.css";
 import api from "../../services/api";
+import ActionButtons from "../../components/ActionButtons/ActionButtons";
+import { IoMailUnreadOutline } from "react-icons/io5";
 
 type AccountSummaryResponse = {
   totalIncome: number;
@@ -25,8 +27,11 @@ type AccountSummaryResponse = {
   transactionCount: number;
   period: string;
 };
+type DashboardProps = {
+  onActiveAccountChange: (accountId: string) => void;
+};
 
-function Dashboard() {
+function Dashboard({ onActiveAccountChange }: DashboardProps) {
   const { t } = useTranslation();
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -34,6 +39,7 @@ function Dashboard() {
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [pendingInvitesCount, setPendingInvitesCount] = useState(0);
   const activeAccount = accounts[activeAccountIndex] ?? null;
   const activeAccountId = activeAccount?.id ?? "";
 
@@ -51,7 +57,9 @@ function Dashboard() {
 
         const summaries = await Promise.allSettled(
           baseAccountList.map((account) =>
-            api.get<AccountSummaryResponse>(`/transactions/summary/${account.id}`),
+            api.get<AccountSummaryResponse>(
+              `/transactions/summary/${account.id}`,
+            ),
           ),
         );
 
@@ -85,6 +93,26 @@ function Dashboard() {
 
     fetchAccounts();
   }, []);
+  useEffect(() => {
+    onActiveAccountChange(activeAccountId);
+  }, [activeAccountId, onActiveAccountChange]);
+
+  useEffect(() => {
+    async function fetchPendingInvites() {
+      try {
+        const response = await api.get<AccountInvite[]>("/invites/received");
+        const inviteList = Array.isArray(response.data) ? response.data : [];
+        setPendingInvitesCount(
+          inviteList.filter((invite) => invite.status === "PENDING").length,
+        );
+      } catch (error: unknown) {
+        console.error("Failed to load pending invites", error);
+        setPendingInvitesCount(0);
+      }
+    }
+
+    fetchPendingInvites();
+  }, []);
 
   useEffect(() => {
     async function fetchTransactionsByAccount() {
@@ -99,9 +127,9 @@ function Dashboard() {
         setIsLoadingTransactions(true);
         const [transactionsResponse, accountResponse] = await Promise.all([
           api.get<Transaction[]>(`/transactions/account/${activeAccountId}`),
-          api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
-            `/accounts/${activeAccountId}`,
-          ),
+          api.get<
+            Omit<AccountDetail, "transactions" | "savingGoals" | "_count">
+          >(`/accounts/${activeAccountId}`),
         ]);
         const accountTransactions = Array.isArray(transactionsResponse.data)
           ? transactionsResponse.data
@@ -205,6 +233,32 @@ function Dashboard() {
           <Hero />
         </section>
 
+        {pendingInvitesCount > 0 ? (
+          <section className={`${styles.pendingInvites} ui-card`}>
+            <div className={styles.pendingInvitesContent}>
+              <div className={styles.pendingInvitesCopy}>
+                <IoMailUnreadOutline
+                  className={styles.pendingInvitesIcon}
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className={styles.pendingInvitesTitle}>
+                    {t("dashboard.pendingInvites.title", {
+                      count: pendingInvitesCount,
+                    })}
+                  </p>
+                  <p className={styles.pendingInvitesText}>
+                    {t("dashboard.pendingInvites.subtitle")}
+                  </p>
+                </div>
+              </div>
+              <Link className={styles.pendingInvitesLink} to="/invites">
+                {t("dashboard.pendingInvites.action")}
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
         <section className={`${styles.emptyState} ui-card`}>
           <h2>{t("dashboard.emptyTitle")}</h2>
           <p>{t("dashboard.emptyDescription")}</p>
@@ -221,6 +275,32 @@ function Dashboard() {
       <section className={styles.welcome}>
         <Hero />
       </section>
+
+      {pendingInvitesCount > 0 ? (
+        <section className={`${styles.pendingInvites} ui-card`}>
+          <div className={styles.pendingInvitesContent}>
+            <div className={styles.pendingInvitesCopy}>
+              <IoMailUnreadOutline
+                className={styles.pendingInvitesIcon}
+                aria-hidden="true"
+              />
+              <div>
+                <p className={styles.pendingInvitesTitle}>
+                  {t("dashboard.pendingInvites.title", {
+                    count: pendingInvitesCount,
+                  })}
+                </p>
+                <p className={styles.pendingInvitesText}>
+                  {t("dashboard.pendingInvites.subtitle")}
+                </p>
+              </div>
+            </div>
+            <Link className={styles.pendingInvitesLink} to="/invites">
+              {t("dashboard.pendingInvites.action")}
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className={styles.balanceCard}>
         <BalanceCard

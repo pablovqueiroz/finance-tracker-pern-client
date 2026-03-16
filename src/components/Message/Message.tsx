@@ -24,7 +24,7 @@ function Message({
 
     const timer = window.setTimeout(() => {
       clearMessage(null);
-    }, Math.min(duration, 3000));
+    }, duration);
 
     return () => window.clearTimeout(timer);
   }, [text, duration, clearMessage]);

@@ -56,6 +56,55 @@
   color: var(--text-muted);
 }
 
+.filterRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 3px;
+  width: fit-content;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.filterButton {
+  min-height: 28px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.filterButton:hover {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--bg-primary) 65%, transparent);
+}
+
+.filterButton:focus-visible {
+  outline: none;
+  border-color: var(--accent-red);
+  color: var(--text-main);
+}
+
+.filterButtonActive {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+
+.filterButtonActive:hover {
+  color: #fff;
+  background: var(--accent-hover);
+}
+
 @media (max-width: 768px) {
   .pageContainer {
     padding: 16px 12px 24px;
@@ -69,5 +118,10 @@
 
   .fullWidth {
     grid-column: auto;
+  }
+
+  .filterRow {
+    width: fit-content;
+    max-width: 100%;
   }
 }

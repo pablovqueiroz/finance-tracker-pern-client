@@ -5,6 +5,31 @@
   align-items: end;
 }
 
+.form label {
+  margin-bottom: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.submitWrap {
+  display: flex;
+  align-self: end;
+  align-items: flex-end;
+}
+
+.submitButton {
+  min-width: 140px;
+  min-height: 40px;
+  padding-inline: 14px;
+}
+
+.submitButtonContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .list {
   display: grid;
   gap: 12px;
@@ -112,6 +137,100 @@
   color: var(--text-muted);
 }
 
+.shareModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, #000000 52%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.shareModal {
+  width: min(100%, 720px);
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.shareHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.shareHeaderContent {
+  min-width: 0;
+  flex: 1;
+}
+
+.shareTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.shareSubtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.shareRecipient {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.shareClose {
+  color: var(--accent-red);
+  font-size: 2rem;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  align-self: start;
+}
+
+.shareClose:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent-red) 10%, transparent);
+  border-color: var(--accent-red);
+}
+
+.sharePreviewLabel {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.sharePreview {
+  min-height: 168px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.shareActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shareFeedback {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 @media (max-width: 900px) {
   .form {
     grid-template-columns: 1fr 1fr;
@@ -123,7 +242,8 @@
     grid-template-columns: 1fr;
   }
 
-  .form > button,
+  .submitWrap,
+  .submitButton,
   .actions > button {
     width: 100%;
   }
@@ -131,5 +251,18 @@
   .actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .shareActions > button,
+  .shareActions > a {
+    width: 100%;
+  }
+
+  .shareModalOverlay {
+    padding: 12px;
+  }
+
+  .shareModal {
+    padding: 14px;
   }
 }

@@ -8,6 +8,7 @@
   grid-template-columns: 1fr;
   grid-template-areas:
     "welcome"
+    "pending"
     "balance"
     "actions"
     "transactions";
@@ -20,6 +21,7 @@
 }
 
 .welcome,
+.pendingInvites,
 .balanceCard,
 .actions,
 .transactions {
@@ -28,6 +30,60 @@
 
 .welcome {
   grid-area: welcome;
+}
+
+.pendingInvites {
+  grid-area: pending;
+  display: grid;
+}
+
+.pendingInvitesContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 2px 0;
+}
+
+.pendingInvitesCopy {
+  min-width: 0;
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+
+.pendingInvitesIcon {
+  margin-top: 2px;
+  color: var(--accent-red);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.pendingInvitesTitle,
+.pendingInvitesText {
+  margin: 0;
+}
+
+.pendingInvitesTitle {
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.pendingInvitesText {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.pendingInvitesLink {
+  color: var(--accent-red);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
 }
 
 .balanceCard {
@@ -56,5 +112,9 @@
 @media (max-width: 640px) {
   .DashboardContainer {
     padding: 16px 12px 24px;
+  }
+
+  .pendingInvitesContent {
+    align-items: start;
   }
 }

@@ -31,7 +31,9 @@ function InviteForm({
   const { t } = useTranslation();
 
   if (accounts.length === 0) {
-    return <p className={styles.emptyState}>{t("invites.createAccountFirst")}</p>;
+    return (
+      <p className={styles.emptyState}>{t("invites.createAccountFirst")}</p>
+    );
   }
 
   return (
@@ -54,7 +56,9 @@ function InviteForm({
           className="ui-control"
           value={role}
           onChange={(event) =>
-            onRoleChange(event.target.value as Extract<AccountRole, "ADMIN" | "MEMBER">)
+            onRoleChange(
+              event.target.value as Extract<AccountRole, "ADMIN" | "MEMBER">,
+            )
           }
         >
           <option value="MEMBER">{getRoleLabel(t, "MEMBER")}</option>
@@ -77,23 +81,22 @@ function InviteForm({
         </select>
       </label>
 
-      <button className="ui-btn" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px",
-            }}
-          >
-            <Spinner loadingLabel={t("invites.sending")} />
-            <span>{t("invites.sending")}</span>
-          </span>
-        ) : (
-          t("invites.sendInvite")
-        )}
-      </button>
+      <div className={styles.submitWrap}>
+        <button
+          className={`${styles.submitButton} ui-btn`}
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <span className={styles.submitButtonContent}>
+              <Spinner loadingLabel={t("invites.sending")} />
+              <span>{t("invites.sending")}</span>
+            </span>
+          ) : (
+            t("invites.sendInvite")
+          )}
+        </button>
+      </div>
     </form>
   );
 }
