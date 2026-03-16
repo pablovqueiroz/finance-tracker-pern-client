@@ -11,7 +11,11 @@ import SentInvitesList from "../../components/invites/SentInvitesList";
 import ReceivedInvitesList from "../../components/invites/ReceivedInvitesList";
 import Message from "../../components/Message/Message";
 import api from "../../services/api";
-import type { AccountRole, AccountSummary } from "../../types/account.types";
+import type {
+  AccountDetail,
+  AccountRole,
+  AccountSummary,
+} from "../../types/account.types";
 import type { AccountInvite, InviteStatus } from "../../types/invite.types";
 import { useAuth } from "../../hooks/useAuth";
 import InviteSharePanel from "../../components/invites/InviteSharePanel";
@@ -72,6 +76,8 @@ function InvitesPage() {
   const [sharePayload, setSharePayload] = useState<InviteSharePayload | null>(
     null,
   );
+  const [selectedAccountRole, setSelectedAccountRole] =
+    useState<AccountRole | null>(null);
   const [sentStatusFilter, setSentStatusFilter] =
     useState<InviteStatus>("PENDING");
   const [receivedStatusFilter, setReceivedStatusFilter] =
@@ -151,6 +157,28 @@ function InvitesPage() {
       setSelectedAccountId(preferredAccountId);
     }
   }, [accounts, searchParams]);
+
+  useEffect(() => {
+    async function loadSelectedAccountRole() {
+      if (!selectedAccountId || !currentUser?.id) {
+        setSelectedAccountRole(null);
+        return;
+      }
+
+      try {
+        const response = await api.get<AccountDetail>(`/accounts/${selectedAccountId}`);
+        const memberRole =
+          response.data.users.find((member) => member.userId === currentUser.id)?.role ??
+          null;
+        setSelectedAccountRole(memberRole);
+      } catch (error: unknown) {
+        console.error("Failed to load selected account role", error);
+        setSelectedAccountRole(null);
+      }
+    }
+
+    void loadSelectedAccountRole();
+  }, [currentUser?.id, selectedAccountId]);
 
   async function handleSendInvite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -292,13 +320,8 @@ function InvitesPage() {
   const filteredReceivedInvites = receivedInvites.filter(
     (invite) => invite.status === receivedStatusFilter,
   );
-  const selectedAccount = accounts.find((account) => account.id === selectedAccountId);
-  const selectedAccountMember = selectedAccount?.users?.find(
-    (member) => member.userId === currentUser?.id,
-  );
   const canSendInvites =
-    selectedAccountMember?.role === "OWNER" ||
-    selectedAccountMember?.role === "ADMIN";
+    selectedAccountRole === "OWNER" || selectedAccountRole === "ADMIN";
 
   if (isLoadingAccounts && isLoadingInvites) {
     return (
@@ -366,21 +389,19 @@ function InvitesPage() {
           </div>
         ) : (
           <>
-            {canSendInvites ? (
-              <InviteForm
-                accounts={accounts}
-                email={email}
-                role={role}
-                accountId={selectedAccountId}
-                isSubmitting={isSendingInvite}
-                onEmailChange={setEmail}
-                onRoleChange={setRole}
-                onAccountChange={setSelectedAccountId}
-                onSubmit={handleSendInvite}
-              />
-            ) : (
-              <p>{t("invites.readOnly")}</p>
-            )}
+            <InviteForm
+              accounts={accounts}
+              email={email}
+              role={role}
+              accountId={selectedAccountId}
+              isSubmitting={isSendingInvite}
+              canSendInvites={canSendInvites}
+              readOnlyMessage={t("invites.readOnly")}
+              onEmailChange={setEmail}
+              onRoleChange={setRole}
+              onAccountChange={setSelectedAccountId}
+              onSubmit={handleSendInvite}
+            />
             {sharePayload ? (
               <InviteSharePanel
                 payload={sharePayload}

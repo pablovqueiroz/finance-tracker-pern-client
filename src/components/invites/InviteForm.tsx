@@ -11,6 +11,8 @@ type InviteFormProps = {
   role: Extract<AccountRole, "ADMIN" | "MEMBER">;
   accountId: string;
   isSubmitting: boolean;
+  canSendInvites?: boolean;
+  readOnlyMessage?: string;
   onEmailChange: (value: string) => void;
   onRoleChange: (value: Extract<AccountRole, "ADMIN" | "MEMBER">) => void;
   onAccountChange: (value: string) => void;
@@ -23,6 +25,8 @@ function InviteForm({
   role,
   accountId,
   isSubmitting,
+  canSendInvites = true,
+  readOnlyMessage,
   onEmailChange,
   onRoleChange,
   onAccountChange,
@@ -44,6 +48,7 @@ function InviteForm({
           className="ui-control"
           type="email"
           value={email}
+          disabled={!canSendInvites}
           onChange={(event) => onEmailChange(event.target.value)}
           placeholder={t("contact.emailPlaceholder")}
           required
@@ -55,6 +60,7 @@ function InviteForm({
         <select
           className="ui-control"
           value={role}
+          disabled={!canSendInvites}
           onChange={(event) =>
             onRoleChange(
               event.target.value as Extract<AccountRole, "ADMIN" | "MEMBER">,
@@ -81,11 +87,20 @@ function InviteForm({
         </select>
       </label>
 
+      <p
+        className={`${styles.formNotice} ${
+          !canSendInvites && readOnlyMessage ? styles.formNoticeVisible : ""
+        }`}
+        aria-live="polite"
+      >
+        {!canSendInvites && readOnlyMessage ? readOnlyMessage : " "}
+      </p>
+
       <div className={styles.submitWrap}>
         <button
           className={`${styles.submitButton} ui-btn`}
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !canSendInvites}
         >
           {isSubmitting ? (
             <span className={styles.submitButtonContent}>
