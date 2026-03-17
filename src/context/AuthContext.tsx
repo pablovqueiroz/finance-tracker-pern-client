@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -8,50 +9,82 @@ import {
 import api from "../services/api";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AUTH_TOKEN_KEY = "authToken";
+const AUTH_USER_KEY = "authUser";
 
 const AuthWrapper = ({ children }: AuthWrapperProps) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem(AUTH_USER_KEY);
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUser) as User;
+    } catch {
+      localStorage.removeItem(AUTH_USER_KEY);
+      return null;
+    }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const nav = useNavigate();
 
   const isLoggedIn = currentUser !== null;
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("authToken"),
+    localStorage.getItem(AUTH_TOKEN_KEY),
   );
 
+  const clearAuthState = () => {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    setToken(null);
+    setCurrentUser(null);
+  };
+
+  const persistUser = (user: User | null) => {
+    setCurrentUser(user);
+
+    if (user) {
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      return;
+    }
+
+    localStorage.removeItem(AUTH_USER_KEY);
+  };
+
   async function authenticateUser(user?: User | null): Promise<void> {
-    const tokenInStorage = localStorage.getItem("authToken");
+    const tokenInStorage = localStorage.getItem(AUTH_TOKEN_KEY);
     setToken(tokenInStorage);
 
     if (!tokenInStorage) {
-      setCurrentUser(null);
+      persistUser(null);
       setIsLoading(false);
       return;
     }
 
     if (user) {
-      setCurrentUser(user);
+      persistUser(user);
       setIsLoading(false);
       return;
     }
 
     try {
       const { data } = await api.get<User>(`users/me`);
-      setCurrentUser(data);
+      persistUser(data);
     } catch (error) {
-      console.error(error);
-      localStorage.removeItem("authToken");
-      setToken(null);
-      setCurrentUser(null);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        clearAuthState();
+      } else if (!currentUser) {
+        persistUser(null);
+      }
     } finally {
       setIsLoading(false);
     }
   }
 
   const handleLogout = (): void => {
-    localStorage.removeItem("authToken");
-    setToken(null);
-    setCurrentUser(null);
+    clearAuthState();
     nav("/");
   };
 
