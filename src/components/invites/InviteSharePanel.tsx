@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaWindowClose } from "react-icons/fa";
+import { IoCopyOutline, IoLogoWhatsapp } from "react-icons/io5";
+import { MdOutlineMailOutline, MdOutlineTextsms } from "react-icons/md";
 import {
   buildInviteMailtoLink,
   buildInviteShareMessage,
@@ -139,30 +141,44 @@ function InviteSharePanel({ payload, onClose }: InviteSharePanelProps) {
         />
 
         <div className={styles.shareActions}>
-          <button className="ui-btn" type="button" onClick={handleCopy}>
+          <button
+            className={`${styles.shareActionBtn} ui-btn`}
+            type="button"
+            onClick={handleCopy}
+          >
+            <IoCopyOutline aria-hidden="true" />
             {t("invites.share.copy")}
           </button>
-          <a className={`${styles.secondaryBtn} ui-btn`} href={mailtoLink}>
+          <a
+            className={`${styles.secondaryBtn} ${styles.shareActionBtn} ui-btn`}
+            href={mailtoLink}
+          >
+            <MdOutlineMailOutline aria-hidden="true" />
             {t("invites.share.email")}
           </a>
           {isMobile ? (
-            <a className={`${styles.secondaryBtn} ui-btn`} href={smsLink}>
+            <a
+              className={`${styles.secondaryBtn} ${styles.shareActionBtn} ui-btn`}
+              href={smsLink}
+            >
+              <MdOutlineTextsms aria-hidden="true" />
               {t("invites.share.sms")}
             </a>
           ) : null}
           {isMobile ? (
             <a
-              className={`${styles.secondaryBtn} ui-btn`}
+              className={`${styles.secondaryBtn} ${styles.shareActionBtn} ${styles.whatsappBtn} ui-btn`}
               href={whatsappLink}
               target="_blank"
               rel="noreferrer"
             >
+              <IoLogoWhatsapp aria-hidden="true" />
               {t("invites.share.whatsApp")}
             </a>
           ) : null}
           {canNativeShare ? (
             <button
-              className={`${styles.secondaryBtn} ui-btn`}
+              className={`${styles.secondaryBtn} ${styles.shareActionBtn} ui-btn`}
               type="button"
               onClick={() => void handleNativeShare()}
             >
