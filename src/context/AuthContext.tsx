@@ -19,12 +19,18 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     localStorage.getItem("authToken"),
   );
 
-  async function authenticateUser(): Promise<void> {
+  async function authenticateUser(user?: User | null): Promise<void> {
     const tokenInStorage = localStorage.getItem("authToken");
     setToken(tokenInStorage);
 
     if (!tokenInStorage) {
       setCurrentUser(null);
+      setIsLoading(false);
+      return;
+    }
+
+    if (user) {
+      setCurrentUser(user);
       setIsLoading(false);
       return;
     }

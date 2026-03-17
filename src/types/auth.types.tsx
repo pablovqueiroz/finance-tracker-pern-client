@@ -29,7 +29,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isLoggedIn: boolean;
   token: string | null;
-  authenticateUser: () => Promise<void>;
+  authenticateUser: (user?: User | null) => Promise<void>;
   handleLogout: () => void;
 }
 

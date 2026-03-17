@@ -32,8 +32,8 @@ function RegisterPage() {
           accessToken: tokenResponse.access_token,
         });
         localStorage.setItem("authToken", data.authToken);
-        await authenticateUser();
-        nav("/profile");
+        await authenticateUser(data.user);
+        nav("/profile", { replace: true });
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           setErrorMessage(
@@ -44,11 +44,29 @@ function RegisterPage() {
         } else {
           setErrorMessage(t("auth.register.googleFailed"));
         }
+      } finally {
+        setIsSubmitting(false);
       }
     },
-    onError: () => setErrorMessage(t("auth.register.googleFailed")),
-    onNonOAuthError: () => setErrorMessage(t("auth.register.googleFailed")),
+    onError: () => {
+      setIsSubmitting(false);
+      setErrorMessage(t("auth.register.googleFailed"));
+    },
+    onNonOAuthError: () => {
+      setIsSubmitting(false);
+      setErrorMessage(t("auth.register.googleFailed"));
+    },
   });
+
+  const handleGoogleLogin = () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    loginWithGoogle();
+  };
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -222,10 +240,15 @@ function RegisterPage() {
           <button
             type="button"
             className={`${styles.googleTrigger} ${styles.oauthButton}`}
-            onClick={() => loginWithGoogle()}
+            disabled={isSubmitting}
+            onClick={handleGoogleLogin}
           >
             <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
-            <span>{t("common.continueWithGoogle")}</span>
+            <span>
+              {isSubmitting
+                ? t("auth.register.submitting")
+                : t("common.continueWithGoogle")}
+            </span>
           </button>
         </article>
         <p className={styles.registerFooter}>

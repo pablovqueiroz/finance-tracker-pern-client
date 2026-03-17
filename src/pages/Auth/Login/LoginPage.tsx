@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,15 @@ import Message from "../../../components/Message/Message";
 import PasswordField from "../../../components/PasswordField/PasswordField";
 import Spinner from "../../../components/Spinner/Spinner";
 import AuthBackNav from "../../../components/AuthBackNav/AuthBackNav";
+import type { User } from "../../../types/auth.types";
+
+type LoginLocationState = {
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+};
 
 function LoginPage() {
   const { t } = useTranslation();
@@ -19,8 +28,32 @@ function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { authenticateUser } = useAuth();
+  const { authenticateUser, isLoading, isLoggedIn } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
+  const redirectPath = useMemo(() => {
+    const state = location.state as LoginLocationState | null;
+    const pathname = state?.from?.pathname;
+
+    if (!pathname || pathname === "/login" || pathname === "/register") {
+      return "/profile";
+    }
+
+    return `${pathname}${state?.from?.search ?? ""}${state?.from?.hash ?? ""}`;
+  }, [location.state]);
+
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      nav(redirectPath, { replace: true });
+    }
+  }, [isLoading, isLoggedIn, nav, redirectPath]);
+
+  const finishLogin = async (authToken: string, user: User) => {
+    localStorage.setItem("authToken", authToken);
+    await authenticateUser(user);
+    nav(redirectPath, { replace: true });
+  };
+
   const loginWithGoogle = useGoogleLogin({
     scope: "openid email profile",
     onSuccess: async (tokenResponse) => {
@@ -29,16 +62,40 @@ function LoginPage() {
           accessToken: tokenResponse.access_token,
         });
 
-        localStorage.setItem("authToken", data.authToken);
-        await authenticateUser();
-        nav("/profile");
-      } catch {
-        setErrorMessage(t("auth.login.googleFailed"));
+        await finishLogin(data.authToken, data.user);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          setErrorMessage(
+            error.response?.data?.errorMessage ??
+              error.response?.data?.message ??
+              t("auth.login.googleFailed"),
+          );
+        } else {
+          setErrorMessage(t("auth.login.googleFailed"));
+        }
+      } finally {
+        setIsSubmitting(false);
       }
     },
-    onError: () => setErrorMessage(t("auth.login.googleFailed")),
-    onNonOAuthError: () => setErrorMessage(t("auth.login.googleFailed")),
+    onError: () => {
+      setIsSubmitting(false);
+      setErrorMessage(t("auth.login.googleFailed"));
+    },
+    onNonOAuthError: () => {
+      setIsSubmitting(false);
+      setErrorMessage(t("auth.login.googleFailed"));
+    },
   });
+
+  const handleGoogleLogin = () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    loginWithGoogle();
+  };
 
   const handleLogin = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -57,9 +114,7 @@ function LoginPage() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
-      localStorage.setItem("authToken", data.authToken);
-      await authenticateUser();
-      nav("/profile");
+      await finishLogin(data.authToken, data.user);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         setErrorMessage(
@@ -134,10 +189,15 @@ function LoginPage() {
           <button
             type="button"
             className={`${styles.googleTrigger} ${styles.oauthButton}`}
-            onClick={() => loginWithGoogle()}
+            disabled={isSubmitting}
+            onClick={handleGoogleLogin}
           >
             <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
-            <span>{t("common.continueWithGoogle")}</span>
+            <span>
+              {isSubmitting
+                ? t("auth.login.submitting")
+                : t("common.continueWithGoogle")}
+            </span>
           </button>
         </article>
       </form>
