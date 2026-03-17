@@ -6,13 +6,13 @@
 .header,
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) 110px minmax(0, 1.6fr);
-  gap: 12px;
-  align-items: center;
+  grid-template-columns: minmax(0, 2fr) 120px minmax(220px, 1.6fr);
+  gap: 14px;
+  align-items: start;
 }
 
 .header {
-  padding: 0 12px;
+  padding: 0 14px;
   color: var(--text-muted);
   font-size: 0.78rem;
   font-weight: 700;
@@ -21,9 +21,14 @@
 }
 
 .row {
-  padding: 12px;
+  padding: 14px;
   border: 1px solid var(--border);
-  background: var(--bg-secondary);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg-secondary) 92%, white 8%) 0%,
+      var(--bg-secondary) 100%
+    );
 }
 
 .memberCell {
@@ -57,6 +62,8 @@
 
 .textBlock {
   min-width: 0;
+  display: grid;
+  gap: 4px;
 }
 
 .name {
@@ -85,6 +92,7 @@
   color: var(--text-main);
   font-size: 0.82rem;
   font-weight: 700;
+  align-self: center;
 }
 
 .actions {
@@ -141,6 +149,10 @@
   white-space: nowrap;
 }
 
+.actions :global(.ui-btn) {
+  min-height: 40px;
+}
+
 .emptyState {
   margin: 0;
   color: var(--text-muted);
@@ -153,6 +165,10 @@
 
   .row {
     grid-template-columns: 1fr;
+  }
+
+  .roleBadge {
+    align-self: start;
   }
 
   .actions {

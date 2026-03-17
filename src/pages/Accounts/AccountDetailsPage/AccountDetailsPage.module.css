@@ -93,6 +93,36 @@
   gap: 10px;
 }
 
+.membersTitleWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manageMembersButton {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.manageMembersButton:hover:not(:disabled) {
+  color: var(--accent-red);
+  background: transparent;
+}
+
+.manageMembersButton svg {
+  font-size: 1rem;
+}
+
 .editActions {
   display: flex;
   flex-wrap: wrap;
@@ -106,6 +136,10 @@
   margin: 0 0 12px;
   color: var(--text-main);
   font-size: 1rem;
+}
+
+.membersTitleWrap .membersTitle {
+  margin-bottom: 0;
 }
 
 .aMembersSection {

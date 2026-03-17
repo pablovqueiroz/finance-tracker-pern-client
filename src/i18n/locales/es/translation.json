@@ -620,6 +620,7 @@
     "openInvites": "Abrir invitaciones",
     "myRole": "Mi rol: {{role}}",
     "empty": "No se encontraron miembros para esta cuenta.",
+    "updateRoleAction": "Actualizar rol",
     "table": {
       "member": "Miembro",
       "role": "Rol",

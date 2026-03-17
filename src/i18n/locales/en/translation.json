@@ -620,6 +620,7 @@
     "openInvites": "Open invites",
     "myRole": "My role: {{role}}",
     "empty": "No members found for this account.",
+    "updateRoleAction": "Update role",
     "table": {
       "member": "Member",
       "role": "Role",

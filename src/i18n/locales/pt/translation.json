@@ -620,6 +620,7 @@
     "openInvites": "Abrir convites",
     "myRole": "A minha função: {{role}}",
     "empty": "Nenhum membro encontrado para esta conta.",
+    "updateRoleAction": "Atualizar função",
     "table": {
       "member": "Membro",
       "role": "Função",

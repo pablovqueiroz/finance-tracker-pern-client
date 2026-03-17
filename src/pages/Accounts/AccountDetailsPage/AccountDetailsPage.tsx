@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaUserEdit } from "react-icons/fa";
+import { IoSettingsOutline } from "react-icons/io5";
 import styles from "./AccountDetailsPage.module.css";
 import api from "../../../services/api";
 import axios from "axios";
@@ -338,7 +339,18 @@ function AccountDetailsPage() {
 
       <section className={`${styles.aMembersSection} ui-card`}>
         <div className={styles.sectionHeader}>
-          <h3 className={styles.membersTitle}>{t("accounts.details.members")}</h3>
+          <div className={styles.membersTitleWrap}>
+            <h3 className={styles.membersTitle}>{t("accounts.details.members")}</h3>
+            <button
+              className={styles.manageMembersButton}
+              type="button"
+              onClick={() => navigate(`/accounts/${accountId}/members`)}
+              aria-label={t("accounts.details.manageMembers")}
+              title={t("accounts.details.manageMembers")}
+            >
+              <IoSettingsOutline aria-hidden="true" />
+            </button>
+          </div>
           <div className={styles.accountActions}>
             <button
               className="ui-btn"
@@ -402,7 +414,9 @@ function AccountDetailsPage() {
                               : undefined
                           }
                         >
-                          {isUpdatingMember ? t("common.updating") : t("common.update")}
+                          {isUpdatingMember
+                            ? t("common.updating")
+                            : t("members.updateRoleAction")}
                         </button>
                       </div>
                     ) : null}
