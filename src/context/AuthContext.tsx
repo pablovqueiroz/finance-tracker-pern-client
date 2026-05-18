@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   type AuthContextType,
@@ -53,35 +53,38 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     localStorage.removeItem(AUTH_USER_KEY);
   };
 
-  async function authenticateUser(user?: User | null): Promise<void> {
-    const tokenInStorage = localStorage.getItem(AUTH_TOKEN_KEY);
-    setToken(tokenInStorage);
+  const authenticateUser = useCallback(
+    async (user?: User | null): Promise<void> => {
+      const tokenInStorage = localStorage.getItem(AUTH_TOKEN_KEY);
+      setToken(tokenInStorage);
 
-    if (!tokenInStorage) {
-      persistUser(null);
-      setIsLoading(false);
-      return;
-    }
-
-    if (user) {
-      persistUser(user);
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { data } = await api.get<User>(`users/me`);
-      persistUser(data);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        clearAuthState();
-      } else if (!currentUser) {
+      if (!tokenInStorage) {
         persistUser(null);
+        setIsLoading(false);
+        return;
       }
-    } finally {
-      setIsLoading(false);
-    }
-  }
+
+      if (user) {
+        persistUser(user);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data } = await api.get<User>(`users/me`);
+        persistUser(data);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          clearAuthState();
+        } else if (!currentUser) {
+          persistUser(null);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [currentUser],
+  );
 
   const handleLogout = (): void => {
     clearAuthState();
@@ -90,7 +93,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
 
   useEffect(() => {
     void authenticateUser();
-  }, []);
+  }, [authenticateUser]);
 
   return (
     <AuthContext.Provider
