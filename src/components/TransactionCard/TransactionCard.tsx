@@ -4,6 +4,7 @@ import { MdOutlineDeleteSweep } from "react-icons/md";
 import type { Currency, Transaction } from "../../types/account.types";
 import { getLocale } from "../../i18n/getLocale";
 import styles from "./TransactionCard.module.css";
+import Spinner from "../Spinner/Spinner";
 
 type TransctionCardProps = {
   transaction?: Transaction;
@@ -133,10 +134,23 @@ function TransactionCard({
                   onDelete();
                 }}
                 disabled={isDeleting}
-                title={t("transactionCard.delete")}
-                aria-label={t("transactionCard.delete")}
+                aria-busy={isDeleting}
+                title={
+                  isDeleting
+                    ? t("transactionCard.deleting")
+                    : t("transactionCard.delete")
+                }
+                aria-label={
+                  isDeleting
+                    ? t("transactionCard.deleting")
+                    : t("transactionCard.delete")
+                }
               >
-                {isDeleting ? "..." : <MdOutlineDeleteSweep />}
+                {isDeleting ? (
+                  <Spinner size={16} />
+                ) : (
+                  <MdOutlineDeleteSweep aria-hidden="true" />
+                )}
               </button>
             ) : null}
           </div>
