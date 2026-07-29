@@ -80,7 +80,11 @@ function TransactionCard({
   const sign = isIncome ? "+" : "-";
 
   return (
-    <div className={styles.transactionCardContainer}>
+    <div
+      className={styles.transactionCardContainer}
+      role="group"
+      aria-label={title}
+    >
       <span
         className={`${styles.icon} ${isIncome ? styles.iconIncome : styles.iconExpense}`}
       >
