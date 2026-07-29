@@ -1,5 +1,6 @@
 import styles from "./ThemeToggle.module.css";
 import { useTheme } from "../../hooks/useTheme";
+import { useTranslation } from "react-i18next";
 
 type ThemeToggleProps = {
   className?: string;
@@ -7,6 +8,7 @@ type ThemeToggleProps = {
 
 function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === "dark";
 
   return (
@@ -29,7 +31,7 @@ function ThemeToggle({ className }: ThemeToggleProps) {
         className={styles.input}
         checked={isDark}
         onChange={toggleTheme}
-        aria-label="Toggle theme"
+        aria-label={t(isDark ? "theme.switchToLight" : "theme.switchToDark")}
       />
       <span className={styles.slider} />
     </label>
