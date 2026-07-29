@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
@@ -27,6 +27,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submissionLockRef = useRef(false);
 
   const { authenticateUser, isLoading, isLoggedIn } = useAuth();
   const nav = useNavigate();
@@ -51,7 +52,6 @@ function LoginPage() {
   const finishLogin = async (authToken: string, user: User) => {
     localStorage.setItem("authToken", authToken);
     await authenticateUser(user);
-    nav(redirectPath, { replace: true });
   };
 
   const loginWithGoogle = useGoogleLogin({
@@ -65,33 +65,33 @@ function LoginPage() {
         await finishLogin(data.authToken, data.user);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.errorMessage ??
-              error.response?.data?.message ??
-              t("auth.login.googleFailed"),
-          );
+          setErrorMessage(t("auth.login.googleFailed"));
         } else {
           setErrorMessage(t("auth.login.googleFailed"));
         }
       } finally {
+        submissionLockRef.current = false;
         setIsSubmitting(false);
       }
     },
     onError: () => {
+      submissionLockRef.current = false;
       setIsSubmitting(false);
       setErrorMessage(t("auth.login.googleFailed"));
     },
     onNonOAuthError: () => {
+      submissionLockRef.current = false;
       setIsSubmitting(false);
       setErrorMessage(t("auth.login.googleFailed"));
     },
   });
 
   const handleGoogleLogin = () => {
-    if (isSubmitting) {
+    if (submissionLockRef.current) {
       return;
     }
 
+    submissionLockRef.current = true;
     setErrorMessage(null);
     setIsSubmitting(true);
     loginWithGoogle();
@@ -100,7 +100,7 @@ function LoginPage() {
   const handleLogin = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (isSubmitting) return;
+    if (submissionLockRef.current) return;
 
     setErrorMessage(null);
 
@@ -109,6 +109,7 @@ function LoginPage() {
       return;
     }
 
+    submissionLockRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -117,15 +118,12 @@ function LoginPage() {
       await finishLogin(data.authToken, data.user);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("auth.login.failed"),
-        );
+        setErrorMessage(t("auth.login.failed"));
       } else {
         setErrorMessage(t("auth.login.unexpected"));
       }
     } finally {
+      submissionLockRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -139,8 +137,9 @@ function LoginPage() {
         <h2 className={styles.title}>{t("auth.login.title")}</h2>
 
         <article className={styles.loginField}>
-          <label>{t("auth.login.email")}</label>
+          <label htmlFor="login-email">{t("auth.login.email")}</label>
           <input
+            id="login-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -149,8 +148,9 @@ function LoginPage() {
         </article>
 
         <article className={styles.loginField}>
-          <label>{t("auth.login.password")}</label>
+          <label htmlFor="login-password">{t("auth.login.password")}</label>
           <PasswordField
+            id="login-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder={t("auth.login.passwordPlaceholder")}
@@ -178,7 +178,7 @@ function LoginPage() {
           type="error"
           text={errorMessage}
           clearMessage={setErrorMessage}
-          duration={4000}
+          duration={15000}
         />
 
         <p className={styles.loginFooter}>
