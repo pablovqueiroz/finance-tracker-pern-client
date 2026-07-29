@@ -5,6 +5,7 @@ import { FaUserEdit } from "react-icons/fa";
 import { getRoleLabel } from "../../utils/displayLabels";
 import RoleSelector from "./RoleSelector";
 import styles from "./Members.module.css";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 
 type MemberRowProps = {
   member: AccountMember;
@@ -113,8 +114,13 @@ function MemberRow({
                     type="button"
                     disabled={isBusy || selectedRole === member.role}
                     onClick={handleUpdateRole}
+                    aria-busy={isUpdating}
                   >
-                    {isUpdating ? t("common.updating") : t("common.update")}
+                    <AsyncButtonContent
+                      isLoading={isUpdating}
+                      idleLabel={t("common.update")}
+                      loadingLabel={t("common.updating")}
+                    />
                   </button>
                 </div>
               ) : null}
@@ -128,8 +134,13 @@ function MemberRow({
             type="button"
             disabled={isBusy}
             onClick={() => onRemove(memberId, member.user.name)}
+            aria-busy={isRemoving}
           >
-            {isRemoving ? t("members.removing") : t("common.remove")}
+            <AsyncButtonContent
+              isLoading={isRemoving}
+              idleLabel={t("common.remove")}
+              loadingLabel={t("members.removing")}
+            />
           </button>
         ) : (
           <button className="ui-btn" type="button" disabled>
