@@ -4,6 +4,7 @@ import styles from "./Invites.module.css";
 import type { AccountInvite } from "../../types/invite.types";
 import { getRoleLabel } from "../../utils/displayLabels";
 import { getLocale } from "../../i18n/getLocale";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 
 type ReceivedInvitesListProps = {
   invites: AccountInvite[];
@@ -82,16 +83,26 @@ function ReceivedInvitesList({
                   type="button"
                   disabled={activeInviteId !== null}
                   onClick={() => onAccept(invite.id, invite.token)}
+                  aria-busy={isAccepting}
                 >
-                  {isAccepting ? t("invites.accepting") : t("invites.accept")}
+                  <AsyncButtonContent
+                    isLoading={isAccepting}
+                    idleLabel={t("invites.accept")}
+                    loadingLabel={t("invites.accepting")}
+                  />
                 </button>
                 <button
                   className={`${styles.secondaryBtn} ui-btn`}
                   type="button"
                   disabled={activeInviteId !== null}
                   onClick={() => onReject(invite.id, invite.token)}
+                  aria-busy={isRejecting}
                 >
-                  {isRejecting ? t("invites.rejecting") : t("invites.reject")}
+                  <AsyncButtonContent
+                    isLoading={isRejecting}
+                    idleLabel={t("invites.reject")}
+                    loadingLabel={t("invites.rejecting")}
+                  />
                 </button>
               </>
             }
