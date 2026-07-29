@@ -64,6 +64,22 @@ const createInitialForm = (
   notes: "",
 });
 
+const createEditForm = (transaction: Transaction): TransactionForm => {
+  const amountValue = Number(transaction.amount);
+  const formattedDate = transaction.date
+    ? new Date(transaction.date).toISOString().slice(0, 10)
+    : "";
+
+  return {
+    title: transaction.title,
+    amount: Number.isFinite(amountValue) ? String(amountValue) : "",
+    type: transaction.type,
+    category: transaction.category,
+    date: formattedDate,
+    notes: transaction.notes ?? "",
+  };
+};
+
 function CreateTransactionPage() {
   const { i18n, t } = useTranslation();
   const { accountId: routeAccountId } = useParams<{ accountId: string }>();
@@ -275,11 +291,21 @@ function CreateTransactionPage() {
       setIsFormOpen(false);
       return;
     }
-    if (transactions.some((item) => item.id === editFromQuery)) {
+    const editingTransaction = transactions.find(
+      (item) => item.id === editFromQuery,
+    );
+    if (editingTransaction && editingId !== editFromQuery) {
+      setForm(createEditForm(editingTransaction));
       setEditingId(editFromQuery);
       setIsFormOpen(true);
     }
-  }, [canManageTransactions, searchParams, setSearchParams, transactions]);
+  }, [
+    canManageTransactions,
+    editingId,
+    searchParams,
+    setSearchParams,
+    transactions,
+  ]);
 
   useEffect(() => {
     if (canManageTransactions) return;
@@ -287,28 +313,6 @@ function CreateTransactionPage() {
     setIsBulkMode(false);
     setIsFormOpen(false);
   }, [canManageTransactions]);
-
-  useEffect(() => {
-    if (!editingId) return;
-    const editingTransaction = transactions.find(
-      (item) => item.id === editingId,
-    );
-    if (!editingTransaction) return;
-
-    const amountValue = Number(editingTransaction.amount);
-    const formattedDate = editingTransaction.date
-      ? new Date(editingTransaction.date).toISOString().slice(0, 10)
-      : "";
-
-    setForm({
-      title: editingTransaction.title,
-      amount: Number.isFinite(amountValue) ? String(amountValue) : "",
-      type: editingTransaction.type,
-      category: editingTransaction.category,
-      date: formattedDate,
-      notes: editingTransaction.notes ?? "",
-    });
-  }, [editingId, transactions]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -532,16 +536,12 @@ function CreateTransactionPage() {
       }
 
       setErrorMessage(null);
-      clearForm();
       await loadData(selectedAccountId);
+      clearForm();
     } catch (error: unknown) {
       console.error("Failed to save transaction", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("transactionsPage.saveFailed"),
-        );
+        setErrorMessage(t("transactionsPage.saveFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -591,11 +591,7 @@ function CreateTransactionPage() {
     } catch (error: unknown) {
       console.error("Failed to create bulk transactions", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("transactionsPage.bulkSaveFailed"),
-        );
+        setErrorMessage(t("transactionsPage.bulkSaveFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -626,11 +622,7 @@ function CreateTransactionPage() {
     } catch (error: unknown) {
       console.error("Failed to delete transaction", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("transactionsPage.deleteFailed"),
-        );
+        setErrorMessage(t("transactionsPage.deleteFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -1170,10 +1162,8 @@ function CreateTransactionPage() {
                   onEdit={
                     canManageTransactions
                       ? () => {
+                          setForm(createEditForm(transaction));
                           setEditingId(transaction.id);
-                          const next = new URLSearchParams(searchParams);
-                          next.set("edit", transaction.id);
-                          setSearchParams(next);
                           setIsFormOpen(true);
                         }
                       : undefined
