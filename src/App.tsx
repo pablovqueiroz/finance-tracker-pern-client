@@ -1,25 +1,40 @@
+import { lazy, Suspense, useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import MobileMenu from "./components/MobileMenu/MobileMenu";
 import NavBar from "./components/NavBar/NavBar";
-import LoginPage from "./pages/Auth/Login/LoginPage";
-import RegisterPage from "./pages/Auth/Register/RegisterPage";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import HomePage from "./pages/HomePage/HomePage";
-import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
-import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import CreateAccountPage from "./pages/Accounts/CreateAccountPage/CreateAccountPage";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
-import ManageAccountsPage from "./pages/Accounts/ManageAccountsPage/ManageAccountsPage";
-import AccountDetailsPage from "./pages/Accounts/AccountDetailsPage/AccountDetailsPage";
-import CreateTransactionPage from "./pages/Transactions/CreateTransactionPage";
-import ManageSavingGoalsPage from "./pages/SavingGoals/ManageSavingGoalsPage";
-import ReportsPage from "./pages/ReportsPage/ReportsPage";
-import AccountMembersPage from "./pages/AccountMembersPage/AccountMembersPage";
-import ContactPage from "./pages/ContacPage/ContactPage";
-import InvitesPage from "./pages/InvitesPage/InvitesPage";
-import { useState } from "react";
+
+const LoginPage = lazy(() => import("./pages/Auth/Login/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/Auth/Register/RegisterPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard/Dashboard"));
+const HomePage = lazy(() => import("./pages/HomePage/HomePage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage/ProfilePage"));
+const CreateAccountPage = lazy(
+  () => import("./pages/Accounts/CreateAccountPage/CreateAccountPage"),
+);
+const ManageAccountsPage = lazy(
+  () => import("./pages/Accounts/ManageAccountsPage/ManageAccountsPage"),
+);
+const AccountDetailsPage = lazy(
+  () => import("./pages/Accounts/AccountDetailsPage/AccountDetailsPage"),
+);
+const CreateTransactionPage = lazy(
+  () => import("./pages/Transactions/CreateTransactionPage"),
+);
+const ManageSavingGoalsPage = lazy(
+  () => import("./pages/SavingGoals/ManageSavingGoalsPage"),
+);
+const ReportsPage = lazy(() => import("./pages/ReportsPage/ReportsPage"));
+const AccountMembersPage = lazy(
+  () => import("./pages/AccountMembersPage/AccountMembersPage"),
+);
+const ContactPage = lazy(() => import("./pages/ContacPage/ContactPage"));
+const InvitesPage = lazy(() => import("./pages/InvitesPage/InvitesPage"));
 
 function App() {
+  const { t } = useTranslation();
   const [activeAccountId, setActiveAccountId] = useState("");
   return (
     <>
@@ -27,47 +42,57 @@ function App() {
         <NavBar />
       </header>
       <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-          {/* protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route
-              path="/dashboard"
-              element={<Dashboard onActiveAccountChange={setActiveAccountId} />}
-            />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/create-account" element={<CreateAccountPage />} />
-            <Route path="/accounts" element={<ManageAccountsPage />} />
-            <Route
-              path="/accounts/:accountId"
-              element={<AccountDetailsPage />}
-            />
-            <Route
-              path="/accounts/:accountId/members"
-              element={<AccountMembersPage />}
-            />
-            <Route path="/invites" element={<InvitesPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route
-              path="/accounts/:accountId/transactions"
-              element={<CreateTransactionPage />}
-            />
-            <Route path="/savings" element={<ManageSavingGoalsPage />} />
-            <Route
-              path="/accounts/:accountId/savings"
-              element={<ManageSavingGoalsPage />}
-            />
-            <Route
-              path="/accounts/:accountId/saving-goals"
-              element={<ManageSavingGoalsPage />}
-            />
-          </Route>
-          {/* ^protected routes^ */}
-        </Routes>
+        <Suspense
+          fallback={
+            <p role="status" aria-live="polite">
+              {t("common.loading")}
+            </p>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+            {/* protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/dashboard"
+                element={
+                  <Dashboard onActiveAccountChange={setActiveAccountId} />
+                }
+              />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/create-account" element={<CreateAccountPage />} />
+              <Route path="/accounts" element={<ManageAccountsPage />} />
+              <Route
+                path="/accounts/:accountId"
+                element={<AccountDetailsPage />}
+              />
+              <Route
+                path="/accounts/:accountId/members"
+                element={<AccountMembersPage />}
+              />
+              <Route path="/invites" element={<InvitesPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route
+                path="/accounts/:accountId/transactions"
+                element={<CreateTransactionPage />}
+              />
+              <Route path="/savings" element={<ManageSavingGoalsPage />} />
+              <Route
+                path="/accounts/:accountId/savings"
+                element={<ManageSavingGoalsPage />}
+              />
+              <Route
+                path="/accounts/:accountId/saving-goals"
+                element={<ManageSavingGoalsPage />}
+              />
+            </Route>
+            {/* ^protected routes^ */}
+          </Routes>
+        </Suspense>
       </main>
       <footer>
         <MobileMenu activeAccountId={activeAccountId} />
