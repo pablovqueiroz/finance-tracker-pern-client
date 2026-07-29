@@ -14,6 +14,11 @@ import SavingGoalCard from "../../components/SavingGoalCard/SavingGoalCard";
 import { useAuth } from "../../hooks/useAuth";
 import { getCurrencyLabel } from "../../utils/displayLabels";
 import { getLocale } from "../../i18n/getLocale";
+import Skeleton from "../../components/Skeleton/Skeleton";
+import SkeletonCard from "../../components/Skeleton/SkeletonCard";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
+import AsyncButtonContent from "../../components/AsyncButtonContent/AsyncButtonContent";
 
 type SavingGoalForm = {
   title: string;
@@ -59,6 +64,7 @@ function ManageSavingGoalsPage() {
   const [isLoadingGoals, setIsLoadingGoals] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isMovingGoalId, setIsMovingGoalId] = useState<string | null>(null);
+  const [movingAction, setMovingAction] = useState<MoveMoneyType | null>(null);
   const [isClosingGoalId, setIsClosingGoalId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [accountBalance, setAccountBalance] = useState<number | null>(null);
@@ -67,6 +73,10 @@ function ManageSavingGoalsPage() {
   >({});
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [accountsLoadError, setAccountsLoadError] = useState<string | null>(
+    null,
+  );
+  const [goalsLoadError, setGoalsLoadError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const reports = useMemo(() => {
@@ -116,43 +126,47 @@ function ManageSavingGoalsPage() {
   const canManageGoals =
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        setIsLoadingAccounts(true);
-        const response = await api.get<AccountSummary[]>("/accounts");
-        const accountList = Array.isArray(response.data) ? response.data : [];
-        setAccounts(accountList);
+  const fetchAccounts = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      setAccountsLoadError(null);
+      const response = await api.get<AccountSummary[]>("/accounts");
+      const accountList = Array.isArray(response.data) ? response.data : [];
+      setAccounts(accountList);
 
-        if (accountList.length === 0) {
-          setSelectedAccountId("");
-          return;
-        }
-
-        const isRouteAccountValid = accountList.some(
-          (item) => item.id === routeAccountId,
-        );
-        setSelectedAccountId(
-          isRouteAccountValid ? routeAccountId || "" : accountList[0].id,
-        );
-      } catch (error: unknown) {
-        console.error("Failed to load accounts", error);
-        setErrorMessage(t("savingGoals.loadAccountsFailed"));
-        setAccounts([]);
+      if (accountList.length === 0) {
         setSelectedAccountId("");
-      } finally {
-        setIsLoadingAccounts(false);
+        setIsLoadingGoals(false);
+        return;
       }
-    }
 
-    fetchAccounts();
+      const isRouteAccountValid = accountList.some(
+        (item) => item.id === routeAccountId,
+      );
+      setSelectedAccountId(
+        isRouteAccountValid ? routeAccountId || "" : accountList[0].id,
+      );
+    } catch (error: unknown) {
+      console.error("Failed to load accounts", error);
+      setAccountsLoadError(t("savingGoals.loadAccountsFailed"));
+      setAccounts([]);
+      setSelectedAccountId("");
+      setIsLoadingGoals(false);
+    } finally {
+      setIsLoadingAccounts(false);
+    }
   }, [routeAccountId, t]);
+
+  useEffect(() => {
+    void fetchAccounts();
+  }, [fetchAccounts]);
 
   const loadGoals = useCallback(async (targetAccountId: string) => {
     if (!targetAccountId) return;
 
     try {
       setIsLoadingGoals(true);
+      setGoalsLoadError(null);
       const [accountResponse, goalsResponse, summaryResponse] = await Promise.all([
         api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
           `/accounts/${targetAccountId}`,
@@ -170,7 +184,7 @@ function ManageSavingGoalsPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load saving goals", error);
-      setErrorMessage(t("savingGoals.loadGoalsFailed"));
+      setGoalsLoadError(t("savingGoals.loadGoalsFailed"));
       setAccount(null);
       setGoals([]);
       setAccountBalance(null);
@@ -313,6 +327,7 @@ function ManageSavingGoalsPage() {
 
     try {
       setIsMovingGoalId(goal.id);
+      setMovingAction(type);
       await api.post(`/saving-goals/${goal.id}/move-money`, {
         amount,
         type,
@@ -335,6 +350,7 @@ function ManageSavingGoalsPage() {
       setSuccessMessage(null);
     } finally {
       setIsMovingGoalId(null);
+      setMovingAction(null);
     }
   }
 
@@ -386,7 +402,34 @@ function ManageSavingGoalsPage() {
   }
 
   if (isLoadingAccounts) {
-    return <p className={styles.pageState}>{t("savingGoals.loadingAccounts")}</p>;
+    return (
+      <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("savingGoals.loadingAccounts")} />
+        <section className={`${styles.header} ui-card`}>
+          <Skeleton width="34%" height={28} />
+          <Skeleton width="62%" height={16} />
+          <Skeleton height={44} />
+        </section>
+        <section className={`${styles.reports} ui-card`}>
+          <SkeletonCard lines={2} />
+        </section>
+        <section className={`${styles.listSection} ui-card`}>
+          <SkeletonCard lines={3} actionCount={2} />
+          <SkeletonCard lines={3} actionCount={2} />
+        </section>
+      </div>
+    );
+  }
+
+  if (accountsLoadError) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={accountsLoadError}
+          onRetry={() => void fetchAccounts()}
+        />
+      </div>
+    );
   }
 
   if (accounts.length === 0) {
@@ -403,8 +446,48 @@ function ManageSavingGoalsPage() {
     );
   }
 
+  if (isLoadingGoals && !account) {
+    return (
+      <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("savingGoals.loadingGoals")} />
+        <section className={`${styles.header} ui-card`}>
+          <Skeleton width="34%" height={28} />
+          <Skeleton width="62%" height={16} />
+          <Skeleton height={44} />
+        </section>
+        <section className={`${styles.reports} ui-card`}>
+          <div className={styles.reportGrid}>
+            <SkeletonCard lines={1} />
+            <SkeletonCard lines={1} />
+            <SkeletonCard lines={1} />
+            <SkeletonCard lines={1} />
+          </div>
+        </section>
+        <section className={`${styles.listSection} ui-card`}>
+          <Skeleton width="32%" height={22} />
+          <SkeletonCard lines={3} actionCount={2} />
+          <SkeletonCard lines={3} actionCount={2} />
+        </section>
+      </div>
+    );
+  }
+
+  if (goalsLoadError) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={goalsLoadError}
+          onRetry={() => void loadGoals(selectedAccountId)}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.pageContainer}>
+    <div className={styles.pageContainer} aria-busy={isLoadingGoals}>
+      {isLoadingGoals ? (
+        <LoadingStatus label={t("savingGoals.loadingGoals")} />
+      ) : null}
       <Message
         type="error"
         text={errorMessage}
@@ -430,6 +513,9 @@ function ManageSavingGoalsPage() {
             value={selectedAccountId}
             onChange={(event) => {
               const nextAccountId = event.target.value;
+              setAccount(null);
+              setGoals([]);
+              setAccountBalance(null);
               setSelectedAccountId(nextAccountId);
               if (location.pathname.startsWith("/accounts/")) {
                 navigate(`/accounts/${nextAccountId}/savings`);
@@ -567,14 +653,23 @@ function ManageSavingGoalsPage() {
               </label>
 
               <div className={styles.formActions}>
-                <button className="ui-btn" type="submit" disabled={isSaving}>
-                  {isSaving
-                    ? editingId
-                      ? t("transactionsPage.updating")
-                      : t("transactionsPage.creating")
-                    : editingId
-                      ? t("common.update")
-                      : t("common.create")}
+                <button
+                  className="ui-btn"
+                  type="submit"
+                  disabled={isSaving}
+                  aria-busy={isSaving}
+                >
+                  <AsyncButtonContent
+                    isLoading={isSaving}
+                    idleLabel={
+                      editingId ? t("common.update") : t("common.create")
+                    }
+                    loadingLabel={
+                      editingId
+                        ? t("transactionsPage.updating")
+                        : t("transactionsPage.creating")
+                    }
+                  />
                 </button>
                 <button
                   className={`${styles.secondaryBtn} ui-btn`}
@@ -589,9 +684,7 @@ function ManageSavingGoalsPage() {
           </section>
         )}
 
-        {isLoadingGoals ? (
-          <p>{t("savingGoals.loadingGoals")}</p>
-        ) : goals.length === 0 ? (
+        {goals.length === 0 ? (
           <p>{t("savingGoals.noGoals")}</p>
         ) : (
           <div className={styles.list}>
@@ -629,16 +722,37 @@ function ManageSavingGoalsPage() {
                           (accountBalance !== null && accountBalance <= 0)
                         }
                         onClick={() => handleMoveMoney(goal, "ADD")}
+                        aria-busy={
+                          isMovingGoalId === goal.id && movingAction === "ADD"
+                        }
                       >
-                        {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.addMoney")}
+                        <AsyncButtonContent
+                          isLoading={
+                            isMovingGoalId === goal.id &&
+                            movingAction === "ADD"
+                          }
+                          idleLabel={t("savingGoals.addMoney")}
+                          loadingLabel={t("savingGoals.moving")}
+                        />
                       </button>
                       <button
                         className={`${styles.secondaryBtn} ui-btn`}
                         type="button"
                         disabled={isMovingGoalId === goal.id || isClosingGoalId === goal.id}
                         onClick={() => handleMoveMoney(goal, "REMOVE")}
+                        aria-busy={
+                          isMovingGoalId === goal.id &&
+                          movingAction === "REMOVE"
+                        }
                       >
-                        {isMovingGoalId === goal.id ? t("savingGoals.moving") : t("savingGoals.removeMoney")}
+                        <AsyncButtonContent
+                          isLoading={
+                            isMovingGoalId === goal.id &&
+                            movingAction === "REMOVE"
+                          }
+                          idleLabel={t("savingGoals.removeMoney")}
+                          loadingLabel={t("savingGoals.moving")}
+                        />
                       </button>
                     </div>
                     <div className={styles.itemActions}>
@@ -669,8 +783,13 @@ function ManageSavingGoalsPage() {
                         type="button"
                         disabled={deletingId === goal.id}
                         onClick={() => handleDelete(goal.id)}
+                        aria-busy={deletingId === goal.id}
                       >
-                        {deletingId === goal.id ? t("savingGoals.deleting") : t("common.delete")}
+                        <AsyncButtonContent
+                          isLoading={deletingId === goal.id}
+                          idleLabel={t("common.delete")}
+                          loadingLabel={t("savingGoals.deleting")}
+                        />
                       </button>
                       {Number(goal.currentAmount) >= Number(goal.targetAmount) &&
                         Number(goal.targetAmount) > 0 && (
@@ -683,10 +802,13 @@ function ManageSavingGoalsPage() {
                               deletingId === goal.id
                             }
                             onClick={() => handleCloseGoal(goal)}
+                            aria-busy={isClosingGoalId === goal.id}
                           >
-                            {isClosingGoalId === goal.id
-                              ? t("savingGoals.closing")
-                              : t("savingGoals.closeGoal")}
+                            <AsyncButtonContent
+                              isLoading={isClosingGoalId === goal.id}
+                              idleLabel={t("savingGoals.closeGoal")}
+                              loadingLabel={t("savingGoals.closing")}
+                            />
                           </button>
                         )}
                     </div>
