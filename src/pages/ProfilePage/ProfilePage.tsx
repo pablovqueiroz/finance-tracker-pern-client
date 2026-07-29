@@ -9,10 +9,10 @@ import api from "../../services/api";
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import AvatarUploader from "../../components/Profile/AvatarUploader";
 import ProfileForm from "../../components/Profile/ProfileForm";
-import SkeletonText from "../../components/Skeleton/SkeletonText";
 import Message from "../../components/Message/Message";
 import DangerZone from "../../components/Profile/DangerZone";
 import PasswordField from "../../components/PasswordField/PasswordField";
+import AsyncButtonContent from "../../components/AsyncButtonContent/AsyncButtonContent";
 
 type UserProfile = {
   name: string;
@@ -336,18 +336,23 @@ function ProfilePage() {
             />
           </label>
 
-          {isChangingPassword ? (
-            <SkeletonText lines={1} widths={["108px"]} lineHeight={16} />
-          ) : null}
-
-          <button type="submit" disabled={!isPasswordFormValid()}>
-            {t("profile.changePassword")}
+          <button
+            type="submit"
+            disabled={!isPasswordFormValid() || isChangingPassword}
+            aria-busy={isChangingPassword}
+          >
+            <AsyncButtonContent
+              isLoading={isChangingPassword}
+              idleLabel={t("profile.changePassword")}
+              loadingLabel={t("profile.changingPassword")}
+            />
           </button>
         </form>
 
         <DangerZone
           label={t("profile.deleteMyAccount")}
           onDelete={handleDeleteAccount}
+          isDeleting={isDeletingAccount}
         />
       </section>
 
@@ -373,13 +378,15 @@ function ProfilePage() {
               className={styles.googleReauthButton}
               disabled={isDeletingAccount}
               onClick={() => reauthenticateWithGoogle()}
+              aria-busy={isDeletingAccount}
             >
               <FcGoogle className={styles.googleReauthIcon} aria-hidden="true" />
-              <span>{t("common.continueWithGoogle")}</span>
+              <AsyncButtonContent
+                isLoading={isDeletingAccount}
+                idleLabel={t("common.continueWithGoogle")}
+                loadingLabel={t("profile.deleting")}
+              />
             </button>
-            {isDeletingAccount ? (
-              <SkeletonText lines={1} widths={["132px"]} lineHeight={16} />
-            ) : null}
             <button
               type="button"
               className={styles.logoutButton}
