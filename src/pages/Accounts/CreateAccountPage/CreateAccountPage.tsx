@@ -64,11 +64,7 @@ function CreateAccountPage() {
       nav("/accounts");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("accounts.create.failed"),
-        );
+        setErrorMessage(t("accounts.create.failed"));
       } else {
         setErrorMessage(t("accounts.create.unexpected"));
       }
@@ -109,19 +105,22 @@ function CreateAccountPage() {
             />
           </label>
 
-          <select
-            className="ui-control"
-            name="currency"
-            id="currency"
-            value={account.currency}
-            onChange={handleChange}
-          >
-            {CURRENCIES.map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </select>
+          <label htmlFor="currency">
+            {t("common.currency")}:
+            <select
+              className="ui-control"
+              name="currency"
+              id="currency"
+              value={account.currency}
+              onChange={handleChange}
+            >
+              {CURRENCIES.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <article className={styles.registerButton}>
             <button type="submit" className="ui-btn" disabled={isSubmitting}>
