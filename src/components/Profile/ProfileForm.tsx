@@ -10,15 +10,26 @@ type ProfileFormProps = {
   errorMessage?: string | null;
 };
 
-function ProfileForm({ children, onSubmit, submitLabel }: ProfileFormProps) {
+function ProfileForm({
+  children,
+  onSubmit,
+  submitLabel,
+  isLoading = false,
+}: ProfileFormProps) {
   const { t } = useTranslation();
 
   return (
-    <form className={styles.profileForm} onSubmit={onSubmit}>
+    <form
+      className={styles.profileForm}
+      onSubmit={onSubmit}
+      aria-label={t("profile.title")}
+    >
       {children}
 
       <section className={styles.saveButton}>
-        <button type="submit">{submitLabel || t("profile.saveProfile")}</button>
+        <button type="submit" disabled={isLoading}>
+          {submitLabel || t("profile.saveProfile")}
+        </button>
       </section>
     </form>
   );
