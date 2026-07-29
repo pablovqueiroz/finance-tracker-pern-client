@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import BalanceCard from "../../components/BalanceCard/BalanceCard";
@@ -20,6 +20,8 @@ import api from "../../services/api";
 import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import { IoMailUnreadOutline } from "react-icons/io5";
 import { useAuth } from "../../hooks/useAuth";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
 
 type DashboardProps = {
   onActiveAccountChange: (accountId: string) => void;
@@ -34,40 +36,47 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
   const [activeAccountIndex, setActiveAccountIndex] = useState(0);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [accountsError, setAccountsError] = useState<string | null>(null);
+  const [transactionsError, setTransactionsError] = useState<string | null>(
+    null,
+  );
   const [pendingInvitesCount, setPendingInvitesCount] = useState(0);
   const activeAccount = accounts[activeAccountIndex] ?? null;
   const activeAccountId = activeAccount?.id ?? "";
+  const activeAccountCurrency = activeAccount?.currency ?? "EUR";
   const currentMember = activeAccount?.users?.find(
     (member) => member.userId === currentUser?.id,
   );
   const canManageTransactions =
     currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        setIsLoadingAccounts(true);
-        const accountsResponse = await api.get<AccountSummary[]>(`/accounts`);
-        const baseAccountList = Array.isArray(accountsResponse.data)
-          ? accountsResponse.data.map((account) => ({
-              ...account,
-              users: account.users ?? [],
-            }))
-          : [];
+  const fetchAccounts = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      setAccountsError(null);
+      const accountsResponse = await api.get<AccountSummary[]>(`/accounts`);
+      const baseAccountList = Array.isArray(accountsResponse.data)
+        ? accountsResponse.data.map((account) => ({
+            ...account,
+            users: account.users ?? [],
+          }))
+        : [];
 
-        setAccounts(baseAccountList);
-        setActiveAccountIndex(0);
-      } catch (error: unknown) {
-        console.error("Failed to load accounts", error);
-        setAccounts([]);
-        setActiveAccountIndex(0);
-      } finally {
-        setIsLoadingAccounts(false);
-      }
+      setAccounts(baseAccountList);
+      setActiveAccountIndex(0);
+    } catch (error: unknown) {
+      console.error("Failed to load accounts", error);
+      setAccounts([]);
+      setActiveAccountIndex(0);
+      setAccountsError(t("dashboard.loadFailed"));
+    } finally {
+      setIsLoadingAccounts(false);
     }
+  }, [t]);
 
-    fetchAccounts();
-  }, []);
+  useEffect(() => {
+    void fetchAccounts();
+  }, [fetchAccounts]);
   useEffect(() => {
     onActiveAccountChange(activeAccountId);
   }, [activeAccountId, onActiveAccountChange]);
@@ -89,51 +98,54 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
     fetchPendingInvites();
   }, []);
 
-  useEffect(() => {
-    async function fetchTransactionsByAccount() {
-      if (!activeAccountId) {
-        setTransactions([]);
-        setCurrency("EUR");
-        setIsLoadingTransactions(false);
-        return;
-      }
-
-      try {
-        setIsLoadingTransactions(true);
-        const [transactionsResponse, accountResponse] = await Promise.all([
-          api.get<Transaction[]>(`/transactions/account/${activeAccountId}`),
-          api.get<
-            Omit<AccountDetail, "transactions" | "savingGoals" | "_count">
-          >(`/accounts/${activeAccountId}`),
-        ]);
-        const accountTransactions = Array.isArray(transactionsResponse.data)
-          ? transactionsResponse.data
-          : [];
-        const accountMembers = accountResponse.data.users ?? [];
-
-        setTransactions(accountTransactions);
-        setCurrency(activeAccount.currency);
-        setAccounts((prev) =>
-          prev.map((account) =>
-            account.id === activeAccountId
-              ? {
-                  ...account,
-                  users: accountMembers,
-                }
-              : account,
-          ),
-        );
-      } catch (error: unknown) {
-        console.error("Failed to load transactions", error);
-        setTransactions([]);
-        setCurrency(activeAccount.currency);
-      } finally {
-        setIsLoadingTransactions(false);
-      }
+  const fetchTransactionsByAccount = useCallback(async () => {
+    if (!activeAccountId) {
+      setTransactions([]);
+      setCurrency("EUR");
+      setTransactionsError(null);
+      setIsLoadingTransactions(false);
+      return;
     }
 
-    fetchTransactionsByAccount();
-  }, [activeAccountId, activeAccount?.currency]);
+    try {
+      setIsLoadingTransactions(true);
+      setTransactionsError(null);
+      const [transactionsResponse, accountResponse] = await Promise.all([
+        api.get<Transaction[]>(`/transactions/account/${activeAccountId}`),
+        api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
+          `/accounts/${activeAccountId}`,
+        ),
+      ]);
+      const accountTransactions = Array.isArray(transactionsResponse.data)
+        ? transactionsResponse.data
+        : [];
+      const accountMembers = accountResponse.data.users ?? [];
+
+      setTransactions(accountTransactions);
+      setCurrency(activeAccountCurrency);
+      setAccounts((prev) =>
+        prev.map((account) =>
+          account.id === activeAccountId
+            ? {
+                ...account,
+                users: accountMembers,
+              }
+            : account,
+        ),
+      );
+    } catch (error: unknown) {
+      console.error("Failed to load transactions", error);
+      setTransactions([]);
+      setCurrency(activeAccountCurrency);
+      setTransactionsError(t("dashboard.transactionsLoadFailed"));
+    } finally {
+      setIsLoadingTransactions(false);
+    }
+  }, [activeAccountCurrency, activeAccountId, t]);
+
+  useEffect(() => {
+    void fetchTransactionsByAccount();
+  }, [fetchTransactionsByAccount]);
 
   const handlePrevAccount = () => {
     setActiveAccountIndex((prev) =>
@@ -154,6 +166,7 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
   if (isLoadingAccounts) {
     return (
       <div className={styles.DashboardContainer} aria-busy="true">
+        <LoadingStatus label={t("common.loading")} />
         <section className={`${styles.welcome} ui-card`}>
           <SkeletonText lines={2} widths={["36%", "58%"]} />
         </section>
@@ -197,6 +210,17 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
             <SkeletonCard avatar lines={2} />
           </div>
         </section>
+      </div>
+    );
+  }
+
+  if (accountsError) {
+    return (
+      <div className={styles.DashboardContainer}>
+        <LoadErrorState
+          message={accountsError}
+          onRetry={() => void fetchAccounts()}
+        />
       </div>
     );
   }
@@ -296,7 +320,8 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
 
       <section className={styles.transactions}>
         {isLoadingTransactions ? (
-          <div className="ui-card">
+          <div className="ui-card" aria-busy="true">
+            <LoadingStatus label={t("common.loading")} />
             <Skeleton width="32%" height={18} />
             <div style={{ display: "grid", gap: "10px", marginTop: "12px" }}>
               <SkeletonCard avatar lines={2} />
@@ -304,6 +329,11 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
               <SkeletonCard avatar lines={2} />
             </div>
           </div>
+        ) : transactionsError ? (
+          <LoadErrorState
+            message={transactionsError}
+            onRetry={() => void fetchTransactionsByAccount()}
+          />
         ) : (
           <Transactions
             transactions={transactions}
