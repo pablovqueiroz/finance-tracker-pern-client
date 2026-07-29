@@ -244,11 +244,7 @@ function ManageSavingGoalsPage() {
     } catch (error: unknown) {
       console.error("Failed to save goal", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("savingGoals.saveFailed"),
-        );
+        setErrorMessage(t("savingGoals.saveFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -279,11 +275,7 @@ function ManageSavingGoalsPage() {
     } catch (error: unknown) {
       console.error("Failed to delete saving goal", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("savingGoals.deleteFailed"),
-        );
+        setErrorMessage(t("savingGoals.deleteFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -336,11 +328,7 @@ function ManageSavingGoalsPage() {
     } catch (error: unknown) {
       console.error("Failed to move money on saving goal", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("savingGoals.moveFailed"),
-        );
+        setErrorMessage(t("savingGoals.moveFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -387,11 +375,7 @@ function ManageSavingGoalsPage() {
     } catch (error: unknown) {
       console.error("Failed to close saving goal", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("savingGoals.closeFailed"),
-        );
+        setErrorMessage(t("savingGoals.closeFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -523,8 +507,14 @@ function ManageSavingGoalsPage() {
 
         {isFormOpen && canManageGoals && (
           <section className={styles.formSection}>
-            <h3>{editingId ? t("savingGoals.editGoal") : t("savingGoals.newGoal")}</h3>
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <h3 id="saving-goal-form-title">
+              {editingId ? t("savingGoals.editGoal") : t("savingGoals.newGoal")}
+            </h3>
+            <form
+              className={styles.form}
+              onSubmit={handleSubmit}
+              aria-labelledby="saving-goal-form-title"
+            >
               <label htmlFor="title">
                 {t("common.title")}
                 <input
@@ -606,13 +596,18 @@ function ManageSavingGoalsPage() {
         ) : (
           <div className={styles.list}>
             {goals.map((goal) => (
-              <article className={styles.item} key={goal.id}>
+              <article
+                className={styles.item}
+                key={goal.id}
+                aria-label={goal.title}
+              >
                 <SavingGoalCard goal={goal} currency={account?.currency ?? "EUR"} />
                 {canManageGoals ? (
                   <>
                     <div className={styles.moneyActions}>
                       <input
                         className={`ui-control ${styles.moneyInput}`}
+                        aria-label={`${t("savingGoals.inputAmount")} — ${goal.title}`}
                         type="number"
                         min="0.01"
                         step="0.01"
