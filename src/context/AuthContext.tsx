@@ -1,5 +1,12 @@
 import axios from "axios";
-import { createContext, useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { flushSync } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
   type AuthContextType,
@@ -28,6 +35,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     }
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const initializationRef = useRef<Promise<void> | null>(null);
   const nav = useNavigate();
 
   const isLoggedIn = currentUser !== null;
@@ -35,14 +43,14 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     localStorage.getItem(AUTH_TOKEN_KEY),
   );
 
-  const clearAuthState = () => {
+  const clearAuthState = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
     setToken(null);
     setCurrentUser(null);
-  };
+  }, []);
 
-  const persistUser = (user: User | null) => {
+  const persistUser = useCallback((user: User | null) => {
     setCurrentUser(user);
 
     if (user) {
@@ -51,7 +59,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
     }
 
     localStorage.removeItem(AUTH_USER_KEY);
-  };
+  }, []);
 
   const authenticateUser = useCallback(
     async (user?: User | null): Promise<void> => {
@@ -59,7 +67,7 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
       setToken(tokenInStorage);
 
       if (!tokenInStorage) {
-        persistUser(null);
+        clearAuthState();
         setIsLoading(false);
         return;
       }
@@ -76,23 +84,22 @@ const AuthWrapper = ({ children }: AuthWrapperProps) => {
       } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           clearAuthState();
-        } else if (!currentUser) {
-          persistUser(null);
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [currentUser],
+    [clearAuthState, persistUser],
   );
 
-  const handleLogout = (): void => {
-    clearAuthState();
-    nav("/");
-  };
+  const handleLogout = useCallback((): void => {
+    flushSync(clearAuthState);
+    nav("/", { replace: true });
+  }, [clearAuthState, nav]);
 
   useEffect(() => {
-    void authenticateUser();
+    initializationRef.current ??= authenticateUser();
+    void initializationRef.current;
   }, [authenticateUser]);
 
   return (
