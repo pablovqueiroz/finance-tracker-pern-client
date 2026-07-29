@@ -151,13 +151,9 @@ function AccountDetailsPage() {
       setErrorMessage(null);
       setSuccessMessage(t("accounts.details.updatesSaved"));
     } catch (error: unknown) {
-      console.error("Failed to updae account", error);
+      console.error("Failed to update account", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("accounts.details.updateFailed"),
-        );
+        setErrorMessage(t("accounts.details.updateFailed"));
       } else {
         setErrorMessage(t("accounts.details.unexpected"));
       }
@@ -210,11 +206,7 @@ function AccountDetailsPage() {
     } catch (error: unknown) {
       console.error("Failed to update member role", error);
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("members.updateFailed"),
-        );
+        setErrorMessage(t("members.updateFailed"));
       } else {
         setErrorMessage(t("members.updateFailed"));
       }
