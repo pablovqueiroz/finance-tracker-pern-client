@@ -26,6 +26,7 @@ function ActionButtons({
           to={transactionPath}
           className={styles.actionButton}
           title={t("actions.newTransaction")}
+          aria-label={t("actions.newTransaction")}
         >
           <FaCirclePlus />
         </Link>
@@ -35,6 +36,9 @@ function ActionButtons({
           type="button"
           disabled
           title={hasAccount ? t("transactionsPage.readOnly") : disabledTitle}
+          aria-label={
+            hasAccount ? t("transactionsPage.readOnly") : disabledTitle
+          }
         >
           <FaCirclePlus />
         </button>
@@ -45,6 +49,7 @@ function ActionButtons({
           className={styles.actionButton}
           type="button"
           title={t("actions.transactions")}
+          aria-label={t("actions.transactions")}
           onClick={() => navigate(`/accounts/${accountId}/transactions`)}
         >
           <TbReport />
@@ -55,6 +60,7 @@ function ActionButtons({
           type="button"
           disabled
           title={disabledTitle}
+          aria-label={disabledTitle}
         >
           <TbReport />
         </button>
@@ -65,6 +71,7 @@ function ActionButtons({
           className={styles.actionButton}
           type="button"
           title={t("actions.reports")}
+          aria-label={t("actions.reports")}
           onClick={() => navigate("/reports")}
         >
           <FaChartSimple />
@@ -75,6 +82,7 @@ function ActionButtons({
           type="button"
           disabled
           title={disabledTitle}
+          aria-label={disabledTitle}
         >
           <FaChartSimple />
         </button>
