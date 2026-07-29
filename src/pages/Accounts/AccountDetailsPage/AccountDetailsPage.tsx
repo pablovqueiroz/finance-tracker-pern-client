@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FaUserEdit } from "react-icons/fa";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -21,6 +21,12 @@ import Message from "../../../components/Message/Message";
 import RoleSelector from "../../../components/members/RoleSelector";
 import { getCurrencyLabel, getRoleLabel } from "../../../utils/displayLabels";
 import { getLocale } from "../../../i18n/getLocale";
+import Skeleton from "../../../components/Skeleton/Skeleton";
+import SkeletonButton from "../../../components/Skeleton/SkeletonButton";
+import SkeletonCard from "../../../components/Skeleton/SkeletonCard";
+import LoadingStatus from "../../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../../components/LoadErrorState/LoadErrorState";
+import AsyncButtonContent from "../../../components/AsyncButtonContent/AsyncButtonContent";
 
 function AccountDetailsPage() {
   const { t, i18n } = useTranslation();
@@ -33,6 +39,7 @@ function AccountDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AccountRole>("MEMBER");
   const [updatingMemberId, setUpdatingMemberId] = useState<string | null>(null);
@@ -44,46 +51,51 @@ function AccountDetailsPage() {
   });
   const CURRENCIES: Currency[] = ["EUR", "USD", "BRL", "GBP", "JPY"];
 
-  useEffect(() => {
-    async function fetchAccount() {
-      try {
-        const [accountResponse, transactionsResponse, savingGoalsResponse] =
-          await Promise.all([
-            api.get<
-              Omit<AccountDetail, "transactions" | "savingGoals" | "_count">
-            >(`/accounts/${accountId}`),
-            api.get<Transaction[]>(`/transactions/account/${accountId}`),
-            api.get<savingGoal[]>(`/saving-goals/account/${accountId}`),
-          ]);
+  const fetchAccount = useCallback(async () => {
+    if (!accountId) return;
 
-        const transactions = Array.isArray(transactionsResponse.data)
-          ? transactionsResponse.data
-          : [];
-        const savingGoals = Array.isArray(savingGoalsResponse.data)
-          ? savingGoalsResponse.data
-          : [];
-        const counts: AccountCounts = {
-          transactions: transactions.length,
-          savingGoals: savingGoals.length,
-        };
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+      const [accountResponse, transactionsResponse, savingGoalsResponse] =
+        await Promise.all([
+          api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
+            `/accounts/${accountId}`,
+          ),
+          api.get<Transaction[]>(`/transactions/account/${accountId}`),
+          api.get<savingGoal[]>(`/saving-goals/account/${accountId}`),
+        ]);
 
-        setAccount({
-          ...accountResponse.data,
-          users: accountResponse.data.users ?? [],
-          transactions,
-          savingGoals,
-          _count: counts,
-        });
-        setErrorMessage(null);
-      } catch (error: unknown) {
-        console.error("Failed to load account", error);
-        setErrorMessage(t("accounts.details.loadFailed"));
-      } finally {
-        setIsLoading(false);
-      }
+      const transactions = Array.isArray(transactionsResponse.data)
+        ? transactionsResponse.data
+        : [];
+      const savingGoals = Array.isArray(savingGoalsResponse.data)
+        ? savingGoalsResponse.data
+        : [];
+      const counts: AccountCounts = {
+        transactions: transactions.length,
+        savingGoals: savingGoals.length,
+      };
+
+      setAccount({
+        ...accountResponse.data,
+        users: accountResponse.data.users ?? [],
+        transactions,
+        savingGoals,
+        _count: counts,
+      });
+    } catch (error: unknown) {
+      console.error("Failed to load account", error);
+      setAccount(null);
+      setErrorMessage(t("accounts.details.loadFailed"));
+    } finally {
+      setIsLoading(false);
     }
-    if (accountId) fetchAccount();
   }, [accountId, t]);
+
+  useEffect(() => {
+    void fetchAccount();
+  }, [fetchAccount]);
 
   const currentMember = account?.users.find(
     (user) => user.userId === currentUser?.id,
@@ -164,13 +176,14 @@ function AccountDetailsPage() {
   }
 
   async function handleDelete() {
-    if (!account) return;
+    if (!account || isDeleting) return;
     const confirmation = window.confirm(
       t("accounts.details.deleteConfirm"),
     );
     if (!confirmation) return;
 
     try {
+      setIsDeleting(true);
       await api.delete(`/accounts/${accountId}`);
       setSuccessMessage(t("accounts.details.deleteSuccess"));
       setTimeout(() => {
@@ -178,6 +191,10 @@ function AccountDetailsPage() {
       }, 3000);
     } catch (error: unknown) {
       console.error("Failed to delete account", error);
+      setErrorMessage(t("accounts.details.deleteFailed"));
+      setSuccessMessage(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -216,8 +233,38 @@ function AccountDetailsPage() {
     }
   }
 
-  if (isLoading) return <p>{t("accounts.details.loading")}</p>;
-  if (!account) return null;
+  if (isLoading) {
+    return (
+      <div className={styles.accountDetailsPageContainer} aria-busy="true">
+        <LoadingStatus label={t("accounts.details.loading")} />
+        <section className={`${styles.accountDetails} ui-card`}>
+          <Skeleton width="42%" height={28} />
+          <Skeleton width="68%" height={16} />
+          <Skeleton width="32%" height={18} />
+          <SkeletonButton width={130} />
+        </section>
+        <section className="ui-card">
+          <SkeletonCard avatar lines={2} />
+          <SkeletonCard avatar lines={2} />
+        </section>
+        <section className="ui-card">
+          <SkeletonCard avatar lines={2} actionCount={1} />
+          <SkeletonCard avatar lines={2} actionCount={1} />
+        </section>
+      </div>
+    );
+  }
+
+  if (!account) {
+    return (
+      <div className={styles.accountDetailsPageContainer}>
+        <LoadErrorState
+          message={errorMessage ?? t("accounts.details.loadFailed")}
+          onRetry={() => void fetchAccount()}
+        />
+      </div>
+    );
+  }
   const locale = getLocale(i18n.resolvedLanguage);
   const balance = account.transactions.reduce((acc, transaction) => {
     const amount = Number(transaction.amount);
@@ -270,8 +317,17 @@ function AccountDetailsPage() {
                   </button>
                 )}
                 {canDelete && (
-                  <button className="ui-btn" onClick={handleDelete}>
-                    {t("accounts.details.delete")}
+                  <button
+                    className="ui-btn"
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    aria-busy={isDeleting}
+                  >
+                    <AsyncButtonContent
+                      isLoading={isDeleting}
+                      idleLabel={t("accounts.details.delete")}
+                      loadingLabel={t("accounts.details.deleting")}
+                    />
                   </button>
                 )}
               </div>
@@ -314,8 +370,13 @@ function AccountDetailsPage() {
                 className="ui-btn"
                 onClick={handleSave}
                 disabled={isSaving}
+                aria-busy={isSaving}
               >
-                {isSaving ? t("accounts.details.saving") : t("accounts.details.save")}
+                <AsyncButtonContent
+                  isLoading={isSaving}
+                  idleLabel={t("accounts.details.save")}
+                  loadingLabel={t("accounts.details.saving")}
+                />
               </button>
               <button
                 className="ui-btn"
@@ -400,15 +461,18 @@ function AccountDetailsPage() {
                           className="ui-btn"
                           type="button"
                           disabled={isUpdatingMember || selectedRole === member.role}
+                          aria-busy={isUpdatingMember}
                           onClick={() =>
                             member.id
                               ? void handleMemberRoleUpdate(member.id, selectedRole)
                               : undefined
                           }
                         >
-                          {isUpdatingMember
-                            ? t("common.updating")
-                            : t("members.updateRoleAction")}
+                          <AsyncButtonContent
+                            isLoading={isUpdatingMember}
+                            idleLabel={t("members.updateRoleAction")}
+                            loadingLabel={t("common.updating")}
+                          />
                         </button>
                       </div>
                     ) : null}
