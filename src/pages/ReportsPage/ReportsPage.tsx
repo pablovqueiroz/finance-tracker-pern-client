@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Row, Worksheet } from "exceljs";
@@ -17,6 +16,9 @@ import {
   incomeChartColors,
 } from "../../components/charts/categoryChartColors";
 import ChartLegend from "../../components/reports/ChartLegend";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
+import Spinner from "../../components/Spinner/Spinner";
 import Message from "../../components/Message/Message";
 import api from "../../services/api";
 import type {
@@ -245,8 +247,13 @@ function ReportsPage() {
     [],
   );
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
-  const [isLoadingCharts, setIsLoadingCharts] = useState(false);
+  const [isLoadingCharts, setIsLoadingCharts] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [accountsLoadError, setAccountsLoadError] = useState<string | null>(
+    null,
+  );
+  const [reportsLoadError, setReportsLoadError] = useState<string | null>(null);
   const locale = getLocale(i18n.resolvedLanguage);
   const selectedAccount = useMemo(
     () => accounts.find((account) => account.id === selectedAccountId) ?? null,
@@ -334,37 +341,39 @@ function ReportsPage() {
     return transaction.updatedById ? t("reportsPage.unknownEditor") : "-";
   };
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        setIsLoadingAccounts(true);
-        const response = await api.get<AccountSummary[]>("/accounts");
-        const accountList = Array.isArray(response.data) ? response.data : [];
+  const fetchAccounts = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      setAccountsLoadError(null);
+      const response = await api.get<AccountSummary[]>("/accounts");
+      const accountList = Array.isArray(response.data) ? response.data : [];
 
-        setAccounts(accountList);
-        setSelectedAccountId(accountList[0]?.id ?? "");
-        setErrorMessage(null);
-      } catch (error: unknown) {
-        console.error("Failed to load accounts", error);
-        if (axios.isAxiosError(error)) {
-          setErrorMessage(t("reportsPage.loadAccountsFailed"));
-        } else {
-          setErrorMessage(t("reportsPage.loadAccountsFailed"));
-        }
-        setAccounts([]);
-        setSelectedAccountId("");
-      } finally {
-        setIsLoadingAccounts(false);
+      setAccounts(accountList);
+      setSelectedAccountId(accountList[0]?.id ?? "");
+      setErrorMessage(null);
+      if (accountList.length === 0) {
+        setIsLoadingCharts(false);
       }
+    } catch (error: unknown) {
+      console.error("Failed to load accounts", error);
+      setAccountsLoadError(t("reportsPage.loadAccountsFailed"));
+      setAccounts([]);
+      setSelectedAccountId("");
+      setIsLoadingCharts(false);
+    } finally {
+      setIsLoadingAccounts(false);
     }
-
-    fetchAccounts();
   }, [t]);
 
   useEffect(() => {
-    async function fetchCharts(accountId: string) {
+    void fetchAccounts();
+  }, [fetchAccounts]);
+
+  const fetchCharts = useCallback(
+    async (accountId: string) => {
       try {
         setIsLoadingCharts(true);
+        setReportsLoadError(null);
         const [
           summaryResponse,
           expenseAnalyticsResponse,
@@ -410,11 +419,7 @@ function ReportsPage() {
         setErrorMessage(null);
       } catch (error: unknown) {
         console.error("Failed to load reports", error);
-        if (axios.isAxiosError(error)) {
-          setErrorMessage(t("reportsPage.loadReportsFailed"));
-        } else {
-          setErrorMessage(t("reportsPage.loadReportsFailed"));
-        }
+        setReportsLoadError(t("reportsPage.loadReportsFailed"));
         setSummary(null);
         setExpenseCategories([]);
         setIncomeCategories([]);
@@ -424,8 +429,11 @@ function ReportsPage() {
       } finally {
         setIsLoadingCharts(false);
       }
-    }
+    },
+    [t],
+  );
 
+  useEffect(() => {
     if (!selectedAccountId) {
       setSummary(null);
       setExpenseCategories([]);
@@ -436,8 +444,8 @@ function ReportsPage() {
       return;
     }
 
-    fetchCharts(selectedAccountId);
-  }, [selectedAccountId, t]);
+    void fetchCharts(selectedAccountId);
+  }, [fetchCharts, selectedAccountId]);
 
   useEffect(() => {
     if (savingsGoals.length === 0) {
@@ -451,12 +459,15 @@ function ReportsPage() {
   }, [savingsGoals, selectedSavingsGoalId]);
 
   const handleExportExcel = async () => {
-    if (!selectedAccount) return;
+    if (!selectedAccount || isExporting) return;
 
-    const { default: ExcelJS } = await import("exceljs");
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = "Finance Tracker";
-    workbook.created = new Date();
+    try {
+      setIsExporting(true);
+      setErrorMessage(null);
+      const { default: ExcelJS } = await import("exceljs");
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "Finance Tracker";
+      workbook.created = new Date();
 
     const styleTitleRow = (
       worksheet: Worksheet,
@@ -707,12 +718,19 @@ function ReportsPage() {
     link.href = url;
     link.download = `reports-${safeAccountName}-${new Date().toISOString().slice(0, 10)}.xlsx`;
     link.click();
-    URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      console.error("Failed to export reports", error);
+      setErrorMessage(t("reportsPage.exportFailed"));
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  if (isLoadingAccounts) {
+  if (isLoadingAccounts || isLoadingCharts) {
     return (
       <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("common.loading")} />
         <section className={`${styles.header} ui-card`}>
           <div>
             <Skeleton width="28%" height={26} />
@@ -749,6 +767,17 @@ function ReportsPage() {
     );
   }
 
+  if (accountsLoadError) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={accountsLoadError}
+          onRetry={() => void fetchAccounts()}
+        />
+      </div>
+    );
+  }
+
   if (accounts.length === 0) {
     return (
       <div className={styles.pageContainer}>
@@ -759,6 +788,17 @@ function ReportsPage() {
             {t("common.createAccount")}
           </Link>
         </section>
+      </div>
+    );
+  }
+
+  if (reportsLoadError) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={reportsLoadError}
+          onRetry={() => void fetchCharts(selectedAccountId)}
+        />
       </div>
     );
   }
@@ -777,11 +817,20 @@ function ReportsPage() {
           className={styles.exportButton}
           type="button"
           onClick={handleExportExcel}
-          disabled={!selectedAccountId || isLoadingCharts}
-          aria-label={t("reportsPage.exportExcel")}
-          title={t("reportsPage.exportExcel")}
+          disabled={!selectedAccountId || isLoadingCharts || isExporting}
+          aria-busy={isExporting}
+          aria-label={
+            isExporting
+              ? t("reportsPage.exporting")
+              : t("reportsPage.exportExcel")
+          }
+          title={
+            isExporting
+              ? t("reportsPage.exporting")
+              : t("reportsPage.exportExcel")
+          }
         >
-          <RiFileExcel2Line />
+          {isExporting ? <Spinner /> : <RiFileExcel2Line aria-hidden="true" />}
         </button>
         <div className={styles.headerIntro}>
           <h2 className={styles.title}>{t("reportsPage.title")}</h2>
