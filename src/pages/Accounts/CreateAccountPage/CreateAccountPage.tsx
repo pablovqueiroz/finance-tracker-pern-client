@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import styles from "./CreateAccountPage.module.css";
 import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
-import Spinner from "../../../components/Spinner/Spinner";
+import AsyncButtonContent from "../../../components/AsyncButtonContent/AsyncButtonContent";
 import type { Account, Currency } from "../../../types/account.types";
 
 function CreateAccountPage() {
@@ -123,22 +123,17 @@ function CreateAccountPage() {
           </label>
 
           <article className={styles.registerButton}>
-            <button type="submit" className="ui-btn" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                  }}
-                >
-                  <Spinner loadingLabel={t("accounts.create.submitting")} />
-                  <span>{t("accounts.create.submitting")}</span>
-                </span>
-              ) : (
-                t("accounts.create.submit")
-              )}
+            <button
+              type="submit"
+              className="ui-btn"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
+              <AsyncButtonContent
+                isLoading={isSubmitting}
+                idleLabel={t("accounts.create.submit")}
+                loadingLabel={t("accounts.create.submitting")}
+              />
             </button>
           </article>
 
