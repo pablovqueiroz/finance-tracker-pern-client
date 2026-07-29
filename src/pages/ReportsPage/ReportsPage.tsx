@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import ExcelJS from "exceljs";
+import type { Row, Worksheet } from "exceljs";
 import { RiFileExcel2Line } from "react-icons/ri";
 import Skeleton from "../../components/Skeleton/Skeleton";
 import SkeletonCard from "../../components/Skeleton/SkeletonCard";
@@ -347,11 +347,7 @@ function ReportsPage() {
       } catch (error: unknown) {
         console.error("Failed to load accounts", error);
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.errorMessage ??
-              error.response?.data?.message ??
-              t("reportsPage.loadAccountsFailed"),
-          );
+          setErrorMessage(t("reportsPage.loadAccountsFailed"));
         } else {
           setErrorMessage(t("reportsPage.loadAccountsFailed"));
         }
@@ -415,11 +411,7 @@ function ReportsPage() {
       } catch (error: unknown) {
         console.error("Failed to load reports", error);
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.errorMessage ??
-              error.response?.data?.message ??
-              t("reportsPage.loadReportsFailed"),
-          );
+          setErrorMessage(t("reportsPage.loadReportsFailed"));
         } else {
           setErrorMessage(t("reportsPage.loadReportsFailed"));
         }
@@ -461,12 +453,13 @@ function ReportsPage() {
   const handleExportExcel = async () => {
     if (!selectedAccount) return;
 
+    const { default: ExcelJS } = await import("exceljs");
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Finance Tracker";
     workbook.created = new Date();
 
     const styleTitleRow = (
-      worksheet: ExcelJS.Worksheet,
+      worksheet: Worksheet,
       lastColumn: number,
     ) => {
       worksheet.mergeCells(1, 1, 1, lastColumn);
@@ -480,7 +473,7 @@ function ReportsPage() {
       titleCell.alignment = { vertical: "middle", horizontal: "left" };
     };
 
-    const styleHeaderRow = (row: ExcelJS.Row) => {
+    const styleHeaderRow = (row: Row) => {
       row.font = { bold: true, color: { argb: "FFFFFFFF" } };
       row.fill = {
         type: "pattern",
@@ -823,19 +816,31 @@ function ReportsPage() {
 
       <section className={`${styles.summarySection} ui-card`}>
         <div className={styles.summaryGrid}>
-          <article className={styles.summaryCard}>
+          <article
+            className={styles.summaryCard}
+            aria-label={t("reportsPage.totalIncome")}
+          >
             <small>{t("reportsPage.totalIncome")}</small>
             <strong>{formatCurrency(summary?.totalIncome ?? 0)}</strong>
           </article>
-          <article className={styles.summaryCard}>
+          <article
+            className={styles.summaryCard}
+            aria-label={t("reportsPage.totalExpenses")}
+          >
             <small>{t("reportsPage.totalExpenses")}</small>
             <strong>{formatCurrency(summary?.totalExpense ?? 0)}</strong>
           </article>
-          <article className={styles.summaryCard}>
+          <article
+            className={styles.summaryCard}
+            aria-label={t("reportsPage.netBalance")}
+          >
             <small>{t("reportsPage.netBalance")}</small>
             <strong>{formatCurrency(summary?.balance ?? 0)}</strong>
           </article>
-          <article className={styles.summaryCard}>
+          <article
+            className={styles.summaryCard}
+            aria-label={t("reportsPage.transactionCount")}
+          >
             <small>{t("reportsPage.transactionCount")}</small>
             <strong>{summary?.transactionCount ?? 0}</strong>
           </article>
