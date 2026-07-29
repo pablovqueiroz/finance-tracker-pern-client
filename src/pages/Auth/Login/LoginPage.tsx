@@ -9,8 +9,9 @@ import api from "../../../services/api";
 import { useAuth } from "../../../hooks/useAuth";
 import Message from "../../../components/Message/Message";
 import PasswordField from "../../../components/PasswordField/PasswordField";
-import Spinner from "../../../components/Spinner/Spinner";
 import AuthBackNav from "../../../components/AuthBackNav/AuthBackNav";
+import AsyncButtonContent from "../../../components/AsyncButtonContent/AsyncButtonContent";
+import LoadingStatus from "../../../components/LoadingStatus/LoadingStatus";
 import type { User } from "../../../types/auth.types";
 
 type LoginLocationState = {
@@ -27,6 +28,9 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionMethod, setSubmissionMethod] = useState<
+    "local" | "google" | null
+  >(null);
   const submissionLockRef = useRef(false);
 
   const { authenticateUser, isLoading, isLoggedIn } = useAuth();
@@ -72,16 +76,19 @@ function LoginPage() {
       } finally {
         submissionLockRef.current = false;
         setIsSubmitting(false);
+        setSubmissionMethod(null);
       }
     },
     onError: () => {
       submissionLockRef.current = false;
       setIsSubmitting(false);
+      setSubmissionMethod(null);
       setErrorMessage(t("auth.login.googleFailed"));
     },
     onNonOAuthError: () => {
       submissionLockRef.current = false;
       setIsSubmitting(false);
+      setSubmissionMethod(null);
       setErrorMessage(t("auth.login.googleFailed"));
     },
   });
@@ -94,6 +101,7 @@ function LoginPage() {
     submissionLockRef.current = true;
     setErrorMessage(null);
     setIsSubmitting(true);
+    setSubmissionMethod("google");
     loginWithGoogle();
   };
 
@@ -111,6 +119,7 @@ function LoginPage() {
 
     submissionLockRef.current = true;
     setIsSubmitting(true);
+    setSubmissionMethod("local");
 
     try {
       const { data } = await api.post("/auth/login", { email, password });
@@ -125,15 +134,20 @@ function LoginPage() {
     } finally {
       submissionLockRef.current = false;
       setIsSubmitting(false);
+      setSubmissionMethod(null);
     }
   };
+
+  if (isLoading) {
+    return <LoadingStatus label={t("common.checkingSession")} page />;
+  }
 
   return (
     <div className={styles.loginContainer}>
       <div className={styles.topNav}>
         <AuthBackNav />
       </div>
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleLogin} aria-busy={isSubmitting}>
         <h2 className={styles.title}>{t("auth.login.title")}</h2>
 
         <article className={styles.loginField}>
@@ -162,15 +176,13 @@ function LoginPage() {
             type="submit"
             className={styles.primaryBtn}
             disabled={isSubmitting}
+            aria-busy={submissionMethod === "local"}
           >
-            {isSubmitting ? (
-              <span className={styles.buttonContent}>
-                <Spinner loadingLabel={t("auth.login.submitting")} />
-                <span>{t("auth.login.submitting")}</span>
-              </span>
-            ) : (
-              t("auth.login.submit")
-            )}
+            <AsyncButtonContent
+              isLoading={submissionMethod === "local"}
+              idleLabel={t("auth.login.submit")}
+              loadingLabel={t("auth.login.submitting")}
+            />
           </button>
         </article>
 
@@ -191,13 +203,14 @@ function LoginPage() {
             className={`${styles.googleTrigger} ${styles.oauthButton}`}
             disabled={isSubmitting}
             onClick={handleGoogleLogin}
+            aria-busy={submissionMethod === "google"}
           >
             <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
-            <span>
-              {isSubmitting
-                ? t("auth.login.submitting")
-                : t("common.continueWithGoogle")}
-            </span>
+            <AsyncButtonContent
+              isLoading={submissionMethod === "google"}
+              idleLabel={t("common.continueWithGoogle")}
+              loadingLabel={t("auth.login.submitting")}
+            />
           </button>
         </article>
       </form>
