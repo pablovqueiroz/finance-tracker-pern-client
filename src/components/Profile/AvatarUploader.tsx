@@ -71,7 +71,7 @@ function AvatarUploader({
       setSuccessMessage(t("profile.uploadSuccess"));
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(error.response?.data?.message ?? t("profile.uploadFailed"));
+        setErrorMessage(t("profile.uploadFailed"));
       } else {
         setErrorMessage(t("profile.unexpected"));
       }
