@@ -90,14 +90,13 @@ test("survives a controlled 500 response and recovers after reload", async ({
     }),
   );
   await page.goto("/reports");
-  await expect(page.getByRole("status")).toContainText(
+  await expect(page.getByRole("alert")).toContainText(
     "Failed to load reports.",
   );
   await expect(page.getByText("NaN", { exact: true })).toHaveCount(0);
 
   await page.unroute(summaryPattern);
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await page.getByLabel("Select Account").selectOption(account.id);
+  await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByRole("heading", { name: "Reports" })).toBeVisible();
   await expect(page.getByRole("article", { name: "Net Balance" })).toContainText(
     "€0.00",
