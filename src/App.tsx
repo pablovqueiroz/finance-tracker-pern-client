@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import MobileMenu from "./components/MobileMenu/MobileMenu";
 import NavBar from "./components/NavBar/NavBar";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
+import LoadingStatus from "./components/LoadingStatus/LoadingStatus";
 
 const LoginPage = lazy(() => import("./pages/Auth/Login/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/Auth/Register/RegisterPage"));
@@ -44,9 +45,7 @@ function App() {
       <main>
         <Suspense
           fallback={
-            <p role="status" aria-live="polite">
-              {t("common.loading")}
-            </p>
+            <LoadingStatus label={t("common.loading")} page />
           }
         >
           <Routes>
