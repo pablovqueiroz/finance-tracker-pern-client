@@ -3,10 +3,10 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { IoCameraOutline } from "react-icons/io5";
 import api from "../../services/api";
-import SkeletonText from "../Skeleton/SkeletonText";
 import Message from "../Message/Message";
 import { useAuth } from "../../hooks/useAuth";
 import styles from "../../pages/ProfilePage/ProfilePage.module.css";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 
 type AvatarUploaderProps = {
   imageUrl: string;
@@ -81,7 +81,7 @@ function AvatarUploader({
   };
 
   return (
-    <div className={styles.avatarUploader}>
+    <div className={styles.avatarUploader} aria-busy={isUploading}>
       <label
         className={styles.avatarTrigger}
         aria-label={t("profile.changePhoto")}
@@ -105,7 +105,13 @@ function AvatarUploader({
         <span className={styles.avatarOverlay} aria-hidden="true">
           <IoCameraOutline />
         </span>
-        <input type="file" accept="image/*" hidden onChange={handleFileSelect} />
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          disabled={isUploading}
+          onChange={handleFileSelect}
+        />
       </label>
 
       {selectedFile ? (
@@ -120,13 +126,14 @@ function AvatarUploader({
           type="button"
           onClick={handleUpload}
           disabled={!selectedFile || isUploading}
+          aria-busy={isUploading}
         >
-          {t("profile.uploadImage")}
+          <AsyncButtonContent
+            isLoading={isUploading}
+            idleLabel={t("profile.uploadImage")}
+            loadingLabel={t("profile.uploading")}
+          />
         </button>
-
-        {isUploading ? (
-          <SkeletonText lines={1} widths={["112px"]} lineHeight={16} />
-        ) : null}
       </div>
 
       <Message
