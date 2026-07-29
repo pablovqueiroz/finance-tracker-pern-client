@@ -1,6 +1,9 @@
 {
   "common": {
     "loading": "Cargando...",
+    "checkingSession": "Comprobando tu sesión...",
+    "tryAgain": "Intentar de nuevo",
+    "retrying": "Intentándolo de nuevo...",
     "cancel": "Cancelar",
     "close": "Cerrar",
     "delete": "Eliminar",
@@ -204,6 +207,10 @@
     "title": "Mi perfil",
     "subtitle": "Gestiona tu perfil.",
     "saveProfile": "Guardar perfil",
+    "saving": "Guardando perfil...",
+    "uploading": "Subiendo imagen...",
+    "changingPassword": "Cambiando contraseña...",
+    "deleting": "Eliminando cuenta...",
     "name": "Nombre",
     "gender": "Género",
     "security": "Seguridad",
@@ -235,6 +242,8 @@
     "dangerCopy": "Esta acción es irreversible. Tu cuenta y todos los datos relacionados se eliminarán permanentemente."
   },
   "dashboard": {
+    "loadFailed": "No se pudo cargar el panel.",
+    "transactionsLoadFailed": "No se pudieron cargar las transacciones.",
     "emptyTitle": "Crear una nueva cuenta",
     "emptyDescription": "Todavía no tienes cuentas. Crea una para empezar a seguir tus finanzas.",
     "createAccount": "Crear cuenta",
@@ -264,7 +273,8 @@
   "accounts": {
     "manage": {
       "title": "Todas las cuentas",
-      "empty": "Todavía no hay cuentas."
+      "empty": "Todavía no hay cuentas.",
+      "loadFailed": "No se pudieron cargar las cuentas."
     },
     "create": {
       "title": "Añadir cuenta financiera",
@@ -284,6 +294,8 @@
       "unexpected": "Ocurrió un error inesperado.",
       "deleteConfirm": "Esta acción es irreversible. ¿Seguro que quieres eliminar esta cuenta?",
       "deleteSuccess": "Cuenta eliminada correctamente",
+      "deleteFailed": "No se pudo eliminar la cuenta.",
+      "deleting": "Eliminando...",
       "loading": "Cargando...",
       "balance": "Saldo: {{amount}}",
       "myRole": "Mi rol: {{role}}",
@@ -433,6 +445,8 @@
     "selectAccount": "Seleccionar cuenta",
     "selectSavingGoal": "Seleccionar objetivo",
     "exportExcel": "Exportar Excel",
+    "exporting": "Exportando Excel...",
+    "exportFailed": "No se pudo exportar el informe.",
     "summaryMetric": "Métrica",
     "summaryValue": "Valor",
     "summarySheet": "Resumen",
@@ -610,7 +624,8 @@
     "editedBy": "Editado por {{name}}",
     "editedByUnknown": "Editado por usuario desconocido",
     "edit": "Editar transacción",
-    "delete": "Eliminar transacción"
+    "delete": "Eliminar transacción",
+    "deleting": "Eliminando transacción..."
   },
   "transactionsList": {
     "title": "Transacciones",

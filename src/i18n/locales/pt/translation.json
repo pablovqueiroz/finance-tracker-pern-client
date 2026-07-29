@@ -1,6 +1,9 @@
 ﻿{
   "common": {
     "loading": "A carregar...",
+    "checkingSession": "A verificar a tua sessão...",
+    "tryAgain": "Tentar novamente",
+    "retrying": "A tentar novamente...",
     "cancel": "Cancelar",
     "close": "Fechar",
     "delete": "Eliminar",
@@ -204,6 +207,10 @@
     "title": "O meu perfil",
     "subtitle": "Gere o teu perfil.",
     "saveProfile": "Guardar perfil",
+    "saving": "A guardar perfil...",
+    "uploading": "A carregar imagem...",
+    "changingPassword": "A alterar palavra-passe...",
+    "deleting": "A eliminar conta...",
     "name": "Nome",
     "gender": "Género",
     "security": "Segurança",
@@ -235,6 +242,8 @@
     "dangerCopy": "Esta ação é irreversível. A tua conta e todos os dados relacionados serão eliminados permanentemente."
   },
   "dashboard": {
+    "loadFailed": "Não foi possível carregar o painel.",
+    "transactionsLoadFailed": "Não foi possível carregar as transações.",
     "emptyTitle": "Criar nova conta",
     "emptyDescription": "Ainda não tens contas. Cria uma para começar a acompanhar as tuas finanças.",
     "createAccount": "Criar conta",
@@ -264,7 +273,8 @@
   "accounts": {
     "manage": {
       "title": "Todas as contas aqui",
-      "empty": "Ainda não existem contas."
+      "empty": "Ainda não existem contas.",
+      "loadFailed": "Não foi possível carregar as contas."
     },
     "create": {
       "title": "Adicionar conta financeira",
@@ -284,6 +294,8 @@
       "unexpected": "Ocorreu um erro inesperado.",
       "deleteConfirm": "Esta ação é irreversível. Tens a certeza de que queres eliminar esta conta?",
       "deleteSuccess": "Conta eliminada com sucesso",
+      "deleteFailed": "Não foi possível eliminar a conta.",
+      "deleting": "A eliminar...",
       "loading": "A carregar...",
       "balance": "Saldo: {{amount}}",
       "myRole": "A minha função: {{role}}",
@@ -433,6 +445,8 @@
     "selectAccount": "Selecionar conta",
     "selectSavingGoal": "Selecionar objetivo",
     "exportExcel": "Exportar Excel",
+    "exporting": "A exportar Excel...",
+    "exportFailed": "Não foi possível exportar o relatório.",
     "summaryMetric": "Métrica",
     "summaryValue": "Valor",
     "summarySheet": "Resumo",
@@ -610,7 +624,8 @@
     "editedBy": "Editado por {{name}}",
     "editedByUnknown": "Editado por utilizador desconhecido",
     "edit": "Editar transação",
-    "delete": "Eliminar transação"
+    "delete": "Eliminar transação",
+    "deleting": "A eliminar transação..."
   },
   "transactionsList": {
     "title": "Transações",
