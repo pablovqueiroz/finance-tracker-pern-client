@@ -1,4 +1,4 @@
-import { ClipLoader } from "react-spinners";
+import styles from "./Spinner.module.css";
 
 type SpinnerProps = {
   size?: number;
@@ -13,12 +13,16 @@ function Spinner({
 }: SpinnerProps) {
   return (
     <span
+      className={styles.spinner}
       aria-hidden={loadingLabel ? undefined : "true"}
       aria-label={loadingLabel}
-      style={{ display: "inline-flex", alignItems: "center", lineHeight: 0 }}
-    >
-      <ClipLoader color={color} size={size} speedMultiplier={0.9} />
-    </span>
+      role={loadingLabel ? "img" : undefined}
+      style={{
+        width: size,
+        height: size,
+        color,
+      }}
+    />
   );
 }
 
