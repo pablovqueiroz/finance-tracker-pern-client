@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("validates empty login submission on the client", async ({ page }) => {
   await page.goto("/login", { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("button", { name: "Log in" }).click();
 
   await expect(page.getByRole("status")).toContainText(
     "Please fill in all fields.",
