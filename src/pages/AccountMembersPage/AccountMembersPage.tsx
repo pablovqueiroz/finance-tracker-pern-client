@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Skeleton from "../../components/Skeleton/Skeleton";
@@ -24,14 +23,7 @@ type AccountInfo = Omit<
 >;
 
 function getErrorMessage(error: unknown, fallback: string) {
-  if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.errorMessage ??
-      error.response?.data?.message ??
-      fallback
-    );
-  }
-
+  void error;
   return fallback;
 }
 
