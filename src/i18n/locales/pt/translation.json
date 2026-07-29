@@ -1,7 +1,6 @@
 ﻿{
   "common": {
     "loading": "A carregar...",
-    "save": "Guardar",
     "cancel": "Cancelar",
     "close": "Fechar",
     "delete": "Eliminar",
@@ -9,40 +8,27 @@
     "remove": "Remover",
     "create": "Criar",
     "update": "Atualizar",
+    "updating": "A atualizar...",
     "backToAccount": "Voltar à conta",
     "backToAccounts": "Voltar às contas",
     "backHome": "Voltar ao início",
     "createAccount": "Criar conta",
     "account": "Conta",
-    "accounts": "Contas",
     "currency": "Moeda",
-    "balance": "Saldo",
     "transactions": "Transações",
-    "reports": "Relatórios",
     "invites": "Convites",
-    "members": "Membros",
-    "security": "Segurança",
     "role": "Função",
-    "actions": "Ações",
     "email": "Email",
-    "name": "Nome",
     "title": "Título",
-    "description": "Descrição",
-    "amount": "Valor",
     "date": "Data",
-    "today": "Hoje",
     "notes": "Notas",
-    "deadline": "Prazo",
-    "send": "Enviar",
-    "updated": "Atualizado",
-    "owner": "Proprietário",
-    "myRole": "A minha função",
+    "deadline": "Data-limite",
     "noDescription": "Sem descrição",
     "noEmail": "Sem email",
     "showPassword": "Mostrar palavra-passe",
     "hidePassword": "Ocultar palavra-passe",
     "continueWithGoogle": "Continuar com Google",
-    "accountNotFound": "Conta não encontrada."
+    "unknownDate": "Data desconhecida"
   },
   "language": {
     "label": "Idioma",
@@ -52,6 +38,10 @@
     "englishShort": "EN",
     "portugueseShort": "PT",
     "spanishShort": "ES"
+  },
+  "theme": {
+    "switchToLight": "Mudar para o tema claro",
+    "switchToDark": "Mudar para o tema escuro"
   },
   "home": {
     "eyebrow": "Finanças pessoais sem complicações",
@@ -64,7 +54,7 @@
       "accounts": {
         "label": "Visão geral",
         "value": "Todos os saldos no mesmo lugar",
-        "copy": "Consulta rapidamente a situação das tuas contas e alterna entre elas no dashboard."
+        "copy": "Consulta rapidamente a situação das tuas contas e alterna entre elas no painel."
       },
       "insights": {
         "label": "Análise de gastos",
@@ -73,7 +63,7 @@
       },
       "goals": {
         "label": "Progresso da poupança",
-        "value": "Metas com evolução visível",
+        "value": "Objetivos com evolução visível",
         "copy": "Define objetivos, acompanha o progresso e mantém o foco nos planos ou compras mais importantes."
       }
     },
@@ -96,12 +86,12 @@
         "subtitle": "Mantém uma visão atualizada de cada conta sem consultar várias fontes."
       },
       "charts": {
-        "title": "Gráficos e insights",
+        "title": "Gráficos e análises",
         "subtitle": "Usa relatórios visuais para perceber tendências, comparar períodos e identificar mudanças."
       },
       "goals": {
         "title": "Objetivos de poupança",
-        "subtitle": "Define metas importantes e acompanha a tua evolução ao longo do tempo."
+        "subtitle": "Define objetivos importantes e acompanha a tua evolução ao longo do tempo."
       }
     },
     "howItWorks": {
@@ -122,7 +112,7 @@
       },
       "step4": {
         "title": "Acompanha objetivos de poupança",
-        "subtitle": "Define metas e segue o progresso dos teus planos ou compras futuras."
+        "subtitle": "Define objetivos e segue o progresso dos teus planos ou compras futuras."
       }
     },
     "benefits": {
@@ -131,31 +121,26 @@
       "subtitle": "O Finance Tracker dá aos novos utilizadores um ponto de partida prático para construir melhores hábitos financeiros.",
       "control": "Ganha mais controlo sobre os teus gastos com um registo claro de cada transação.",
       "clarity": "Percebe para onde vai o teu dinheiro ao rever categorias, saldos e tendências.",
-      "planning": "Planeia objetivos de poupança com metas visíveis em vez de depender de estimativas mentais.",
-      "confidence": "Toma melhores decisões financeiras com um dashboard que transforma números em contexto."
+      "planning": "Planeia objetivos de poupança com valores-alvo visíveis em vez de depender de estimativas mentais.",
+      "confidence": "Toma melhores decisões financeiras com um painel que transforma números em contexto."
     }
   },
   "nav": {
     "dashboard": "Painel",
     "accounts": "Contas",
-    "transactions": "Transações",
-    "newAccount": "Nova conta",
     "savings": "Poupanças",
     "reports": "Relatórios",
     "invites": "Convites",
     "profile": "Perfil",
     "sendFeedback": "Enviar feedback",
-    "profileDetails": "Gerenciar perfil",
+    "profileDetails": "Gerir perfil",
     "logout": "Sair",
     "openProfileMenu": "Abrir menu do perfil"
   },
   "hero": {
     "greeting": "Olá {{name}},"
   },
-  "feedback": {
-    "title": "Enviar feedback",
-    "send": "Enviar mensagem"
-  },
+  "feedback": {},
   "contact": {
     "title": "Enviar feedback",
     "subtitle": "Partilha feedback, reporta um problema ou envia uma mensagem diretamente pela aplicação.",
@@ -185,18 +170,16 @@
       "submitting": "A entrar...",
       "newHere": "Novo por aqui?",
       "signUp": "Criar conta",
-      "or": "ou",
       "fillAllFields": "Preenche todos os campos.",
-      "failed": "Falha no login",
+      "failed": "Falha ao iniciar sessão",
       "unexpected": "Ocorreu um erro inesperado.",
-      "invalidGoogleToken": "Token Google inválido.",
-      "googleFailed": "Falha no login com Google."
+      "googleFailed": "Falha ao iniciar sessão com o Google."
     },
     "register": {
       "title": "Junta-te a nós!",
       "fullName": "Nome completo",
       "profilePicture": "Foto de perfil",
-      "maxSize": "(máx. 2MB)",
+      "maxSize": "(máx. 2 MB)",
       "gender": "Género",
       "email": "Email",
       "password": "Palavra-passe",
@@ -207,13 +190,12 @@
       "confirmPasswordPlaceholder": "Repete a tua palavra-passe...",
       "submit": "Registar",
       "submitting": "A criar conta...",
-      "or": "ou",
       "alreadyMember": "Já tens conta?",
       "fillAllFields": "Preenche nome, email e palavra-passe.",
+      "passwordTooShort": "A palavra-passe deve ter pelo menos 6 caracteres.",
       "passwordsDoNotMatch": "As palavras-passe não coincidem.",
       "failed": "Falha no registo",
       "unexpected": "Ocorreu um erro inesperado.",
-      "invalidGoogleToken": "Token Google inválido.",
       "googleFailed": "Falha no registo com Google.",
       "login": "Entrar"
     }
@@ -221,7 +203,6 @@
   "profile": {
     "title": "O meu perfil",
     "subtitle": "Gere o teu perfil.",
-    "logout": "Sair",
     "saveProfile": "Guardar perfil",
     "name": "Nome",
     "gender": "Género",
@@ -230,7 +211,6 @@
     "newPassword": "Nova palavra-passe",
     "confirmNewPassword": "Confirmar nova palavra-passe",
     "changePassword": "Alterar palavra-passe",
-    "changing": "A alterar...",
     "deleteMyAccount": "Eliminar a minha conta",
     "updatedSuccessfully": "Perfil atualizado com sucesso.",
     "updateFailed": "Falha ao atualizar o perfil.",
@@ -242,17 +222,14 @@
     "deletePrompt": "Escreve a tua palavra-passe para confirmar a eliminação da conta:",
     "deleteFailed": "Falha ao eliminar o perfil.",
     "googleReauthRequired": "Confirma a eliminação com o Google para continuar.",
-    "googleInvalidToken": "Token Google inválido.",
     "googleDialogTitle": "Confirmar com Google",
     "googleDialogCopy": "Por segurança, autentica-te novamente com o Google antes de eliminares a tua conta.",
     "googleReauthFailed": "Falha na reautenticação com Google.",
-    "deletingAccount": "A eliminar conta...",
     "avatarAlt": "Avatar do perfil",
     "changePhoto": "Alterar foto",
     "selectedFile": "Ficheiro selecionado: {{name}}",
     "uploadImage": "Enviar imagem",
-    "uploading": "A enviar...",
-    "uploadSuccess": "Upload concluído",
+    "uploadSuccess": "Envio concluído",
     "uploadFailed": "Falha ao enviar a imagem.",
     "dangerTitle": "Zona de perigo",
     "dangerCopy": "Esta ação é irreversível. A tua conta e todos os dados relacionados serão eliminados permanentemente."
@@ -261,8 +238,6 @@
     "emptyTitle": "Criar nova conta",
     "emptyDescription": "Ainda não tens contas. Cria uma para começar a acompanhar as tuas finanças.",
     "createAccount": "Criar conta",
-    "loadingAccounts": "A carregar contas...",
-    "loadingTransactions": "A carregar transações...",
     "pendingInvites": {
       "title_one": "Tens {{count}} convite pendente para rever",
       "title_other": "Tens {{count}} convites pendentes para rever",
@@ -277,10 +252,7 @@
     "next": "Seguinte",
     "updated": "Atualizado: {{date}}",
     "transactions": "Transações: {{count}}",
-    "selectAccount": "Selecionar conta {{index}}",
-    "openDetails": "Abrir detalhes da conta {{name}}",
-    "seeMembers": "Ver membros",
-    "editMember": "Editar membro {{name}}"
+    "selectAccount": "Selecionar conta {{index}}"
   },
   "accountCard": {
     "balance": "Saldo: {{amount}}",
@@ -312,12 +284,6 @@
       "unexpected": "Ocorreu um erro inesperado.",
       "deleteConfirm": "Esta ação é irreversível. Tens a certeza de que queres eliminar esta conta?",
       "deleteSuccess": "Conta eliminada com sucesso",
-      "emailRequired": "Indica um email.",
-      "inviteSuccess": "Convite enviado com sucesso.",
-      "inviteFailed": "Falha ao enviar convite.",
-      "removeMemberConfirm": "Remover {{name}} desta conta?",
-      "removeMemberSuccess": "Membro removido.",
-      "removeMemberFailed": "Falha ao remover membro.",
       "loading": "A carregar...",
       "balance": "Saldo: {{amount}}",
       "myRole": "A minha função: {{role}}",
@@ -330,13 +296,6 @@
       "manageMembers": "Gerir membros",
       "manageTransactions": "Gerir transações",
       "manageSavingGoals": "Gerir objetivos de poupança",
-      "invitePlaceholder": "Convidar por email",
-      "invite": "Convidar",
-      "sending": "A enviar...",
-      "member": "Membro",
-      "admin": "Administrador",
-      "remove": "Remover",
-      "removing": "A remover...",
       "noTransactions": "Ainda não existem transações",
       "noSavingGoals": "Ainda não existem objetivos de poupança",
       "accountNamePlaceholder": "Nome da conta",
@@ -354,8 +313,9 @@
     "created": "Transação criada.",
     "updated": "Transação atualizada.",
     "deleted": "Transação removida.",
-    "bulkCreated": "{{count}} transação(ões) criada(s).",
-    "loading": "A carregar transações...",
+    "bulkCreated": "{{count}} transações criadas.",
+    "bulkCreated_one": "{{count}} transação criada.",
+    "bulkCreated_other": "{{count}} transações criadas.",
     "notFound": "Conta não encontrada.",
     "headerTitle": "Transações - {{name}}",
     "headerSubtitle": "Moeda: {{currency}}",
@@ -365,14 +325,14 @@
     "createBulk": "Criar em massa",
     "editTransaction": "Editar transação",
     "newTransaction": "Nova transação",
-    "newTransactionsBulk": "Novas transações (massa)",
+    "newTransactionsBulk": "Novas transações em massa",
     "single": "Individual",
     "bulk": "Massa",
     "typeFriendlyLabels": "São apresentados nomes amigáveis.",
     "viewCodes": "Ver códigos",
-    "categoryCodesHint": "Passa o cursor/toque para ver os códigos das categorias.",
+    "categoryCodesHint": "Passa o cursor ou toca para ver os códigos das categorias.",
     "fillSample": "Preencher linhas de exemplo",
-    "bulkDownloadTemplate": "Descarregar template",
+    "bulkDownloadTemplate": "Descarregar modelo",
     "createBulkSubmit": "Criar em massa",
     "noTransactions": "Ainda não existem transações registadas.",
     "noFilteredTransactions": "Nenhuma transação corresponde aos filtros atuais.",
@@ -381,7 +341,7 @@
     "update": "Atualizar",
     "create": "Criar",
     "search": "Pesquisar",
-    "searchPlaceholder": "Pesquisar por titulo, tipo, valor, categoria ou notas",
+    "searchPlaceholder": "Pesquisar por título, tipo, valor, categoria ou notas",
     "filterCategory": "Filtro por categoria",
     "startDate": "Data inicial",
     "endDate": "Data final",
@@ -390,8 +350,8 @@
     "bulkGuideTitle": "Como preencher transações em massa",
     "bulkGuideFormat": "Usa uma linha por transação com esta ordem:",
     "bulkGuideHint": "Passa o cursor nas etiquetas abaixo ou toca no telemóvel para ver as opções aceites.",
-    "bulkTemplateTitle": "Template de transações em massa",
-    "bulkTemplateIntro": "Copia e cola as linhas de exemplo abaixo no campo de bulk. Mantém a ordem dos campos exatamente como apresentada.",
+    "bulkTemplateTitle": "Modelo de transações em massa",
+    "bulkTemplateIntro": "Copia e cola as linhas de exemplo abaixo no campo de transações em massa. Mantém a ordem dos campos exatamente como apresentada.",
     "bulkTemplateEnumsHint": "Os textos explicativos estão no teu idioma, mas os valores de type e category devem usar os códigos aceites pelo backend.",
     "bulkTemplateOptionalFields": "Campos opcionais",
     "bulkTemplateDecimalHint": "Formato do valor",
@@ -422,8 +382,7 @@
     "loadAccountsFailed": "Falha ao carregar contas.",
     "loadGoalsFailed": "Falha ao carregar objetivos de poupança.",
     "titleRequired": "O título é obrigatório.",
-    "targetAmountInvalid": "O valor objetivo tem de ser superior a zero.",
-    "currentAmountInvalid": "O valor atual tem de ser zero ou superior.",
+    "targetAmountInvalid": "O valor-alvo tem de ser superior a zero.",
     "saveFailed": "Falha ao guardar objetivo de poupança.",
     "deleteConfirm": "Este objetivo de poupança será eliminado permanentemente. Continuar?",
     "deleteFailed": "Falha ao eliminar objetivo de poupança.",
@@ -456,8 +415,7 @@
     "editGoal": "Editar objetivo de poupança",
     "newGoal": "Novo objetivo de poupança",
     "readOnly": "Não tens permissão para gerir objetivos de poupança.",
-    "targetAmount": "Valor objetivo",
-    "currentAmount": "Valor atual",
+    "targetAmount": "Valor-alvo",
     "noGoals": "Ainda não existem objetivos de poupança registados.",
     "inputAmount": "Valor",
     "addMoney": "Adicionar dinheiro",
@@ -470,13 +428,10 @@
   "reportsPage": {
     "loadAccountsFailed": "Falha ao carregar contas.",
     "loadReportsFailed": "Falha ao carregar relatórios.",
-    "loadingAccounts": "A carregar contas...",
-    "loadingChart": "A carregar gráfico...",
     "title": "Relatórios",
     "subtitle": "Acompanha as tuas finanças com análises simples.",
     "selectAccount": "Selecionar conta",
     "selectSavingGoal": "Selecionar objetivo",
-    "viewDetails": "Ver detalhes",
     "exportExcel": "Exportar Excel",
     "summaryMetric": "Métrica",
     "summaryValue": "Valor",
@@ -500,7 +455,7 @@
     "expenseCategoriesTotal": "Total de despesas por categoria",
     "incomeCategoriesTotal": "Total de receitas por categoria",
     "totalSaved": "Total poupado",
-    "totalTarget": "Total objetivo",
+    "totalTarget": "Valor-alvo total",
     "remainingToGoal": "Falta para o objetivo",
     "totalDeposits": "Total depositado",
     "totalWithdrawals": "Total levantado",
@@ -526,19 +481,11 @@
     "cancelConfirm": "Cancelar este convite?",
     "cancelSuccess": "Convite cancelado.",
     "cancelFailed": "Falha ao cancelar convite.",
-    "expireConfirm": "Expirar este convite agora?",
-    "expireSuccess": "Convite expirado.",
-    "expireFailed": "Falha ao expirar convite.",
     "acceptSuccess": "Convite aceite.",
     "acceptFailed": "Falha ao aceitar convite.",
     "rejectConfirm": "Rejeitar este convite?",
     "rejectSuccess": "Convite rejeitado.",
     "rejectFailed": "Falha ao rejeitar convite.",
-    "loading": "A carregar convites...",
-    "loadingAccounts": "A carregar contas...",
-    "loadingSent": "A carregar convites enviados...",
-    "loadingReceived": "A carregar convites recebidos...",
-    "loadingExpired": "A carregar convites expirados...",
     "title": "Convites",
     "subtitle": "Envia convites para contas e gere pedidos enviados ou recebidos.",
     "sendTitle": "Enviar convite",
@@ -548,8 +495,6 @@
     "sentSubtitle": "Revê convites enviados e gere os pendentes.",
     "receivedTitle": "Convites recebidos",
     "receivedSubtitle": "Aceita ou rejeita convites enviados para o email da tua conta.",
-    "expiredTitle": "Convites expirados",
-    "expiredSubtitle": "Convites que expiraram antes de serem aceites.",
     "createAccountFirst": "Cria primeiro uma conta para começares a enviar convites.",
     "noSent": "Ainda não existem convites enviados.",
     "noSentForStatus": "Não existem convites enviados com o estado {{status}}.",
@@ -558,13 +503,12 @@
     "noExpired": "Não existem convites expirados.",
     "accountUnavailable": "Conta indisponível",
     "unknownUser": "Utilizador desconhecido",
-    "unknown": "Desconhecido",
     "sendInvite": "Enviar convite",
     "sending": "A enviar...",
     "reviewShare": "Rever opções de partilha",
     "share": {
       "title": "Partilhar convite",
-      "subtitle": "Usa esta mensagem pronta no email, SMS, WhatsApp ou noutra app do teu dispositivo.",
+      "subtitle": "Usa esta mensagem pronta no email, SMS, WhatsApp ou noutra aplicação do teu dispositivo.",
       "recipient": "Enviar para {{email}}",
       "previewLabel": "Mensagem do convite",
       "copy": "Copiar mensagem",
@@ -582,8 +526,6 @@
     },
     "cancelInvite": "Cancelar convite",
     "cancelling": "A cancelar...",
-    "expireInvite": "Expirar convite",
-    "expiring": "A expirar...",
     "accept": "Aceitar",
     "accepting": "A aceitar...",
     "reject": "Rejeitar",
@@ -611,14 +553,12 @@
     "removeFailed": "Falha ao remover membro.",
     "removeSuccess": "Membro removido.",
     "removeConfirm": "Tens a certeza de que queres remover {{name}} desta conta?",
-    "loading": "A carregar membros da conta...",
     "title": "Membros",
     "subtitle": "Gere funções e membros de {{account}}.",
     "sectionTitle": "Membros da conta",
     "sectionSubtitle": "Os proprietários podem atualizar funções e remover membros.",
     "notFound": "Conta não encontrada.",
     "openInvites": "Abrir convites",
-    "myRole": "A minha função: {{role}}",
     "empty": "Nenhum membro encontrado para esta conta.",
     "updateRoleAction": "Atualizar função",
     "table": {
@@ -634,11 +574,11 @@
   "roles": {
     "OWNER": "Proprietário",
     "ADMIN": "Administrador",
-    "MEMBER": "Viewer"
+    "MEMBER": "Leitor"
   },
   "currencies": {
     "EUR": "Euro (EUR)",
-    "USD": "Dólar americano (USD)",
+    "USD": "Dólar dos EUA (USD)",
     "BRL": "Real brasileiro (BRL)",
     "GBP": "Libra esterlina (GBP)",
     "JPY": "Iene japonês (JPY)"
@@ -650,8 +590,6 @@
   },
   "actions": {
     "newTransaction": "Nova transação",
-    "newIncome": "Nova receita",
-    "newExpense": "Nova despesa",
     "transactions": "Transações",
     "reports": "Relatórios",
     "selectAccountFirst": "Seleciona primeiro uma conta"
@@ -660,8 +598,8 @@
     "income": "Receitas",
     "expenses": "Despesas",
     "amount": "Valor",
-    "currentSaved": "Poupado atual",
-    "targetAmount": "Valor objetivo",
+    "currentSaved": "Valor atual",
+    "targetAmount": "Valor-alvo",
     "deposits": "Depósitos",
     "withdrawals": "Levantamentos",
     "balance": "Saldo"
@@ -709,8 +647,8 @@
     "OTHERS": "Outros"
   },
   "transactionTypes": {
-    "INCOME": "Receita (Entrada)",
-    "EXPENSE": "Despesa (Saída)",
+    "INCOME": "Receita",
+    "EXPENSE": "Despesa",
     "incomeSimple": "Receita",
     "expenseSimple": "Despesa"
   },
