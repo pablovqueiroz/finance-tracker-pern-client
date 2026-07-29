@@ -4,6 +4,7 @@ import styles from "./Invites.module.css";
 import type { AccountInvite } from "../../types/invite.types";
 import { getRoleLabel } from "../../utils/displayLabels";
 import { getLocale } from "../../i18n/getLocale";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 
 type SentInvitesListProps = {
   invites: AccountInvite[];
@@ -86,10 +87,13 @@ function SentInvitesList({
                   type="button"
                   disabled={!isPending || activeInviteId !== null}
                   onClick={() => onCancel(invite.id)}
+                  aria-busy={isCancelling}
                 >
-                  {isCancelling
-                    ? t("invites.cancelling")
-                    : t("invites.cancelInvite")}
+                  <AsyncButtonContent
+                    isLoading={isCancelling}
+                    idleLabel={t("invites.cancelInvite")}
+                    loadingLabel={t("invites.cancelling")}
+                  />
                 </button>
               </>
             }
