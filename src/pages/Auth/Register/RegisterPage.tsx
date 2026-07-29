@@ -36,11 +36,7 @@ function RegisterPage() {
         nav("/profile", { replace: true });
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.errorMessage ??
-              error.response?.data?.message ??
-              t("auth.register.googleFailed"),
-          );
+          setErrorMessage(t("auth.register.googleFailed"));
         } else {
           setErrorMessage(t("auth.register.googleFailed"));
         }
@@ -81,6 +77,12 @@ function RegisterPage() {
       return;
     }
 
+    if (password.length < 6) {
+      setErrorMessage(t("auth.register.passwordTooShort"));
+      setIsSubmitting(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage(t("auth.register.passwordsDoNotMatch"));
       setIsSubmitting(false);
@@ -108,11 +110,7 @@ function RegisterPage() {
       nav("/login");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("auth.register.failed"),
-        );
+        setErrorMessage(t("auth.register.failed"));
       } else {
         setErrorMessage(t("auth.register.unexpected"));
       }
@@ -140,11 +138,12 @@ function RegisterPage() {
         </article>
 
         <section className={styles.registerField}>
-          <label>
+          <label htmlFor="register-avatar">
             {t("auth.register.profilePicture")}{" "}
             <small>{t("auth.register.maxSize")}</small>
           </label>
           <input
+            id="register-avatar"
             type="file"
             accept="image/*"
             onChange={(event) => {
