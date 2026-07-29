@@ -17,6 +17,9 @@ import Skeleton from "../../components/Skeleton/Skeleton";
 import SkeletonButton from "../../components/Skeleton/SkeletonButton";
 import SkeletonCard from "../../components/Skeleton/SkeletonCard";
 import SkeletonText from "../../components/Skeleton/SkeletonText";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
+import AsyncButtonContent from "../../components/AsyncButtonContent/AsyncButtonContent";
 import type {
   AccountDetail,
   AccountSummary,
@@ -94,6 +97,10 @@ function CreateTransactionPage() {
   const [form, setForm] = useState<TransactionForm>(() => createInitialForm());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [accountsLoadError, setAccountsLoadError] = useState<string | null>(
+    null,
+  );
+  const [dataLoadError, setDataLoadError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -206,12 +213,14 @@ function CreateTransactionPage() {
   const loadAccounts = useCallback(async () => {
     try {
       setIsLoadingAccounts(true);
+      setAccountsLoadError(null);
       const response = await api.get<AccountSummary[]>("/accounts");
       const accountList = Array.isArray(response.data) ? response.data : [];
       setAccounts(accountList);
 
       if (accountList.length === 0) {
         setSelectedAccountId("");
+        setIsLoading(false);
         return;
       }
 
@@ -226,7 +235,8 @@ function CreateTransactionPage() {
       console.error("Failed to load accounts", error);
       setAccounts([]);
       setSelectedAccountId("");
-      setErrorMessage(t("savingGoals.loadAccountsFailed"));
+      setAccountsLoadError(t("savingGoals.loadAccountsFailed"));
+      setIsLoading(false);
     } finally {
       setIsLoadingAccounts(false);
     }
@@ -237,6 +247,7 @@ function CreateTransactionPage() {
 
     setIsLoading(true);
     try {
+      setDataLoadError(null);
       const [accountResponse, transactionsResponse] = await Promise.all([
         api.get<Omit<AccountDetail, "transactions" | "savingGoals" | "_count">>(
           `/accounts/${targetAccountId}`,
@@ -263,7 +274,7 @@ function CreateTransactionPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load account transactions", error);
-      setErrorMessage(t("transactionsPage.loadFailed"));
+      setDataLoadError(t("transactionsPage.loadFailed"));
       setAccount(null);
       setTransactions([]);
     } finally {
@@ -635,6 +646,7 @@ function CreateTransactionPage() {
   if (isLoadingAccounts || isLoading) {
     return (
       <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("common.loading")} />
         <section className={`${styles.header} ui-card`}>
           <Skeleton width="42%" height={26} />
           <SkeletonText lines={1} widths={["24%"]} />
@@ -658,12 +670,32 @@ function CreateTransactionPage() {
     );
   }
 
+  if (accountsLoadError) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={accountsLoadError}
+          onRetry={() => void loadAccounts()}
+        />
+      </div>
+    );
+  }
+
   if (accounts.length === 0) {
     return <p className={styles.pageState}>{t("savingGoals.emptyAccounts")}</p>;
   }
 
   if (!account || !selectedAccountId) {
-    return <p className={styles.pageState}>{t("transactionsPage.notFound")}</p>;
+    return dataLoadError ? (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={dataLoadError}
+          onRetry={() => void loadData(selectedAccountId)}
+        />
+      </div>
+    ) : (
+      <p className={styles.pageState}>{t("transactionsPage.notFound")}</p>
+    );
   }
 
   const formattedSelectedCategoryTotal =
@@ -954,14 +986,21 @@ function CreateTransactionPage() {
                       className="ui-btn"
                       type="submit"
                       disabled={isSubmitting}
+                      aria-busy={isSubmitting}
                     >
-                      {isSubmitting
-                        ? editingId
-                          ? t("transactionsPage.updating")
-                          : t("transactionsPage.creating")
-                        : editingId
-                          ? t("transactionsPage.update")
-                          : t("transactionsPage.create")}
+                      <AsyncButtonContent
+                        isLoading={isSubmitting}
+                        idleLabel={
+                          editingId
+                            ? t("transactionsPage.update")
+                            : t("transactionsPage.create")
+                        }
+                        loadingLabel={
+                          editingId
+                            ? t("transactionsPage.updating")
+                            : t("transactionsPage.creating")
+                        }
+                      />
                     </button>
                     <button
                       className={`${styles.secondaryBtn} ui-btn`}
@@ -1060,10 +1099,13 @@ function CreateTransactionPage() {
                       className="ui-btn"
                       type="submit"
                       disabled={isBulkSubmitting}
+                      aria-busy={isBulkSubmitting}
                     >
-                      {isBulkSubmitting
-                        ? t("transactionsPage.creating")
-                        : t("transactionsPage.createBulkSubmit")}
+                      <AsyncButtonContent
+                        isLoading={isBulkSubmitting}
+                        idleLabel={t("transactionsPage.createBulkSubmit")}
+                        loadingLabel={t("transactionsPage.creating")}
+                      />
                     </button>
                     <button
                       className={`${styles.secondaryBtn} ui-btn`}
