@@ -54,22 +54,35 @@ export default function MobileMenu({ activeAccountId }: MobileMenuProps) {
   return (
     <nav className={styles.mobileMenu}>
       <div className={styles.mobileMenuContent}>
-        <NavLink to="/dashboard" onClick={() => setIsProfileMenuOpen(false)}>
+        <NavLink
+          to="/dashboard"
+          aria-label={t("nav.dashboard")}
+          onClick={() => setIsProfileMenuOpen(false)}
+        >
           {({ isActive }) => (isActive ? <IoHomeSharp /> : <IoHomeOutline />)}
         </NavLink>
 
-        <NavLink to="/accounts" onClick={() => setIsProfileMenuOpen(false)}>
+        <NavLink
+          to="/accounts"
+          aria-label={t("nav.accounts")}
+          onClick={() => setIsProfileMenuOpen(false)}
+        >
           {({ isActive }) => (isActive ? <HiWallet /> : <HiOutlineWallet />)}
         </NavLink>
         {currentAccountId ? (
           <NavLink
             to={`/accounts/${currentAccountId}/transactions`}
+            aria-label={t("actions.newTransaction")}
             onClick={() => setIsProfileMenuOpen(false)}
           >
             <FaCirclePlus className={styles.createNew} />
           </NavLink>
         ) : null}
-        <NavLink to="/savings" onClick={() => setIsProfileMenuOpen(false)}>
+        <NavLink
+          to="/savings"
+          aria-label={t("nav.savings")}
+          onClick={() => setIsProfileMenuOpen(false)}
+        >
           {({ isActive }) => (isActive ? <MdSavings /> : <MdOutlineSavings />)}
         </NavLink>
 
