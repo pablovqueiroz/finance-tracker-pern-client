@@ -25,14 +25,7 @@ import type { InviteSharePayload } from "../../utils/inviteShare";
 type InviteFormRole = Extract<AccountRole, "ADMIN" | "MEMBER">;
 
 function getErrorMessage(error: unknown, fallback: string) {
-  if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.errorMessage ??
-      error.response?.data?.message ??
-      fallback
-    );
-  }
-
+  void error;
   return fallback;
 }
 
