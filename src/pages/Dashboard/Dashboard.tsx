@@ -21,13 +21,6 @@ import ActionButtons from "../../components/ActionButtons/ActionButtons";
 import { IoMailUnreadOutline } from "react-icons/io5";
 import { useAuth } from "../../hooks/useAuth";
 
-type AccountSummaryResponse = {
-  totalIncome: number;
-  totalExpense: number;
-  balance: number;
-  transactionCount: number;
-  period: string;
-};
 type DashboardProps = {
   onActiveAccountChange: (accountId: string) => void;
 };
@@ -62,32 +55,7 @@ function Dashboard({ onActiveAccountChange }: DashboardProps) {
             }))
           : [];
 
-        const summaries = await Promise.allSettled(
-          baseAccountList.map((account) =>
-            api.get<AccountSummaryResponse>(
-              `/transactions/summary/${account.id}`,
-            ),
-          ),
-        );
-
-        const accountList = baseAccountList.map((account, index) => {
-          const summaryResult = summaries[index];
-          if (summaryResult?.status === "fulfilled") {
-            const summary = summaryResult.value.data;
-            return {
-              ...account,
-              balance: summary.balance,
-              _count: {
-                transactions: summary.transactionCount,
-                savingGoals: account._count?.savingGoals ?? 0,
-              },
-            };
-          }
-
-          return account;
-        });
-
-        setAccounts(accountList);
+        setAccounts(baseAccountList);
         setActiveAccountIndex(0);
       } catch (error: unknown) {
         console.error("Failed to load accounts", error);
