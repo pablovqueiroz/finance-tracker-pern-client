@@ -2,7 +2,7 @@ import type { FormEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 import type { AccountRole, AccountSummary } from "../../types/account.types";
 import { getRoleLabel } from "../../utils/displayLabels";
-import Spinner from "../Spinner/Spinner";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 import styles from "./Invites.module.css";
 
 type InviteFormProps = {
@@ -101,15 +101,13 @@ function InviteForm({
           className={`${styles.submitButton} ui-btn`}
           type="submit"
           disabled={isSubmitting || !canSendInvites}
+          aria-busy={isSubmitting}
         >
-          {isSubmitting ? (
-            <span className={styles.submitButtonContent}>
-              <Spinner loadingLabel={t("invites.sending")} />
-              <span>{t("invites.sending")}</span>
-            </span>
-          ) : (
-            t("invites.sendInvite")
-          )}
+          <AsyncButtonContent
+            isLoading={isSubmitting}
+            idleLabel={t("invites.sendInvite")}
+            loadingLabel={t("invites.sending")}
+          />
         </button>
       </div>
     </form>
