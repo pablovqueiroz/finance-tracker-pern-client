@@ -9,8 +9,8 @@ import api from "../../../services/api";
 import Message from "../../../components/Message/Message";
 import { useAuth } from "../../../hooks/useAuth";
 import PasswordField from "../../../components/PasswordField/PasswordField";
-import Spinner from "../../../components/Spinner/Spinner";
 import AuthBackNav from "../../../components/AuthBackNav/AuthBackNav";
+import AsyncButtonContent from "../../../components/AsyncButtonContent/AsyncButtonContent";
 
 function RegisterPage() {
   const { t } = useTranslation();
@@ -21,6 +21,9 @@ function RegisterPage() {
   const [gender, setGender] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionMethod, setSubmissionMethod] = useState<
+    "local" | "google" | null
+  >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const nav = useNavigate();
   const { authenticateUser } = useAuth();
@@ -42,14 +45,17 @@ function RegisterPage() {
         }
       } finally {
         setIsSubmitting(false);
+        setSubmissionMethod(null);
       }
     },
     onError: () => {
       setIsSubmitting(false);
+      setSubmissionMethod(null);
       setErrorMessage(t("auth.register.googleFailed"));
     },
     onNonOAuthError: () => {
       setIsSubmitting(false);
+      setSubmissionMethod(null);
       setErrorMessage(t("auth.register.googleFailed"));
     },
   });
@@ -61,6 +67,7 @@ function RegisterPage() {
 
     setErrorMessage(null);
     setIsSubmitting(true);
+    setSubmissionMethod("google");
     loginWithGoogle();
   };
 
@@ -90,6 +97,7 @@ function RegisterPage() {
     }
 
     setIsSubmitting(true);
+    setSubmissionMethod("local");
 
     const formData = new FormData();
     formData.append("name", name);
@@ -116,13 +124,18 @@ function RegisterPage() {
       }
     } finally {
       setIsSubmitting(false);
+      setSubmissionMethod(null);
     }
   };
 
   return (
     <div className={styles.registerContainer}>
       <AuthBackNav />
-      <form className={styles.registerForm} onSubmit={handleRegister}>
+      <form
+        className={styles.registerForm}
+        onSubmit={handleRegister}
+        aria-busy={isSubmitting}
+      >
         <h2 className={styles.title}>{t("auth.register.title")}</h2>
 
         <article className={styles.registerField}>
@@ -218,15 +231,13 @@ function RegisterPage() {
             type="submit"
             className={styles.primaryBtn}
             disabled={isSubmitting}
+            aria-busy={submissionMethod === "local"}
           >
-            {isSubmitting ? (
-              <span className={styles.buttonContent}>
-                <Spinner loadingLabel={t("auth.register.submitting")} />
-                <span>{t("auth.register.submitting")}</span>
-              </span>
-            ) : (
-              t("auth.register.submit")
-            )}
+            <AsyncButtonContent
+              isLoading={submissionMethod === "local"}
+              idleLabel={t("auth.register.submit")}
+              loadingLabel={t("auth.register.submitting")}
+            />
           </button>
         </article>
         <Message
@@ -241,13 +252,14 @@ function RegisterPage() {
             className={`${styles.googleTrigger} ${styles.oauthButton}`}
             disabled={isSubmitting}
             onClick={handleGoogleLogin}
+            aria-busy={submissionMethod === "google"}
           >
             <FcGoogle className={styles.oauthGoogleIcon} aria-hidden="true" />
-            <span>
-              {isSubmitting
-                ? t("auth.register.submitting")
-                : t("common.continueWithGoogle")}
-            </span>
+            <AsyncButtonContent
+              isLoading={submissionMethod === "google"}
+              idleLabel={t("common.continueWithGoogle")}
+              loadingLabel={t("auth.register.submitting")}
+            />
           </button>
         </article>
         <p className={styles.registerFooter}>
