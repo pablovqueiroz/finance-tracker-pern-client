@@ -3,6 +3,7 @@ import emailjs from "@emailjs/browser";
 import { useTranslation } from "react-i18next";
 import Message from "../Message/Message";
 import styles from "./ContactForm.module.css";
+import AsyncButtonContent from "../AsyncButtonContent/AsyncButtonContent";
 
 const SERVICE_ID = "service_dis8jk9";
 const TEMPLATE_ID = "template_n3i4ghi";
@@ -60,6 +61,7 @@ function ContactForm({
       ref={formRef}
       className={`${styles.contactForm} ${className}`.trim()}
       onSubmit={handleSubmit}
+      aria-busy={isSubmitting}
     >
       <div className={styles.fields}>
         <label className={styles.field} htmlFor="contact-name">
@@ -99,8 +101,17 @@ function ContactForm({
       </div>
 
       <div className={styles.actions}>
-        <button className="ui-btn" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t("contact.sending") : t("contact.sendMessage")}
+        <button
+          className="ui-btn"
+          type="submit"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
+        >
+          <AsyncButtonContent
+            isLoading={isSubmitting}
+            idleLabel={t("contact.sendMessage")}
+            loadingLabel={t("contact.sending")}
+          />
         </button>
       </div>
 
