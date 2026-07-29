@@ -29,7 +29,7 @@ type PasswordForm = {
 };
 
 function ProfilePage() {
-  const { authenticateUser, handleLogout } = useAuth();
+  const { authenticateUser, currentUser, handleLogout } = useAuth();
   const { t } = useTranslation();
 
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -45,13 +45,13 @@ function ProfilePage() {
     confirmNewPassword: "",
   });
 
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "",
-    email: "",
-    gender: "",
-    image: "",
-    provider: "LOCAL",
-  });
+  const [profile, setProfile] = useState<UserProfile>(() => ({
+    name: currentUser?.name ?? "",
+    email: currentUser?.email ?? "",
+    gender: currentUser?.gender ?? "",
+    image: currentUser?.image ?? "",
+    provider: currentUser?.provider ?? "LOCAL",
+  }));
 
   const { name, gender, image } = profile;
   const reauthenticateWithGoogle = useGoogleLogin({
@@ -68,11 +68,7 @@ function ProfilePage() {
         handleLogout();
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          setErrorMessage(
-            error.response?.data?.errorMessage ??
-              error.response?.data?.message ??
-              t("profile.deleteFailed"),
-          );
+          setErrorMessage(t("profile.deleteFailed"));
         } else {
           setErrorMessage(t("profile.unexpected"));
         }
@@ -85,24 +81,16 @@ function ProfilePage() {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data } = await api.get<UserProfile>(`/users/me`);
-
-        setProfile({
-          name: data.name ?? "",
-          email: data.email ?? "",
-          gender: data.gender ?? "",
-          image: data.image ?? "",
-          provider: data.provider ?? "LOCAL",
-        });
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
+    if (currentUser) {
+      setProfile({
+        name: currentUser.name ?? "",
+        email: currentUser.email ?? "",
+        gender: currentUser.gender ?? "",
+        image: currentUser.image ?? "",
+        provider: currentUser.provider ?? "LOCAL",
+      });
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (!showGoogleDeleteReauth) return;
@@ -135,11 +123,7 @@ function ProfilePage() {
       setSuccessMessage(t("profile.updatedSuccessfully"));
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("profile.updateFailed"),
-        );
+        setErrorMessage(t("profile.updateFailed"));
       } else {
         setErrorMessage(t("profile.unexpected"));
       }
@@ -194,7 +178,7 @@ function ProfilePage() {
           return;
         }
 
-        setErrorMessage(apiMessage || t("profile.deleteFailed"));
+        setErrorMessage(t("profile.deleteFailed"));
       } else {
         setErrorMessage(t("profile.unexpected"));
       }
@@ -237,11 +221,7 @@ function ProfilePage() {
       });
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErrorMessage(
-          error.response?.data?.errorMessage ??
-            error.response?.data?.message ??
-            t("profile.passwordUpdateFailed"),
-        );
+        setErrorMessage(t("profile.passwordUpdateFailed"));
       } else {
         setErrorMessage(t("profile.unexpected"));
       }
