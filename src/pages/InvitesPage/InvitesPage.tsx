@@ -21,6 +21,8 @@ import { useAuth } from "../../hooks/useAuth";
 import InviteSharePanel from "../../components/invites/InviteSharePanel";
 import styles from "./InvitesPage.module.css";
 import type { InviteSharePayload } from "../../utils/inviteShare";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
 
 type InviteFormRole = Extract<AccountRole, "ADMIN" | "MEMBER">;
 
@@ -65,6 +67,7 @@ function InvitesPage() {
     "cancel" | "accept" | "reject" | null
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [sharePayload, setSharePayload] = useState<InviteSharePayload | null>(
     null,
@@ -79,6 +82,7 @@ function InvitesPage() {
   const loadAccounts = useCallback(async () => {
     try {
       setIsLoadingAccounts(true);
+      setLoadErrorMessage(null);
 
       const response = await api.get<AccountSummary[]>("/accounts");
       const accountList = Array.isArray(response.data) ? response.data : [];
@@ -104,7 +108,9 @@ function InvitesPage() {
       });
     } catch (error: unknown) {
       console.error("Failed to load accounts", error);
-      setErrorMessage(getErrorMessage(error, t("invites.loadAccountsFailed")));
+      setLoadErrorMessage(
+        getErrorMessage(error, t("invites.loadAccountsFailed")),
+      );
       setAccounts([]);
       setSelectedAccountId("");
     } finally {
@@ -115,6 +121,7 @@ function InvitesPage() {
   const loadInvites = useCallback(async () => {
     try {
       setIsLoadingInvites(true);
+      setLoadErrorMessage(null);
 
       const [sentResponse, receivedResponse] = await Promise.all([
         api.get<AccountInvite[]>("/invites/sent"),
@@ -128,7 +135,9 @@ function InvitesPage() {
       setErrorMessage(null);
     } catch (error: unknown) {
       console.error("Failed to load invites", error);
-      setErrorMessage(getErrorMessage(error, t("invites.loadInvitesFailed")));
+      setLoadErrorMessage(
+        getErrorMessage(error, t("invites.loadInvitesFailed")),
+      );
       setSentInvites([]);
       setReceivedInvites([]);
     } finally {
@@ -319,6 +328,7 @@ function InvitesPage() {
   if (isLoadingAccounts && isLoadingInvites) {
     return (
       <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("common.loading")} />
         <section className={`${styles.header} ui-card`}>
           <Skeleton width="24%" height={26} />
           <SkeletonText lines={1} widths={["52%"]} />
@@ -349,6 +359,17 @@ function InvitesPage() {
     );
   }
 
+  if (!isLoadingAccounts && !isLoadingInvites && loadErrorMessage) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={loadErrorMessage}
+          onRetry={() => void Promise.all([loadAccounts(), loadInvites()])}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.pageContainer}>
       <Message
@@ -373,8 +394,9 @@ function InvitesPage() {
         <h3 className={styles.sectionTitle}>{t("invites.sendTitle")}</h3>
         <p className={styles.sectionSubtitle}>{t("invites.sendSubtitle")}</p>
 
-        {isLoadingAccounts ? (
-          <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
+          {isLoadingAccounts ? (
+            <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
+              <LoadingStatus label={t("common.loading")} />
             <Skeleton height={44} />
             <Skeleton height={44} />
             <Skeleton height={44} />
@@ -429,6 +451,7 @@ function InvitesPage() {
 
           {isLoadingInvites ? (
             <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
+              <LoadingStatus label={t("common.loading")} />
               <SkeletonCard avatar lines={2} actionCount={2} />
               <SkeletonCard avatar lines={2} actionCount={2} />
             </div>
@@ -488,6 +511,7 @@ function InvitesPage() {
 
           {isLoadingInvites ? (
             <div aria-busy="true" style={{ display: "grid", gap: "12px" }}>
+              <LoadingStatus label={t("common.loading")} />
               <SkeletonCard avatar lines={2} actionCount={2} />
               <SkeletonCard avatar lines={2} actionCount={2} />
             </div>
