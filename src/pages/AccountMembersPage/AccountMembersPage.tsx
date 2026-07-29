@@ -16,6 +16,8 @@ import type {
   AccountSummary,
 } from "../../types/account.types";
 import styles from "./AccountMembersPage.module.css";
+import LoadingStatus from "../../components/LoadingStatus/LoadingStatus";
+import LoadErrorState from "../../components/LoadErrorState/LoadErrorState";
 
 type AccountInfo = Omit<
   AccountDetail,
@@ -42,11 +44,13 @@ function AccountMembersPage() {
   const [updatingMemberId, setUpdatingMemberId] = useState<string | null>(null);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadAccounts = useCallback(async () => {
     try {
       setIsLoadingAccounts(true);
+      setLoadErrorMessage(null);
       const response = await api.get<AccountSummary[]>("/accounts");
       const accountList = Array.isArray(response.data) ? response.data : [];
       setAccounts(accountList);
@@ -82,7 +86,7 @@ function AccountMembersPage() {
       setSelectedAccountId("");
       setAccount(null);
       setMembers([]);
-      setErrorMessage(getErrorMessage(error, t("members.loadFailed")));
+      setLoadErrorMessage(getErrorMessage(error, t("members.loadFailed")));
     } finally {
       setIsLoadingAccounts(false);
     }
@@ -99,6 +103,7 @@ function AccountMembersPage() {
 
       try {
         setIsLoadingMembers(true);
+        setLoadErrorMessage(null);
 
         const [accountResponse, membersResponse] = await Promise.all([
           api.get<AccountInfo>(`/accounts/${targetAccountId}`),
@@ -112,7 +117,7 @@ function AccountMembersPage() {
         setErrorMessage(null);
       } catch (error: unknown) {
         console.error("Failed to load account members", error);
-        setErrorMessage(getErrorMessage(error, t("members.loadFailed")));
+        setLoadErrorMessage(getErrorMessage(error, t("members.loadFailed")));
         setAccount(null);
         setMembers([]);
       } finally {
@@ -187,6 +192,7 @@ function AccountMembersPage() {
   if (isLoading) {
     return (
       <div className={styles.pageContainer} aria-busy="true">
+        <LoadingStatus label={t("common.loading")} />
         <section className={`${styles.header} ui-card`}>
           <div className={styles.hero}>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -230,6 +236,24 @@ function AccountMembersPage() {
             <SkeletonCard avatar lines={1} actionCount={2} />
           </div>
         </section>
+      </div>
+    );
+  }
+
+  if (loadErrorMessage) {
+    return (
+      <div className={styles.pageContainer}>
+        <LoadErrorState
+          message={loadErrorMessage}
+          onRetry={() =>
+            void Promise.all([
+              loadAccounts(),
+              selectedAccountId
+                ? loadPageData(selectedAccountId)
+                : Promise.resolve(),
+            ])
+          }
+        />
       </div>
     );
   }
