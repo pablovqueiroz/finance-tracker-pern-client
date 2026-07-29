@@ -67,10 +67,10 @@ function HomePage() {
     <div className={styles.page}>
       {!isLoggedIn ? <HomeUtilityNav /> : null}
 
-      <section className={styles.hero}>
+      <section className={styles.hero} aria-labelledby="home-hero-title">
         <div className={styles.heroContent}>
           <span className={styles.eyebrow}>{t("home.eyebrow")}</span>
-          <h1>{t("home.title")}</h1>
+          <h1 id="home-hero-title">{t("home.title")}</h1>
           <p className={styles.subtitle}>{t("home.subtitle")}</p>
           <p className={styles.description}>{t("home.description")}</p>
 
